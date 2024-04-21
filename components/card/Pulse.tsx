@@ -3,9 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IPulseProps } from "@/types";
-// import Echo from "../svg-icons/Echo";
-// import EchoBack from "../svg-icons/EchoBack";
-// import EchoOut from "../svg-icons/EchoOut";
 import Metric from "../shared/Metric";
 
 const Pulse: FC<IPulseProps> = ({
@@ -17,7 +14,10 @@ const Pulse: FC<IPulseProps> = ({
   photo,
 }) => {
   return (
-    <article className={`flex w-full flex-col border-b p-0 pb-6 sm:p-6`}>
+    <article
+      className={`flex w-full flex-col border-b p-0
+      sm:p-6  ${isEchoBack ? "py-6" : "pb-6"}`}
+    >
       <div className="flex items-start">
         <div className="flex w-full flex-1 flex-row gap-2">
           <div className="flex flex-col items-center">
@@ -44,7 +44,6 @@ const Pulse: FC<IPulseProps> = ({
               <Image
                 src={photo}
                 alt="pulse-photo"
-                objectFit="cover"
                 width={1200}
                 height={400}
                 className=" xs:h-[400px] h-64 w-full rounded-lg object-cover lg:h-[450px]"
@@ -54,7 +53,6 @@ const Pulse: FC<IPulseProps> = ({
             <div
               className={`${isEchoBack && "mb-10"} mt-5 flex flex-col gap-3`}
             >
-              {/* <div className="flex w-full items-center justify-start"> */}
               <div className="flex w-full items-center justify-between">
                 <Metric
                   imgUrl="/assets/icons/echo.svg"
@@ -92,11 +90,10 @@ const Pulse: FC<IPulseProps> = ({
                   textStyle="small-medium text-muted-foreground"
                 />
               </div>
-              {/* </div> */}
 
               {isEchoBack && echoBack.length > 0 && (
                 <Link href={`/dev-pulse/${id}`}>
-                  <p className="mt-1 text-base text-muted-foreground">
+                  <p className="mt-1 text-start text-base text-muted-foreground">
                     {echoBack.length} repl{echoBack.length > 1 ? "ies" : "y"}
                   </p>
                 </Link>
