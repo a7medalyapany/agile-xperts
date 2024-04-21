@@ -1,5 +1,5 @@
 "use client";
-import { FC, useState } from "react";
+import React, { FC, useState } from "react";
 import { Pulse } from "@/lib/actions/pulse.action";
 
 import { z } from "zod";
@@ -10,12 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { PostPulse } from "@/lib/validation";
 import { Textarea } from "../ui/textarea";
-import { Separator } from "../ui/separator";
 import { UploadIcon } from "../svg-icons/UploadIcon";
 
-interface PulseFormProps {}
+interface PulseFormProps {
+  placeholder?: string;
+}
 
-const PulseForm: FC<PulseFormProps> = () => {
+const PulseForm: FC<PulseFormProps> = ({ placeholder }) => {
   const [isPosting, setIsPosting] = useState(false);
 
   const form = useForm<z.infer<typeof PostPulse>>({
@@ -42,7 +43,7 @@ const PulseForm: FC<PulseFormProps> = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-2 border-y p-6 pb-2"
+        className="border-y p-6 pb-2"
       >
         <FormField
           control={form.control}
@@ -51,7 +52,7 @@ const PulseForm: FC<PulseFormProps> = () => {
             <FormItem>
               <FormControl>
                 <Textarea
-                  placeholder="What's on your mind?"
+                  placeholder={placeholder}
                   minLength={1}
                   maxLength={2200}
                   className="resize-none border-none bg-transparent text-lg placeholder:text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -61,10 +62,15 @@ const PulseForm: FC<PulseFormProps> = () => {
             </FormItem>
           )}
         />
-        <Separator />
         <div className="flex items-center justify-between px-2">
           <UploadIcon />
-          <Button className="w-[100px] rounded-full font-bold" type="submit">
+          <Button
+            className="w-[100px] rounded-full font-bold"
+            type="submit"
+            disabled={
+              !form.formState.isDirty || !form.formState.isValid || isPosting
+            }
+          >
             {isPosting ? "Pulsing..." : "Pulse"}
           </Button>
         </div>
