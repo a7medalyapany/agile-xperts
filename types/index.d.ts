@@ -7,7 +7,7 @@ export interface FrameworkORLanguage {
 export interface IUser {
 	id: string;
 	name: string;
-	email: string;
+	email?: string;
 	imgUrl: string;
 	firstLetter: string;
 }
@@ -42,4 +42,9 @@ export interface IPostPulse {
 	content: string;
 	photo?: string;
 	author?: IUser;
+}
+
+export interface URLProps {
+	params: { id: string };
+	searchParams: { [key: string]: string | undefined };
 }

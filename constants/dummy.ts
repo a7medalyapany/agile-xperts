@@ -5,7 +5,7 @@ export const pulses: IPulseProps[] = [
 	  id: '001',
 	  author: {
 		id: 'aa1',
-		name: 'John Doe',
+		name: 'Alyapany',
 		imgUrl: "https://avatars.githubusercontent.com/u/103336732?v=4",
 		firstLetter: 'J'
 	  },
@@ -17,9 +17,9 @@ export const pulses: IPulseProps[] = [
 		  id: 'eb02',
 		  author: {
 			id: 'afdkaslf2',
-			name: 'Jane Smith',
+			name: 'shadcn',
 			imgUrl: "https://avatars.githubusercontent.com/u/124599?v=4",
-			firstLetter: 'J'
+			firstLetter: 'cn'
 		  },
 		  content: 'I’ll be there!',
 		  isEchoBack: true,
@@ -29,13 +29,26 @@ export const pulses: IPulseProps[] = [
 		  id: 'eb003',
 		  author: {
 			id: 'a3fadf',
-			name: 'Smith',
+			name: 'Supabase',
 			imgUrl: "https://avatars.githubusercontent.com/u/54469796?s=200&v=4",
 			firstLetter: 'S'
 		  },
 		  content: 'FUCK OFF DUDE!',
 		  isEchoBack: true,
-		  echoBack: []
+		  echoBack: [
+			{
+				id: 'seb142',
+				author: {
+					id: 'aa1',
+					name: 'Alyapany',
+					imgUrl: "https://avatars.githubusercontent.com/u/103336732?v=4",
+					firstLetter: 'J'
+				},
+				content: "third reply here",
+				isEchoBack: true,
+				echoBack: []
+			}
+		  ]
 		}
 
 	  ]
