@@ -4,14 +4,17 @@ export interface FrameworkORLanguage {
 	icon: string;
 }
 
+export interface IUser {
+	id: string;
+	name: string;
+	email: string;
+	imgUrl: string;
+	firstLetter: string;
+}
+
 export interface IPulseProps {
 	id?: string;
-	author: {
-		id: string;
-		name: string;
-		imgUrl: string;
-		firstLetter: string;
-	};
+	author: IUser;
 	content: string;
 	photo?: string;
 	isEchoBack?: boolean;
@@ -33,4 +36,10 @@ export interface IProject {
 	knockCount: number;
 	thumbnail: string;
 	createdAt
+}
+
+export interface IPostPulse {
+	content: string;
+	photo?: string;
+	author?: IUser;
 }

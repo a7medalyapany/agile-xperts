@@ -161,7 +161,11 @@ const CreateRepo: FC<CreateRepoProps> = () => {
                 <FormItem className="text-start">
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea className="bg-muted" rows={8} {...field} />
+                    <Textarea
+                      className="resize-none bg-muted"
+                      rows={8}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

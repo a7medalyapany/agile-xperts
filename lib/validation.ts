@@ -26,3 +26,7 @@ export const CreateProjectValidation = z.object({
   }))
 });
 
+export const PostPulse = z.object({
+	content: z.string().trim().min(1, {message: "Atleast one character"}).max(2200, {message: "Pulse must be less than 2200 characters"}),
+	photo: z.string().optional(),
+})

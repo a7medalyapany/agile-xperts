@@ -44,7 +44,6 @@ const Pulse: FC<IPulseProps> = ({
               <Image
                 src={photo}
                 alt="pulse-photo"
-                layout="responsive"
                 objectFit="cover"
                 width={1200}
                 height={400}
