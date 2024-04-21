@@ -1,14 +1,22 @@
-import { GeistSans } from "geist/font/sans";
 import "./globals.css";
+import React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+const inter = Inter({ subsets: ["latin"] });
+const urlString = "http://localhost:3000";
+const urlObject = new URL(urlString);
 
-export const metadata = {
-  metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+export const metadata: Metadata = {
+  metadataBase: urlObject,
+  title: {
+    default: "Agile Xperts - Where Agile Gets Lit!",
+    template: "%s | Agile Xperts",
+  },
+  description:
+    "Level up your game with Agile Xperts! Get dope solutions and take your agile skills to the next level.",
 };
 
 export default function RootLayout({
@@ -17,11 +25,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={GeistSans.className}>
-      <body className="bg-background text-foreground">
-        <main className="min-h-screen flex flex-col items-center">
-          {children}
-        </main>
+    <html lang="en" suppressHydrationWarning className={`${inter.className}`}>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>{children}</TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
