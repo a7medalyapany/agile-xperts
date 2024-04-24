@@ -58,3 +58,9 @@ export const HomePageFilters = [
 	{ name: "Oldest", value: "oldest" },
 	{ name: "Status", value: "status" },
 ];
+
+export const PageTitle = {
+	Bookmarks: "Marked Moments",
+	Activity: 'Stream of Updates',
+	DevPulse: 'Stay on the pulse'
+}
