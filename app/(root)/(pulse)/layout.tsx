@@ -1,3 +1,4 @@
+import HeaderTitle from "@/components/shared/HeaderTitle";
 import React, { FC } from "react";
 
 interface layoutProps {
@@ -7,11 +8,7 @@ interface layoutProps {
 const Layout: FC<layoutProps> = ({ children }) => {
   return (
     <>
-      <header className="flex py-4">
-        <h1 className="line-clamp-2 text-2xl font-bold sm:text-3xl">
-          Stay on the pulse of the latest in development
-        </h1>
-      </header>
+      <HeaderTitle />
 
       <div className="flex gap-4">
         {children}
