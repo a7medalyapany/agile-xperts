@@ -24,9 +24,9 @@ const Streaks: FC<StreaksProps> = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Complete more tasks to level up!
-        </div>
+        </p>
       </CardContent>
       <CardFooter>
         <Progress
