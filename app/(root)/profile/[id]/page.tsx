@@ -4,6 +4,7 @@ import UserProjects from "@/components/card/UserProjects";
 import ProfileStatus from "@/components/card/ProfileStatus";
 import SocialAccounts from "@/components/card/SocialAccounts";
 import MostUsedLanguage from "@/components/card/MostUsedLanguage";
+import AboutMe from "@/components/card/AboutMe";
 
 interface pageProps {}
 
@@ -17,6 +18,7 @@ const Page: FC<pageProps> = () => {
         </div>
         <ProfileStatus />
       </div>
+      <AboutMe />
       <Skills />
       <UserProjects />
     </main>
