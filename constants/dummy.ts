@@ -283,5 +283,21 @@ export const frameworks = [
 	  value: "astro",
 	  label: "Astro",
 	},
-  ];
+];
+
+export const userSkills = [
+	{ name: "Next", type: "framework", icon: "https://cdn.worldvectorlogo.com/logos/next-js.svg" },
+	{ name: "TypeScript", type: "language", icon: "https://cdn.worldvectorlogo.com/logos/typescript.svg" },
+	{ name: "Django", type: "framework", icon: "https://cdn.worldvectorlogo.com/logos/django.svg" },
+	{ name: "Spring", type: "framework", icon: "https://cdn.worldvectorlogo.com/logos/spring.svg" },
+	{ name: ".NET", type: "framework", icon: "https://cdn.worldvectorlogo.com/logos/net.svg" },
   
+	{ name: "Java", type: "language", icon: "https://cdn.worldvectorlogo.com/logos/java.svg" },
+	{ name: "Rust", type: "language", icon: "https://cdn.worldvectorlogo.com/logos/rust.svg" },
+	{ name: "Ruby", type: "language", icon: "https://cdn.worldvectorlogo.com/logos/ruby.svg" },
+
+	{ name: "TypeScript", type: "language", icon: "https://cdn.worldvectorlogo.com/logos/typescript.svg" },
+	{ name: "Spring", type: "framework", icon: "https://cdn.worldvectorlogo.com/logos/spring.svg" },
+
+
+];
