@@ -298,6 +298,4 @@ export const userSkills = [
 
 	{ name: "TypeScript", type: "language", icon: "https://cdn.worldvectorlogo.com/logos/typescript.svg" },
 	{ name: "Spring", type: "framework", icon: "https://cdn.worldvectorlogo.com/logos/spring.svg" },
-
-
 ];

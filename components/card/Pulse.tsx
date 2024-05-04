@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IPulseProps } from "@/types";
 import Metric from "../shared/Metric";
+import ReadMore from "../shared/ReadMore";
 
 const Pulse: FC<IPulseProps> = ({
   id,
@@ -38,7 +39,7 @@ const Pulse: FC<IPulseProps> = ({
               </h4>
             </Link>
 
-            <p className="text-start text-sm">{content}</p>
+            <ReadMore text={content} className="text-start text-sm" />
 
             {photo && (
               <Image
