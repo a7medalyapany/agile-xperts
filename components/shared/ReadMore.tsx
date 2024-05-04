@@ -14,22 +14,29 @@ const ReadMore: FC<ReadMoreProps> = ({ text, maxLength = 350, className }) => {
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 
   return (
-    <div className={`flex gap-1 text-foreground ${className}`}>
+    <div className={`space-x-1 text-foreground ${className}`}>
       {isExpanded || !isLongText ? (
-        <p>{text}</p>
+        <>
+          <p className="inline">{text}</p>
+          {isLongText && (
+            <Button
+              onClick={toggleExpanded}
+              className="h-fit bg-transparent p-0 font-semibold text-muted-foreground hover:bg-transparent hover:underline"
+            >
+              Read Less
+            </Button>
+          )}
+        </>
       ) : (
-        <p>{text.slice(0, maxLength)}...</p>
-      )}
-      {isLongText && (
-        <Button
-          onClick={toggleExpanded}
-          className={
-            "bg-transparent p-0 h-fit hover:bg-transparent hover:underline " +
-            (isExpanded ? "text-muted-foreground" : "text-primary")
-          }
-        >
-          {isExpanded ? "Read Less" : "Read More"}
-        </Button>
+        <>
+          <p className="inline">{text.slice(0, maxLength)}...</p>
+          <Button
+            onClick={toggleExpanded}
+            className="h-fit bg-transparent p-0 font-semibold text-primary hover:bg-transparent hover:underline"
+          >
+            Read More
+          </Button>
+        </>
       )}
     </div>
   );
