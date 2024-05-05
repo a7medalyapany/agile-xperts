@@ -88,7 +88,6 @@ const Sidebar: FC<SidebarProps> = () => {
               alt={item.label}
               width={24}
               height={24}
-              // className={`invert-colors`}
             />
             <p
               className={`${isActive(item.route) ? "base-bold" : "base-medium"} max-lg:hidden`}
@@ -98,13 +97,12 @@ const Sidebar: FC<SidebarProps> = () => {
           </Link>
         ))}
 
-        {/* <SignedOut> */}
         <div className="mt-auto flex flex-col gap-3 px-4 pb-4">
-          <Link href={"/login"} passHref>
+          <Link href={"/settings"} passHref>
             <Button variant={"default"} className="w-full">
               <Image
                 src="/assets/icons/account.svg"
-                alt="login"
+                alt="settings icon"
                 width={20}
                 height={20}
                 className={"lg:hidden"}
@@ -113,7 +111,6 @@ const Sidebar: FC<SidebarProps> = () => {
             </Button>
           </Link>
         </div>
-        {/* </SignedOut> */}
       </nav>
     </aside>
   );
