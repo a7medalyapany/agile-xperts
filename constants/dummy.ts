@@ -299,3 +299,10 @@ export const userSkills = [
 	{ name: "TypeScript", type: "language", icon: "https://cdn.worldvectorlogo.com/logos/typescript.svg" },
 	{ name: "Spring", type: "framework", icon: "https://cdn.worldvectorlogo.com/logos/spring.svg" },
 ];
+
+export const user = {
+	id: 'aa1',
+	name: 'Alyapany',
+	imgUrl: "https://avatars.githubusercontent.com/u/103336732?v=4",
+	firstLetter: 'A'
+}

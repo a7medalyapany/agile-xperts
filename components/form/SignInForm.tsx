@@ -70,7 +70,12 @@ const SignInForm: FC<SignInFormProps> = ({ error }) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input type="email" placeholder="Email" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    className="bg-transparent"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -82,7 +87,12 @@ const SignInForm: FC<SignInFormProps> = ({ error }) => {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input type="password" placeholder="Password" {...field} />
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    className="bg-transparent"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

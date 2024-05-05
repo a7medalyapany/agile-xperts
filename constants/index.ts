@@ -64,3 +64,33 @@ export const PageTitle = {
 	Activity: 'Stream of Updates',
 	DevPulse: 'Stay on the pulse'
 }
+
+export const SettingsLinks = [
+	{
+	  title: "Profile",
+	  href: "/settings/profile",
+	},
+	{
+	  title: "Account",
+	  href: "/settings/account",
+	},
+	{
+	  title: "Appearance",
+	  href: "/settings/appearance",
+	},
+	{
+	  title: "Security",
+	  href: "/settings/security",
+	},
+];
+
+export const RemainingSettingsLinks = [
+	{
+		title: "Bookmarks",
+		href: "/bookmarks",
+	},
+	{
+		title: "Activity",
+		href: "/activity",
+	},
+];
