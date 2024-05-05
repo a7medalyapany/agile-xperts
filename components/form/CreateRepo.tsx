@@ -105,11 +105,7 @@ const CreateRepo: FC<CreateRepoProps> = () => {
                       <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="text"
-                        className="bg-muted text-foreground"
-                        {...field}
-                      />
+                      <Input type="text" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -127,11 +123,7 @@ const CreateRepo: FC<CreateRepoProps> = () => {
                     </FormLabel>
                     <FormControl>
                       <div className="flex gap-4">
-                        <Input
-                          type="text"
-                          className="bg-muted text-foreground"
-                          {...field}
-                        />
+                        <Input type="text" {...field} />
                         <FormField
                           control={form.control}
                           name="private"
@@ -251,7 +243,7 @@ const CreateRepo: FC<CreateRepoProps> = () => {
                               {...form.register(`technologies.${index}.role`)}
                               placeholder="Role"
                               type="text"
-                              className="w-full bg-muted text-foreground"
+                              className="w-full"
                               {...field}
                             />
                             {fields.length > 1 && (
