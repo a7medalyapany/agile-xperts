@@ -253,7 +253,7 @@ export const Icons = {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1"
+      strokeWidth="1"
       stroke-linecap="round"
       stroke-linejoin="round"
     >
@@ -270,7 +270,7 @@ export const Icons = {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1"
+      strokeWidth="1"
       stroke-linecap="round"
       stroke-linejoin="round"
     >
@@ -285,7 +285,7 @@ export const Icons = {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="1"
+      strokeWidth="1"
       stroke-linecap="round"
       stroke-linejoin="round"
     >
