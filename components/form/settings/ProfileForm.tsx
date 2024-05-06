@@ -140,7 +140,7 @@ export function ProfileForm() {
           name={"country"}
           render={({ field }) => (
             <FormItem className="flex w-full flex-col text-start">
-              <FormLabel>Technology</FormLabel>
+              <FormLabel>Country</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
