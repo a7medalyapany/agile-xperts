@@ -46,3 +46,35 @@ export const profileFormSchema = z.object({
     required_error: "Please select a country.",
   }).optional(),
 });
+
+export const securityFormSchema = z
+.object({
+  oldPassword: z
+    .string()
+    .min(8, { message: "Old password must be at least 8 characters." }),
+  newPassword: z
+    .string()
+    .min(8, { message: "New password must be at least 8 characters." }),
+  confirmPassword: z
+    .string()
+    .min(8, { message: "Confirmed password must be at least 8 characters." }),
+  twoFactorAuth: z.boolean().default(false).optional()
+})
+.refine((data) => data.newPassword === data.confirmPassword, {
+  message: "New password and confirmed password do not match.",
+  path: ["confirmPassword"],
+})
+.refine((data) => data.oldPassword !== data.newPassword, {
+  message: "New password must be different from the old password.",
+  path: ["newPassword"],
+})
+.refine(
+  (data) => {
+    const oldPasswordIscorrect = true;
+    return oldPasswordIscorrect;
+  },
+  {
+    message: "Old password is incorrect.",
+    path: ["oldPassword"],
+  }
+);
