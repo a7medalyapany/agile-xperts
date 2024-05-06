@@ -12,8 +12,8 @@ const EchoOut: FC<EchoOutProps> = () => {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <circle cx="12" cy="12" r="1" />
       <path d="M17 12h6m-11 5v6m0-16V1M7 12H1m17.36-6.36 3.07-3.07M5.64 5.64 2.57 2.57m15.79 15.79 3.07 3.07M5.64 18.36l-3.07 3.07" />
