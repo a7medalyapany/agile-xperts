@@ -5,6 +5,7 @@ import { createClient } from "../supabase/server";
 import { z } from "zod";
 import { SignInValidation, SignUpValidation } from "../validation";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 type loginValidation = z.infer<typeof SignInValidation>;
 type signUpValidation = z.infer<typeof SignUpValidation>;
@@ -73,4 +74,44 @@ export const signOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     return redirect("/login");
+};
+
+export const linkGitHub = async (path: string) => {
+    const supabaseServer = createClient();
+    const origin = process.env.NEXT_PUBLIC_BASE_URL
+
+    const { data, error } = await supabaseServer.auth.linkIdentity({
+      provider: "github",
+      options: {
+        scopes: "repo",
+        redirectTo: `${origin}/api/auth/callback`,
+      },
+    });
+
+    console.log(data);
+
+    if (error) {
+      return console.log("error", error);
+    }
+    supabaseServer.auth.refreshSession();
+	revalidatePath(path);
+    return (data.url);
+};
+
+export const UnLinkGitHub = async (path: string) => {
+    const supabase = createClient();
+    const {
+      data: { identities },
+    }: any = await supabase.auth.getUserIdentities();
+
+    const githubIdentity = identities.find(
+      (identity: { provider: string }) => identity.provider === "github"
+    );
+
+    const { error } = await supabase.auth.unlinkIdentity(githubIdentity);
+	  revalidatePath(path);
+    
+    if (error) {
+      return console.log("error", error);
+    }
 };
