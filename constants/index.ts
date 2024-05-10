@@ -75,6 +75,10 @@ export const SettingsLinks = [
 	  href: "/settings/account",
 	},
 	{
+	  title: "GitHub",
+	  href: "/settings/github",
+	},
+	{
 	  title: "Appearance",
 	  href: "/settings/appearance",
 	},
