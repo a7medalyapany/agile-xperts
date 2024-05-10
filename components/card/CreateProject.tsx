@@ -6,12 +6,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
+import LinkGitHub from "../shared/LinkGitHub";
+import { checkUserIdentity } from "@/lib/actions/user.action";
 
 interface CreateProjectProps {}
 
-const CreateProject: FC<CreateProjectProps> = () => {
+const CreateProject: FC<CreateProjectProps> = async () => {
+  const { hasGitHubIdentity } = await checkUserIdentity();
+
   return (
     <Card className="space-y-5 sm:col-span-2">
       <CardHeader className="">
@@ -20,13 +24,8 @@ const CreateProject: FC<CreateProjectProps> = () => {
           Available to Pro Users and GitHub linked accounts only.
         </CardDescription>
       </CardHeader>
-      <CardFooter className="gap-2">
-        <Button
-          variant="outline"
-          className="w-full bg-foreground text-background"
-        >
-          Link GitHub
-        </Button>
+      <CardFooter className="w-full gap-2">
+        <LinkGitHub Linked={hasGitHubIdentity} className="w-full " />
         <Link
           href={"/create-project"}
           className={buttonVariants({
