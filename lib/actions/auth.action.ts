@@ -84,18 +84,16 @@ export const linkGitHub = async (path: string) => {
       provider: "github",
       options: {
         scopes: "repo",
-        redirectTo: `${origin}/api/auth/callback`,
+        redirectTo: `${origin}/api/connect/callback`,
       },
     });
-
-    console.log(data);
 
     if (error) {
       return console.log("error", error);
     }
     supabaseServer.auth.refreshSession();
-	revalidatePath(path);
-    return (data.url);
+	  revalidatePath(path);
+    redirect(data.url)
 };
 
 export const UnLinkGitHub = async (path: string) => {
@@ -109,9 +107,9 @@ export const UnLinkGitHub = async (path: string) => {
     );
 
     const { error } = await supabase.auth.unlinkIdentity(githubIdentity);
-	  revalidatePath(path);
     
     if (error) {
       return console.log("error", error);
     }
+    revalidatePath(path);
 };
