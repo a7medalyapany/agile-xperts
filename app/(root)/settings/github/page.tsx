@@ -9,7 +9,7 @@ import { GitHubForm } from "@/components/form/settings/GitHubForm";
 interface pageProps {}
 
 const Page: FC<pageProps> = async () => {
-  const { hasGitHubIdentity } = await checkUserIdentity();
+  const { identitiesNumber, hasGitHubIdentity } = await checkUserIdentity();
 
   return (
     <div className="space-y-4">
@@ -22,12 +22,20 @@ const Page: FC<pageProps> = async () => {
       <Separator />
       {hasGitHubIdentity ? (
         <>
-          <LinkGitHub Linked={hasGitHubIdentity} className="w-full" />
+          <LinkGitHub
+            connected={hasGitHubIdentity}
+            identitiesNumber={identitiesNumber}
+            className="w-full"
+          />
           <GitHubForm />
         </>
       ) : (
         <>
-          <LinkGitHub Linked={hasGitHubIdentity} className="w-full" />
+          <LinkGitHub
+            connected={hasGitHubIdentity}
+            identitiesNumber={identitiesNumber}
+            className="w-full"
+          />
           <Image
             src={"/assets/images/settings-image.svg"}
             alt="Hello"
