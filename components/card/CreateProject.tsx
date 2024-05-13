@@ -14,7 +14,7 @@ import { checkUserIdentity } from "@/lib/actions/user.action";
 interface CreateProjectProps {}
 
 const CreateProject: FC<CreateProjectProps> = async () => {
-  const { hasGitHubIdentity } = await checkUserIdentity();
+  const { identitiesNumber, hasGitHubIdentity } = await checkUserIdentity();
 
   return (
     <Card className="space-y-5 sm:col-span-2">
@@ -25,7 +25,11 @@ const CreateProject: FC<CreateProjectProps> = async () => {
         </CardDescription>
       </CardHeader>
       <CardFooter className="w-full gap-2">
-        <LinkGitHub Linked={hasGitHubIdentity} className="w-full " />
+        <LinkGitHub
+          connected={hasGitHubIdentity}
+          identitiesNumber={identitiesNumber}
+          className="w-full "
+        />
         <Link
           href={"/create-project"}
           className={buttonVariants({
