@@ -19,7 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Streaks from "@/components/card/Streaks";
 import CreateProject from "@/components/card/CreateProject";
-import CurrentProject from "@/components/card/CurrentProject";
+import ProjectDetails from "@/components/card/ProjectDetails";
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -38,7 +38,7 @@ const Page: FC<pageProps> = async () => {
   }
 
   return (
-    <main className="grid flex-1 items-start gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+    <main className="grid flex-1 items-start gap-4 lg:grid-cols-3">
       <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
           <CreateProject />
@@ -215,7 +215,7 @@ const Page: FC<pageProps> = async () => {
           </Card>
         </section>
       </div>
-      <CurrentProject />
+      <ProjectDetails projectId="1" openProject={true} />
     </main>
   );
 };
