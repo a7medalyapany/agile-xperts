@@ -78,7 +78,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <Link href={`/project-settings/${project!.id}`}>Edit</Link>
+                <Link href={`/project/settings/${project!.id}`}>Edit</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>Leave</DropdownMenuItem>
               <DropdownMenuSeparator />
