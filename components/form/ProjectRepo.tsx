@@ -40,9 +40,9 @@ import { UploadIcon } from "@/components/svg-icons/UploadIcon";
 import { cn } from "@/lib/utils";
 import { frameworks } from "@/constants/dummy";
 
-interface CreateRepoProps {}
+interface ProjectRepoProps {}
 
-const CreateRepo: FC<CreateRepoProps> = () => {
+const ProjectRepo: FC<ProjectRepoProps> = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof CreateProjectValidation>>({
@@ -294,4 +294,4 @@ const CreateRepo: FC<CreateRepoProps> = () => {
   );
 };
 
-export default CreateRepo;
+export default ProjectRepo;
