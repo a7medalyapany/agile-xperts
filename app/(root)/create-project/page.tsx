@@ -1,5 +1,5 @@
 import { FC } from "react";
-import CreateRepo from "@/components/form/CreateRepo";
+import CreateRepo from "@/components/form/ProjectRepo";
 
 interface pageProps {
   searchParams: { message: string };
