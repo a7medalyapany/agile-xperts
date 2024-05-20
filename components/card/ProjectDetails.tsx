@@ -1,7 +1,6 @@
 import { FC } from "react";
 import { ArrowUpRight, MoreVertical } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -17,32 +16,59 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import Link from "next/link";
+import ReadMore from "../shared/ReadMore";
 import { Separator } from "@/components/ui/separator";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
-import { currentProjectMembers, techStack } from "@/constants/dummy";
 
-interface CurrentProjectProps {}
+import { projectsData } from "@/constants/dummy";
 
-const CurrentProject: FC<CurrentProjectProps> = () => {
+interface ProjectDetailsProps {
+  projectId: string;
+  openProject?: boolean;
+}
+
+const ProjectDetails: FC<ProjectDetailsProps> = ({
+  projectId,
+  openProject = false,
+}) => {
+  const project = projectsData.find((project) => project.id === projectId);
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden drop-shadow-md">
       <CardHeader className="flex flex-row items-start bg-muted/50">
         <div className="grid gap-0.5">
           <CardTitle className="group flex items-center gap-2 text-lg">
-            Project Name
+            {project!.title}
           </CardTitle>
           <CardDescription className="text-start text-sm text-muted-foreground">
-            @owner
+            <Link
+              href={`/profile/${project?.ownerId}`}
+              className="hover:underline"
+            >
+              @owner
+            </Link>
           </CardDescription>
         </div>
 
         <div className="ml-auto flex items-center gap-1">
-          <Button size="sm" variant="outline" className="h-8 gap-1">
-            <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
-              Open
-            </span>
-            <ArrowUpRight className="size-3.5" />
-          </Button>
+          {openProject && (
+            <Link
+              href={`/project/${project!.id}`}
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+                className: 'className="h-8 gap-1"',
+              })}
+            >
+              <span className="lg:sr-only xl:not-sr-only xl:whitespace-nowrap">
+                Open
+              </span>
+              <ArrowUpRight className="size-3.5" />
+            </Link>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant="outline" className="size-8">
@@ -51,7 +77,9 @@ const CurrentProject: FC<CurrentProjectProps> = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Edit</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href={`/project-settings/${project!.id}`}>Edit</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Leave</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>GitHub</DropdownMenuItem>
@@ -63,24 +91,25 @@ const CurrentProject: FC<CurrentProjectProps> = () => {
         <div className="grid gap-3">
           <div className="font-semibold">Description</div>
           <ul className="grid gap-3">
-            <p className="line-clamp-5 text-muted-foreground">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam
-              sequi consectetur adipisci asperiores impedit ducimus, ea, velit
-              voluptas, dicta assumenda eius veniam alias rerum. Ut quasi
-              suscipit quos autem voluptates sed dolor quo, aliquid facere
-              eveniet quae sit mollitia quia incidunt aspernatur quibusdam quis
-              molestias perspiciatis. Ut natus neque ratione.
-            </p>
+            <ReadMore
+              maxLength={200}
+              className="text-muted-foreground"
+              text={project!.description}
+            />
           </ul>
         </div>
         <Separator className="my-4" />
         <div className="grid gap-3">
           <div className="font-semibold">Members</div>
           <ul className="grid gap-1">
-            {currentProjectMembers.map((member) => (
+            {project!.members.map((member) => (
               <li key={member.id} className="flex items-center justify-between">
-                <span className="text-muted-foreground">{member.name}</span>
-                <span>{member.role}</span>
+                <Link href={`/profile/${member.id}`}>{member.name}</Link>
+                <span className="flex gap-0.5 text-sm text-muted-foreground">
+                  {member.tech}
+                  <span>·</span>
+                  {member.role}
+                </span>
               </li>
             ))}
           </ul>
@@ -89,17 +118,17 @@ const CurrentProject: FC<CurrentProjectProps> = () => {
         <div className="grid gap-3">
           <div className="font-semibold">Tech Stack</div>
           <div className="flex w-full flex-row items-center justify-center">
-            <AnimatedTooltip items={techStack} className="size-9" />
+            <AnimatedTooltip items={project!.techStack} className="size-9" />
           </div>
         </div>
       </CardContent>
       <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
         <div className="text-xs text-muted-foreground">
-          Updated <time dateTime="2023-11-23">November 23, 2023</time>
+          Created at <time dateTime="2023-11-23">{project!.createdAt}</time>
         </div>
       </CardFooter>
     </Card>
   );
 };
 
-export default CurrentProject;
+export default ProjectDetails;
