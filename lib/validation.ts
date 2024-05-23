@@ -47,6 +47,32 @@ export const profileFormSchema = z.object({
   }).optional(),
 });
 
+export const accountFormSchema = z.object({
+  aboutMe: z
+    .string()
+    .trim()
+    .max(2200, {
+      message: "Your about me text should not exceed 2200 characters",
+    })
+    .optional(),
+  skills: z
+    .array(
+      z
+        .string()
+        .trim()
+        .min(1, { message: "Atleast one charachter" })
+        .max(30, { message: "skill should not exceed 30 characters" })
+    )
+    .optional(),
+  urls: z
+    .array(
+      z.object({
+        value: z.string().url({ message: "Please enter a valid URL." }),
+      })
+    )
+    .optional(),
+});
+
 export const securityFormSchema = z
 .object({
   oldPassword: z
