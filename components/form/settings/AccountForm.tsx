@@ -5,7 +5,6 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,39 +14,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import TagInput from "@/components/ui/TagInput";
-
-const accountFormSchema = z.object({
-  aboutMe: z
-    .string()
-    .trim()
-    .max(2200, {
-      message: "Your about me text should not exceed 2200 characters",
-    })
-    .optional(),
-  skills: z
-    .array(
-      z
-        .string()
-        .trim()
-        .min(1, { message: "Atleast one charachter" })
-        .max(30, { message: "skill should not exceed 30 characters" })
-    )
-    .optional(),
-  urls: z
-    .array(
-      z.object({
-        value: z.string().url({ message: "Please enter a valid URL." }),
-      })
-    )
-    .optional(),
-});
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { accountFormSchema } from "@/lib/validation";
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-// This can come from your database or API.
+// This can come from database or API.
 const defaultValues: Partial<AccountFormValues> = {
   aboutMe:
     "Hey there! I'm [Your Name], a [Your Title/Role] with a passion for [Your Passion/Specialization]. With [X] years of experience in [Your Field], I've honed my skills in [Your Skills/Expertise]. I thrive in [Describe Your Work Environment/Preferred Projects], and I'm always down to tackle new challenges and learn something fresh. Let's connect and make magic happen!",
