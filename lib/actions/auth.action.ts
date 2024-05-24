@@ -54,8 +54,8 @@ export const signUp = async (values: signUpValidation) => {
 
     console.log('error', error);
 
-    if (error) {
-      return redirect(`/login?message=${encodeURIComponent('Unable to sign up. Please try again later.')}`);
+    if (error?.message) {
+      return redirect(`/register?message=${encodeURIComponent(error.message)}`);
     }
 
     return redirect(`/login?message=${encodeURIComponent('Check your email to complete the sign-up process.')}`)
