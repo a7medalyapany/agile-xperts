@@ -52,8 +52,6 @@ export const signUp = async (values: signUpValidation) => {
       },
     });
 
-    console.log('error', error);
-
     if (error?.message) {
       return redirect(`/register?message=${encodeURIComponent(error.message)}`);
     }
