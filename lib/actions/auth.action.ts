@@ -6,6 +6,7 @@ import { z } from "zod";
 import { SignInValidation, SignUpValidation } from "../validation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { extractNameFromEmail } from "../utils";
 
 type loginValidation = z.infer<typeof SignInValidation>;
 type signUpValidation = z.infer<typeof SignUpValidation>;
@@ -29,18 +30,29 @@ export const signIn = async (values: loginValidation) => {
 
 export const signUp = async (values: signUpValidation) => {
 	const { email, password, username } = values;
-	console.log(username)
 	
     const origin = headers().get("origin");
     const supabase = createClient();
+
+    const name = extractNameFromEmail(email);
 
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${origin}/api/auth/callback`,
+        data: {
+          // eslint-disable-next-line object-shorthand
+          name: name,
+          // eslint-disable-next-line object-shorthand
+          username: username,
+          email,
+          avatar_url: `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`
+        },
+        emailRedirectTo: `${origin}/api/auth/callback`
       },
     });
+
+    console.log('error', error);
 
     if (error) {
       return redirect(`/login?message=${encodeURIComponent('Unable to sign up. Please try again later.')}`);
