@@ -14,4 +14,3 @@ export const checkUserIdentity = async () => {
   
 	return { identities, hasGitHubIdentity, identitiesNumber };
 };
-  

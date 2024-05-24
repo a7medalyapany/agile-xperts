@@ -25,9 +25,11 @@ import { Icons } from "@/components/svg-icons/icons";
 import { SubmitButton } from "./SubmitButton";
 import { signInWithGithub, signUp } from "@/lib/actions/auth.action";
 
-interface SignUpFormProps {}
+interface SignUpFormProps {
+  error: string;
+}
 
-const SignUpForm: FC<SignUpFormProps> = () => {
+const SignUpForm: FC<SignUpFormProps> = ({ error }) => {
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   const form = useForm<z.infer<typeof SignUpValidation>>({
@@ -126,6 +128,11 @@ const SignUpForm: FC<SignUpFormProps> = () => {
           </Button>
         </form>
       </Form>
+      {error && (
+        <div className="rounded-lg bg-card py-2 text-center text-destructive">
+          {error}
+        </div>
+      )}
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
