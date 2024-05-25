@@ -1,4 +1,5 @@
 "use client";
+
 import React, { FC, useState } from "react";
 import { Pulse } from "@/lib/actions/pulse.action";
 
@@ -10,7 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { PostPulse } from "@/lib/validation";
 import { Textarea } from "../ui/textarea";
-import { UploadIcon } from "../svg-icons/UploadIcon";
+
+import { CornerDownLeft, Paperclip } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PulseFormProps {
   placeholder?: string;
@@ -62,16 +69,26 @@ const PulseForm: FC<PulseFormProps> = ({ placeholder }) => {
             </FormItem>
           )}
         />
-        <div className="flex items-center justify-between px-2">
-          <UploadIcon />
+        <div className="flex items-center p-3 pt-0">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button type="button" variant="ghost" size="icon">
+                <Paperclip className="size-4" />
+                <span className="sr-only">Upload Image</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">Upload Image</TooltipContent>
+          </Tooltip>
           <Button
-            className="w-[100px] rounded-full font-bold"
             type="submit"
             disabled={
               !form.formState.isDirty || !form.formState.isValid || isPosting
             }
+            size="sm"
+            className="ml-auto min-w-[120px] gap-1.5"
           >
             {isPosting ? "Pulsing..." : "Pulse"}
+            <CornerDownLeft className="size-3.5" />
           </Button>
         </div>
       </form>
