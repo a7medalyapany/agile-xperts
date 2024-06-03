@@ -1,96 +1,154 @@
 "use client";
 
-import React, { FC, useState } from "react";
-import { Pulse } from "@/lib/actions/pulse.action";
+import { FC, useState } from "react";
+import { CornerDownLeftIcon, PaperclipIcon, XIcon } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import Image from "next/image";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { PostPulse } from "@/lib/validation";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 
-import { CornerDownLeft, Paperclip } from "lucide-react";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { getImageData } from "@/lib/utils";
+import { PostPulse } from "@/lib/validation";
+
+type PulseFormSchema = z.infer<typeof PostPulse>;
+
 interface PulseFormProps {
-  placeholder?: string;
+  placeholder: string;
 }
 
 const PulseForm: FC<PulseFormProps> = ({ placeholder }) => {
-  const [isPosting, setIsPosting] = useState(false);
+  const [preview, setPreview] = useState("");
 
-  const form = useForm<z.infer<typeof PostPulse>>({
+  const form = useForm<PulseFormSchema>({
     resolver: zodResolver(PostPulse),
     defaultValues: {
       content: "",
-      photo: "",
+      photo: undefined,
     },
   });
 
-  async function onSubmit(values: z.infer<typeof PostPulse>) {
-    try {
-      setIsPosting(true);
-      await Pulse(values);
-      console.log(values);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsPosting(false);
-    }
+  function onSubmit(values: PulseFormSchema) {
+    console.log(values);
   }
+
+  const handleImageRemove = () => {
+    setPreview("");
+    form.setValue("photo", undefined);
+  };
+
+  const isFormEmpty = !form.watch("content") && !form.watch("photo");
+  const disabledStatus =
+    isFormEmpty ||
+    form.formState.isSubmitting ||
+    !form.formState.isDirty ||
+    !form.formState.isValid;
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="border-y p-6 pb-2"
+        className="py-2 sm:p-6 sm:pb-0"
       >
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Textarea
-                  placeholder={placeholder}
-                  minLength={1}
-                  maxLength={2200}
-                  className="resize-none border-none bg-transparent text-lg placeholder:text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
-                  {...field}
+        <div className="flex flex-col space-y-4 rounded-lg rounded-b-none bg-muted/40 drop-shadow-md">
+          <div className="space-y-1">
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      minLength={1}
+                      maxLength={2200}
+                      {...field}
+                      placeholder={placeholder}
+                      className="mt-2 min-h-fit resize-none border-none bg-transparent px-4 text-lg placeholder:text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {preview && (
+              <div className="relative p-4 drop-shadow-lg">
+                <Image
+                  src={preview}
+                  alt="Image Preview"
+                  width={1200}
+                  height={400}
+                  priority={true}
+                  className="xs:h-[400px] h-64 w-full rounded-lg object-cover lg:h-[450px]"
                 />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <div className="flex items-center p-3 pt-0">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button type="button" variant="ghost" size="icon">
-                <Paperclip className="size-4" />
-                <span className="sr-only">Upload Image</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">Upload Image</TooltipContent>
-          </Tooltip>
-          <Button
-            type="submit"
-            disabled={
-              !form.formState.isDirty || !form.formState.isValid || isPosting
-            }
-            size="sm"
-            className="ml-auto min-w-[120px] gap-1.5"
-          >
-            {isPosting ? "Pulsing..." : "Pulse"}
-            <CornerDownLeft className="size-3.5" />
-          </Button>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  onClick={handleImageRemove}
+                  className="absolute right-6 top-6 rounded-full"
+                >
+                  <XIcon />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-between p-2 pt-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <label className="cursor-pointer rounded-lg bg-transparent p-3 hover:bg-secondary">
+                  <PaperclipIcon className="size-4" />
+                  <span className="sr-only">Attach file</span>
+                  <FormField
+                    control={form.control}
+                    name="photo"
+                    render={({ field: { onChange, value, ...rest } }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            {...rest}
+                            onChange={(event) => {
+                              const { files, displayUrl } = getImageData(event);
+                              setPreview(displayUrl);
+                              onChange(files[0]);
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </label>
+              </TooltipTrigger>
+              <TooltipContent side="top">Attach File</TooltipContent>
+            </Tooltip>
+
+            <Button
+              type="submit"
+              size="sm"
+              disabled={disabledStatus}
+              className="ml-auto min-w-[120px] gap-1.5"
+            >
+              {form.formState.isSubmitting ? "Submitting..." : "Pulse"}
+              <CornerDownLeftIcon className="size-3.5" />
+            </Button>
+          </div>
         </div>
+        <Separator className="w-full bg-gradient-to-r from-transparent via-current to-transparent" />
       </form>
     </Form>
   );
