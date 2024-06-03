@@ -1,15 +1,16 @@
 "use client";
 
+import { useState } from "react";
+import { CameraIcon, CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { profileFormSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
   Form,
   FormControl,
@@ -27,19 +28,20 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+
 import { countries } from "@/constants";
-import { useState } from "react";
+import { cn, getImageData } from "@/lib/utils";
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const defaultValues: Partial<ProfileFormValues> = {
+  photo: undefined,
   name: "",
   username: "",
   bio: "I own a computer.",
@@ -47,6 +49,7 @@ const defaultValues: Partial<ProfileFormValues> = {
 };
 
 export function ProfileForm() {
+  const [preview, setPreview] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   const form = useForm<ProfileFormValues>({
@@ -76,6 +79,43 @@ export function ProfileForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="photo"
+          render={({ field: { onChange, value, ...rest } }) => (
+            <FormItem>
+              <FormLabel>Profile Image</FormLabel>
+              <FormControl>
+                <>
+                  <Avatar className="relative size-24 bg-muted sm:size-36">
+                    <label
+                      htmlFor="fileInput"
+                      className="absolute flex size-full cursor-pointer items-center justify-center"
+                    >
+                      <div className="rounded-full bg-muted/50 p-2 drop-shadow-2xl">
+                        <CameraIcon className="size-8 text-primary drop-shadow-lg" />
+                      </div>
+                    </label>
+                    <AvatarImage src={preview} alt="profile photo" />
+                  </Avatar>
+                  <Input
+                    id="fileInput"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    {...rest}
+                    onChange={(event) => {
+                      const { files, displayUrl } = getImageData(event);
+                      setPreview(displayUrl);
+                      onChange(files[0]);
+                    }}
+                  />
+                </>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="name"
