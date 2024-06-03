@@ -20,7 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Icons } from "@/components/svg-icons/icons";
 
 import { CreateProjectValidation } from "@/lib/validation";
-import { ChevronsUpDown, Check } from "lucide-react";
+import { ChevronsUpDown, Check, XIcon } from "lucide-react";
 
 import {
   Command,
@@ -37,17 +37,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { UploadIcon } from "@/components/svg-icons/UploadIcon";
-import { cn } from "@/lib/utils";
+import { cn, getImageData } from "@/lib/utils";
 import { frameworks } from "@/constants/dummy";
+import Image from "next/image";
 
 interface ProjectRepoProps {}
 
 const ProjectRepo: FC<ProjectRepoProps> = () => {
+  const [preview, setPreview] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof CreateProjectValidation>>({
     resolver: zodResolver(CreateProjectValidation),
     defaultValues: {
+      photo: undefined,
       name: "",
       description: "",
       private: false,
@@ -77,6 +80,11 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
     }
   }
 
+  const handleImageRemove = () => {
+    setPreview("");
+    form.setValue("photo", undefined);
+  };
+
   return (
     <>
       <Form {...form}>
@@ -85,12 +93,59 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
           className="grid gap-4 md:grid-cols-3"
         >
           <div className="min-h-52 rounded-lg bg-card p-4 md:col-span-1">
-            <div className="flex h-full cursor-pointer flex-col items-center justify-center rounded-lg bg-muted">
-              <UploadIcon className="size-12 text-muted-foreground" />
-              <span className="mt-2 text-lg text-muted-foreground">
-                Upload Image
-              </span>
-            </div>
+            <FormField
+              control={form.control}
+              name="photo"
+              render={({ field: { onChange, value, ...rest } }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      id="imageInput"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      {...rest}
+                      onChange={(event) => {
+                        const { files, displayUrl } = getImageData(event);
+                        setPreview(displayUrl);
+                        onChange(files[0]);
+                      }}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {preview ? (
+              <div className="relative rounded-lg drop-shadow-lg">
+                <Image
+                  src={preview}
+                  alt="Uploaded Preview"
+                  width={100}
+                  height={100}
+                  priority={true}
+                  className="size-full rounded-lg object-cover"
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  onClick={handleImageRemove}
+                  className="absolute right-2 top-2 rounded-full"
+                >
+                  <XIcon />
+                </Button>
+              </div>
+            ) : (
+              <label
+                htmlFor="imageInput"
+                className="relative flex size-full cursor-pointer flex-col items-center justify-center rounded-lg bg-muted p-4 drop-shadow-lg"
+              >
+                <UploadIcon className="size-12 text-muted-foreground" />
+                <span className="mt-2 text-lg text-muted-foreground">
+                  Upload Image
+                </span>
+              </label>
+            )}
           </div>
 
           <div className="h-full space-y-4 rounded-lg bg-card p-4 md:col-span-2">

@@ -13,6 +13,7 @@ export const SignInValidation = z.object({
 
 const githubRepoNameRegex = /^[a-zA-Z0-9_.-]+$/;
 export const CreateProjectValidation = z.object({
+	photo: z.instanceof(File).optional(),
   name: z.string().trim()
   .min(1, {message: "Repository name can not be empty"})
   .max(100, {message: "Repository name must be less than or equal to 100 characters"})
@@ -27,11 +28,12 @@ export const CreateProjectValidation = z.object({
 });
 
 export const PostPulse = z.object({
-	content: z.string().trim().min(1, {message: "Atleast one character"}).max(2200, {message: "Pulse must be less than 2200 characters"}),
-	photo: z.string().optional(),
+	content: z.string().trim().max(2200, {message: "Pulse must be less than 2200 characters"}),
+	photo: z.instanceof(File).optional(),
 })
 
 export const profileFormSchema = z.object({
+  photo: z.instanceof(File).optional(),
   name: z.string().trim().min(1, {message: "Name must be at least 2 characters."}).max(30, {message: "Name must not be longer than 30 characters."}),
   username: z
     .string().trim()
