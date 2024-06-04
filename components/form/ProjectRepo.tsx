@@ -52,6 +52,7 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
     defaultValues: {
       photo: undefined,
       name: "",
+      teamName: "",
       description: "",
       private: false,
       title: "Agile Xperts",
@@ -92,7 +93,23 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="grid gap-4 md:grid-cols-3"
         >
-          <div className="min-h-52 rounded-lg bg-card p-4 md:col-span-1">
+          <div className="h-full space-y-4 rounded-lg bg-card p-4 md:col-span-1">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem className="text-start">
+                  <FormLabel>
+                    Project Title
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="photo"
@@ -116,7 +133,7 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
               )}
             />
             {preview ? (
-              <div className="relative rounded-lg drop-shadow-lg">
+              <div className="rounded-lg drop-shadow-lg">
                 <Image
                   src={preview}
                   alt="Uploaded Preview"
@@ -138,7 +155,7 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
             ) : (
               <label
                 htmlFor="imageInput"
-                className="relative flex size-full cursor-pointer flex-col items-center justify-center rounded-lg bg-muted p-4 drop-shadow-lg"
+                className="flex min-h-52 w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-muted p-4 drop-shadow-lg"
               >
                 <UploadIcon className="size-12 text-muted-foreground" />
                 <span className="mt-2 text-lg text-muted-foreground">
@@ -148,7 +165,7 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
             )}
           </div>
 
-          <div className="h-full space-y-4 rounded-lg bg-card p-4 md:col-span-2">
+          <div className="flex h-full flex-col space-y-4 rounded-lg bg-card p-4 md:col-span-2">
             <div className="flex w-full flex-col gap-4 sm:flex-row">
               <FormField
                 control={form.control}
@@ -169,11 +186,11 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
 
               <FormField
                 control={form.control}
-                name="title"
+                name="teamName"
                 render={({ field }) => (
                   <FormItem className="text-start">
                     <FormLabel>
-                      Project Title
+                      Team name
                       <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
@@ -201,23 +218,25 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem className="text-start">
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="resize-none bg-muted"
-                      rows={8}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex grow">
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem className="flex grow flex-col text-start">
+                    <FormLabel>Description</FormLabel>
+                    <FormControl className="grow">
+                      <Textarea
+                        className="grow resize-none bg-muted"
+                        rows={8}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
           <div className="col-span-full space-y-4 rounded-lg bg-card p-4">
