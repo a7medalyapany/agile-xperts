@@ -17,7 +17,10 @@ export const CreateProjectValidation = z.object({
   name: z.string().trim()
   .min(1, {message: "Repository name can not be empty"})
   .max(100, {message: "Repository name must be less than or equal to 100 characters"})
-  .regex(githubRepoNameRegex, { message: "Invalid repository name" }), 
+  .regex(githubRepoNameRegex, { message: "Invalid repository name" }),
+  teamName: z.string().trim()
+  .min(1, {message: "Team name can not be empty"})
+  .max(100, {message: "Team name must be less than or equal to 100 characters"}),
   description: z.string().trim().max(255, {message: "Description must be less than or equal to 255 characters"}), 
   private: z.boolean().default(false).optional(),
   title: z.string().trim().min(3, {message: "Title must be at least 3 characters long"}).max(30, {message: "Title must be less than or equal to 30 characters"}),
