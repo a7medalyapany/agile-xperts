@@ -39,6 +39,7 @@ create table
     email character varying not null,
     avatar_url text null,
     bio text null,
+    about_me text null,
     location bigint null,
     skills character varying[] null,
     streak_points bigint not null default '0'::bigint,
@@ -219,11 +220,12 @@ create table
     description character varying null,
     is_private boolean not null default false,
     repo_name character varying not null,
+    img_url text null,
     github_repo_url text not null,
     created_at timestamp with time zone not null default now(),
     update_at timestamp with time zone not null default now(),
     constraint project_pkey primary key (id),
-    constraint project_owner_id_fkey foreign key (owner_id) references profile (id) on delete set default
+    constraint project_owner_id_fkey foreign key (owner_id) references profile (id) on delete cascade
   ) tablespace pg_default;
 
 
@@ -291,5 +293,3 @@ create table
     constraint request_tech_id_fkey foreign key (tech_id) references technology (id) on update cascade on delete cascade,
     constraint request_user_id_fkey foreign key (user_id) references profile (id) on delete cascade
   ) tablespace pg_default;
-
-
