@@ -79,10 +79,8 @@ update
 CREATE POLICY "sender can delete" ON public.request FOR DELETE USING( auth.uid() = user_id );
 
 
--- User Role ----
-create policy "Enable read access for all users"
-on "public"."user_role"
-as PERMISSIVE
-for SELECT
-to public
-using ( true );
+-- User Role 
+create policy "Enable read access for all users" on "public"."user_role" as PERMISSIVE for SELECT to public using ( true );
+
+-- Profile 
+create policy "Enable read access for users to read own data" on "public"."profile" as PERMISSIVE for SELECT to public using (  auth.uid() = id );
