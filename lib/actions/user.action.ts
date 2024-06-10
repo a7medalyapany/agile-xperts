@@ -49,23 +49,38 @@ export async function getCurrentUser() {
   }
 
   try {
-    const { data, error } = await supabase
-      .from("profile")
+    const { data: privateProfileView, error } = await supabase
+      .from("private_profile_view")
       .select("*")
-      .eq("id", user.id)
+      .returns<privateProfileView>();
+
+    if (error) {
+      throw new Error("Error retrieving user profile: " + error.message);
+    }
+
+    console.log(privateProfileView);
+    return privateProfileView as privateProfileView;
+  } catch (error) {
+    throw new Error("Error fetching user profile: " + error);
+  }
+}
+
+export async function getUserById(userId: string) {
+  const supabase = createClient<Database>();
+
+  try {
+    const { data: publicProfileView, error } = await supabase
+      .from("public_profile_view")
+      .select("*")
+      .returns<publicProfileView>()
       .single();
 
     if (error) {
       throw new Error("Error retrieving user profile: " + error.message);
     }
-    const { role } = await getUserRoleById(data.id);
-    const userDataWithRole = {
-      ...data,
-      role: role || "normal",
-    };
 
-    // console.log(userDataWithRole);
-    return userDataWithRole as unknown as ProfileWithRole;
+    console.log(publicProfileView);
+    return publicProfileView as publicProfileView;
   } catch (error) {
     throw new Error("Error fetching user profile: " + error);
   }
