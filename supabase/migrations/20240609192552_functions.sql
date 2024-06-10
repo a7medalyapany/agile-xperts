@@ -24,7 +24,7 @@ BEGIN
     user_avatar_url := new.raw_user_meta_data->>'avatar_url';
   ELSIF provider = 'email' THEN
     name := new.raw_user_meta_data->>'name';
-    user_name := new.raw_user_meta_data->>'user_name';
+    user_name := new.raw_user_meta_data->>'username';
     user_email := new.raw_user_meta_data->>'email';
     user_avatar_url := new.raw_user_meta_data->>'avatar_url';
   ELSE
