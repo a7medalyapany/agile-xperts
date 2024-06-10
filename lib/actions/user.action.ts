@@ -31,7 +31,8 @@ export async function getUserRoleById(userId: string) {
     if (error) {
       throw new Error("Error retrieving user role: " + error.message);
     }
-    console.log(data);
+
+    // console.log(data);
     return data;
   } catch (error: any) {
     throw new Error("Error fetching user role: " + error.message);
@@ -63,7 +64,7 @@ export async function getCurrentUser() {
       role: role || "normal",
     };
 
-    console.log(userDataWithRole);
+    // console.log(userDataWithRole);
     return userDataWithRole as unknown as ProfileWithRole;
   } catch (error) {
     throw new Error("Error fetching user profile: " + error);
