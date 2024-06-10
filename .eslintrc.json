@@ -6,6 +6,7 @@
     "prettier"
   ],
   "globals": {
-    "Database": "readonly"
+    "Database": "readonly",
+    "ProfileWithRole": "readonly"
   }
 }
