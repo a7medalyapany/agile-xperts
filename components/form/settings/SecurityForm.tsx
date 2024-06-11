@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { FC, useState } from "react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -20,12 +20,22 @@ import {
 
 import { securityFormSchema } from "@/lib/validation";
 
-type SecurityFormValues = z.infer<typeof securityFormSchema>;
+interface SecurityFormProps {
+  identitiesNumber: number;
+  hasGitHubIdentity: boolean;
+}
 
-export function SecurityForm() {
+type SecurityFormValues = z.infer<ReturnType<typeof securityFormSchema>>;
+
+const SecurityForm: FC<SecurityFormProps> = ({
+  identitiesNumber,
+  hasGitHubIdentity,
+}) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const form = useForm<SecurityFormValues>({
-    resolver: zodResolver(securityFormSchema),
+    resolver: zodResolver(
+      securityFormSchema(identitiesNumber, hasGitHubIdentity)
+    ),
     defaultValues: {
       twoFactorAuth: false,
     },
@@ -46,23 +56,26 @@ export function SecurityForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="oldPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Current Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter current password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {(!hasGitHubIdentity ||
+          (hasGitHubIdentity && identitiesNumber > 1)) && (
+          <FormField
+            control={form.control}
+            name="oldPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Current Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Enter current password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <FormField
           control={form.control}
           name="newPassword"
@@ -133,4 +146,6 @@ export function SecurityForm() {
       </form>
     </Form>
   );
-}
+};
+
+export default SecurityForm;

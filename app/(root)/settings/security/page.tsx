@@ -1,10 +1,12 @@
 import { FC } from "react";
 import { Separator } from "@/components/ui/separator";
-import { SecurityForm } from "@/components/form/settings/SecurityForm";
+import { checkUserIdentity } from "@/lib/actions/user.action";
+import SecurityForm from "@/components/form/settings/SecurityForm";
 
 interface pageProps {}
 
-const Page: FC<pageProps> = () => {
+const Page: FC<pageProps> = async () => {
+  const { identitiesNumber, hasGitHubIdentity } = await checkUserIdentity();
   return (
     <div className="space-y-6">
       <div>
@@ -15,7 +17,10 @@ const Page: FC<pageProps> = () => {
         </p>
       </div>
       <Separator />
-      <SecurityForm />
+      <SecurityForm
+        identitiesNumber={identitiesNumber}
+        hasGitHubIdentity={hasGitHubIdentity}
+      />
     </div>
   );
 };
