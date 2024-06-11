@@ -23,6 +23,7 @@ import ProjectDetails from "@/components/card/ProjectDetails";
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/actions/user.action";
 
 interface pageProps {}
 
@@ -30,9 +31,14 @@ const Page: FC<pageProps> = async () => {
   const supabase = createClient();
 
   const {
-    data: { user },
+    data: { user: authUser },
   } = await supabase.auth.getUser();
 
+  if (!authUser) {
+    return redirect("/login");
+  }
+
+  const user = await getCurrentUser();
   if (!user) {
     return redirect("/login");
   }
@@ -41,8 +47,11 @@ const Page: FC<pageProps> = async () => {
     <main className="grid flex-1 items-start gap-4 lg:grid-cols-3">
       <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-          <CreateProject />
-          <Streaks />
+          <CreateProject userRole={user.user_role!} />
+          <Streaks
+            userRole={user.user_role!}
+            strakPoints={user.streak_points!}
+          />
         </div>
 
         <section className="space-y-2">
