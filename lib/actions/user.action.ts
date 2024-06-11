@@ -11,9 +11,9 @@ export const checkUserIdentity = async () => {
   const GitHubIdentity = identities.find(
     (identity: { provider: string }) => identity.provider === "github"
   );
-  const githubUsername = GitHubIdentity?.identity_data.user_name;
+  const githubUsername: string = GitHubIdentity?.identity_data.user_name;
   const hasGitHubIdentity = !!GitHubIdentity;
-  const identitiesNumber = identities.length;
+  const identitiesNumber: number = identities.length;
 
   return { identities, githubUsername, hasGitHubIdentity, identitiesNumber };
 };
