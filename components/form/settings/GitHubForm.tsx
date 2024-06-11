@@ -39,8 +39,11 @@ export const GitHubForm: FC<GitHubFormProps> = ({ githubUsername }) => {
           <Label>Token</Label>
           <Input name="token" />
           <p className={"text-sm text-muted-foreground"}>
-            You can genrate custom token with scope `repo & delete_repo` from
-            GitHub. For more Info visit
+            You can genrate custom token with scope
+            <span className="mx-1 whitespace-nowrap rounded-xl bg-destructive/40 px-2 font-bold">
+              repo & delete_repo
+            </span>
+            from GitHub. For more Info visit
             <Link
               target="_blank"
               href={
