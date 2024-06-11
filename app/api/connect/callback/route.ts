@@ -16,21 +16,18 @@ export async function GET(request: Request) {
     }
 
     if (data.session && data.session.provider_token) {
-
-		// TODO
-		// 1- encrypt token
-		// 2- push in database
-		// 3- set in cookies
+      const name = 'provider_token';
+      const value = data.session.provider_token;
+      const oneYearInSeconds = 60 * 60 * 24 * 365;
       
-		//   const name = 'provider_token';
-		//   const value = data.session.provider_token;
-		//   console.log("Setting cookie:", name, value);
-		
-		
-		//   const response = NextResponse.redirect(`${origin}/settings/github`);
-		//   response.cookies.set({ name, value});
-
-     	// return response;
+      const response = NextResponse.redirect(`${origin}/settings/github`);
+      response.cookies.set(name, value, {
+        httpOnly: true,
+        path: '/create-project',
+        maxAge: oneYearInSeconds,
+      });
+      
+      return response;
     }
   }
 
