@@ -32,7 +32,6 @@ export async function getUserRoleById(userId: string) {
       throw new Error("Error retrieving user role: " + error.message);
     }
 
-    // console.log(data);
     return data;
   } catch (error: any) {
     throw new Error("Error fetching user role: " + error.message);
@@ -52,14 +51,18 @@ export async function getCurrentUser() {
     const { data: privateProfileView, error } = await supabase
       .from("private_profile_view")
       .select("*")
-      .returns<privateProfileView>();
+      .eq("id", user.id)
+      .single();
 
     if (error) {
       throw new Error("Error retrieving user profile: " + error.message);
     }
 
-    console.log(privateProfileView);
-    return privateProfileView as privateProfileView;
+    if (!privateProfileView) {
+      throw new Error("User not found");
+    }
+
+    return (privateProfileView ?? []) as privateProfileView;
   } catch (error) {
     throw new Error("Error fetching user profile: " + error);
   }
@@ -72,14 +75,17 @@ export async function getUserById(userId: string) {
     const { data: publicProfileView, error } = await supabase
       .from("public_profile_view")
       .select("*")
-      .returns<publicProfileView>()
+      .eq("id", userId)
       .single();
 
     if (error) {
       throw new Error("Error retrieving user profile: " + error.message);
     }
 
-    console.log(publicProfileView);
+    if (!publicProfileView) {
+      throw new Error("User not found");
+    }
+
     return publicProfileView as publicProfileView;
   } catch (error) {
     throw new Error("Error fetching user profile: " + error);

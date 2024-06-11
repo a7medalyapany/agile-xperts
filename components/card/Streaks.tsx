@@ -9,18 +9,22 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-interface StreaksProps {}
+interface StreaksProps {
+  userRole: string;
+  strakPoints: number;
+}
 
-const Streaks: FC<StreaksProps> = () => {
+const Streaks: FC<StreaksProps> = ({ userRole, strakPoints }) => {
+  const role = userRole!.charAt(0).toUpperCase() + userRole.slice(1);
   return (
     <Card className="sm:col-span-2">
       <CardHeader className="pb-3">
         <div className="w-fit rounded-lg bg-primary px-4">
-          <p className="text-sm font-bold text-primary-foreground">Pro</p>
+          <p className="text-sm font-bold text-primary-foreground">{role}</p>
         </div>
         <CardDescription>Streak Points</CardDescription>
         <CardTitle className="max-w-lg text-balance leading-relaxed">
-          80
+          {strakPoints}
         </CardTitle>
       </CardHeader>
       <CardContent>

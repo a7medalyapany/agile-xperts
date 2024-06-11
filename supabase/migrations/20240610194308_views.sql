@@ -1,7 +1,6 @@
 -- public user details 
-create view
-  public.public_profile_view as
-select
+CREATE VIEW public_profile_view AS
+SELECT
     p.id,
     p.name,
     p.username,
@@ -13,14 +12,18 @@ select
     p.streak_points,
     p.status,
     p.created_at,
-    c.name as country_name,
-    ur.role as user_role
-from
+    c.name AS country_name,
+    ur.role AS user_role,
+    ul.level AS user_level
+FROM
     profile p
 LEFT JOIN
-    countries c on p.location = c.id
+    countries c ON p.location = c.id
 JOIN 
-    user_role ur on p.id = ur.user_id;
+    user_role ur ON p.id = ur.user_id
+JOIN
+    user_level ul ON p.id = ul.user_id;
+
 
 
 -- private user details
@@ -40,11 +43,13 @@ SELECT
     p.created_at,
     p.updated_at,
     c.name AS country_name,
-    ur.role AS user_role
-
+    ur.role AS user_role,
+    ul.level AS user_level
 FROM
     profile p
 LEFT JOIN
     countries c ON p.location = c.id
 JOIN
-    user_role ur ON p.id = ur.user_id;
+    user_role ur ON p.id = ur.user_id
+JOIN
+    user_level ul ON p.id = ul.user_id;
