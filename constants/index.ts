@@ -65,6 +65,17 @@ export const PageTitle = {
 	DevPulse: 'Stay on the pulse'
 }
 
+export const HomeCardInfo = {
+	pro: {
+		title: 'Ignite Your Genius',
+		description: 'Got a spark? Turn it into a flame!'
+	},
+	general: {
+		title: 'Power Up Together',
+		description: 'Team up, level up! Combine your skills with others'
+	}
+}
+
 export const SettingsLinks = [
 	{
 	  title: "Profile",
