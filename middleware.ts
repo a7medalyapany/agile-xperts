@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { NextResponse, type NextRequest } from "next/server";
+import { getUserRoleById } from "./lib/actions/user.action";
+import { cookies } from "next/headers";
 
 export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
@@ -24,13 +26,42 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/profile/${currentUserId}`, request.url));
   }
 
+
+  if (request.nextUrl.pathname === '/create-project') {
+    const supabase = createClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error("Error fetching user:", error.message);
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    if (!user) {
+      console.error("User not authenticated");
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    const providerToken = cookies().get('provider_token');
+
+    if (!providerToken) {
+      console.error("No provider_token found in cookies");
+      return NextResponse.redirect(new URL(`/settings/github?message=${encodeURIComponent(`Please provide a token with repo permissions to proceed. Without it, some features won't work.`)}`, request.url));
+    }
+
+    const { role } = await getUserRoleById(user.id);
+    
+    if (role !== 'pro') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
   return response;
 }
 
 export const config = {
   matcher: [
     '/profile',
-    // '/create-project',
+    '/create-project',
     // "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
