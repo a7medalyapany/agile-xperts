@@ -51,6 +51,9 @@ BEGIN
   INSERT INTO public.user_role(user_id)
   VALUES (NEW.id);
 
+  INSERT INTO public.user_level(user_id)
+  VALUES (NEW.id);
+
   RETURN new;
 EXCEPTION
   WHEN others THEN
