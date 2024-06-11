@@ -26,7 +26,7 @@ export const CreateProjectValidation = z.object({
   title: z.string().trim().min(3, {message: "Title must be at least 3 characters long"}).max(30, {message: "Title must be less than or equal to 30 characters"}),
   technologies: z.array(z.object({
     name: z.string().min(1, { message: "Technology can not be empty" }),
-    role: z.string().trim().min(1, { message: "Role can not be empty" })
+    designation: z.string().trim().min(1, { message: "Designation can not be empty" })
   }))
 });
 
