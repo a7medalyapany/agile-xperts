@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import Link from "next/link";
 import { signOut } from "@/lib/actions/auth.action";
@@ -21,11 +21,13 @@ import { getCurrentUser } from "@/lib/actions/user.action";
 interface UserAvatarProps {}
 
 const UserAvatar: FC<UserAvatarProps> = async () => {
-  const { id, avatar_url: avatarUrl } = await getCurrentUser();
+  const { id, name, avatar_url: avatarUrl } = await getCurrentUser();
 
   if (!id) {
     throw new Error("User not logged in");
   }
+
+  const firstLetter = name!.charAt(0).toUpperCase();
 
   return (
     <DropdownMenu>
@@ -36,7 +38,8 @@ const UserAvatar: FC<UserAvatarProps> = async () => {
           className="overflow-hidden rounded-full"
         >
           <Avatar>
-            <AvatarImage src={avatarUrl ?? ""} alt="@userPhoto" />
+            <AvatarImage src={avatarUrl!} alt="@userPhoto" />
+            <AvatarFallback>{firstLetter}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
