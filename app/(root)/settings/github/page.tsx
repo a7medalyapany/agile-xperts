@@ -1,16 +1,18 @@
 import { FC } from "react";
 import Image from "next/image";
+import { URLProps } from "@/types";
 import { Separator } from "@/components/ui/separator";
 
 import LinkGitHub from "@/components/shared/LinkGitHub";
 import { checkUserIdentity } from "@/lib/actions/user.action";
 import { GitHubForm } from "@/components/form/settings/GitHubForm";
 
-interface pageProps {}
+interface pageProps extends URLProps {}
 
-const Page: FC<pageProps> = async () => {
-  const { identitiesNumber, hasGitHubIdentity } = await checkUserIdentity();
-
+const Page: FC<pageProps> = async ({ searchParams }) => {
+  const { identitiesNumber, hasGitHubIdentity, githubUsername } =
+    await checkUserIdentity();
+  const errorMessages = searchParams.message;
   return (
     <div className="space-y-4">
       <div>
@@ -20,6 +22,11 @@ const Page: FC<pageProps> = async () => {
         </p>
       </div>
       <Separator />
+      {errorMessages && (
+        <div className="mb-2 rounded-lg bg-card/50 py-2 text-center text-destructive dark:bg-muted">
+          {errorMessages}
+        </div>
+      )}
       {hasGitHubIdentity ? (
         <>
           <LinkGitHub
@@ -27,7 +34,7 @@ const Page: FC<pageProps> = async () => {
             identitiesNumber={identitiesNumber}
             className="w-full"
           />
-          <GitHubForm />
+          <GitHubForm githubUsername={githubUsername!} />
         </>
       ) : (
         <>

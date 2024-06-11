@@ -1,9 +1,14 @@
 "use client";
 
 import { z } from "zod";
-import React, { FC, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useFieldArray, useForm } from "react-hook-form";
+
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React, { FC, useState } from "react";
+import { cn, getImageData } from "@/lib/utils";
+import { UploadIcon } from "@/components/svg-icons/UploadIcon";
 
 import {
   Form,
@@ -36,14 +41,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { UploadIcon } from "@/components/svg-icons/UploadIcon";
-import { cn, getImageData } from "@/lib/utils";
+
+import {
+  createRepository,
+  deleteRepository,
+  insertProject,
+} from "@/lib/actions/project.action";
+
 import { frameworks } from "@/constants/dummy";
-import Image from "next/image";
 
 interface ProjectRepoProps {}
 
 const ProjectRepo: FC<ProjectRepoProps> = () => {
+  const router = useRouter();
   const [preview, setPreview] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -59,7 +69,7 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
       technologies: [
         {
           name: "",
-          role: "",
+          designation: "",
         },
       ],
     },
@@ -73,7 +83,49 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
   async function onSubmit(values: z.infer<typeof CreateProjectValidation>) {
     setIsSubmitting(true);
     try {
-      console.log(values);
+      const {
+        name,
+        description,
+        private: isPrivate,
+        teamName,
+        technologies,
+        title,
+      } = values;
+
+      const githubRepoUrl = await createRepository({
+        repoName: name,
+        description,
+        isPrivate,
+      });
+
+      console.log("Github Repo Url:", githubRepoUrl);
+
+      if (githubRepoUrl) {
+        try {
+          const projectId = await insertProject({
+            name: title,
+            description,
+            isPrivate,
+            repoName: name,
+            githubRepoUrl,
+            teamName,
+            technologies: technologies.map((tech) => ({
+              name: tech.name,
+              designation: tech.designation,
+            })),
+          });
+
+          console.log("Project Id:", projectId);
+
+          if (projectId) {
+            router.push(`/project/${projectId}`);
+          }
+          setIsSubmitting(false);
+        } catch (error) {
+          console.error("Insert Project Error:", error);
+          await deleteRepository(name);
+        }
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -304,18 +356,20 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
                 <div className="flex flex-col gap-2 space-y-4 sm:flex-row sm:gap-4 md:col-span-2">
                   <FormField
                     control={form.control}
-                    name={`technologies.${index}.role`}
+                    name={`technologies.${index}.designation`}
                     render={({ field }) => (
                       <FormItem className="flex w-full flex-col text-start">
                         <FormLabel>
-                          Role
+                          Designation
                           <span className="text-destructive">*</span>
                         </FormLabel>
                         <FormControl>
                           <div className="flex flex-col gap-4 sm:flex-row">
                             <Input
-                              {...form.register(`technologies.${index}.role`)}
-                              placeholder="Role"
+                              {...form.register(
+                                `technologies.${index}.designation`
+                              )}
+                              placeholder="Designation"
                               type="text"
                               className="w-full"
                               {...field}
@@ -345,12 +399,16 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
                   type="button"
                   variant={"ghost"}
                   className="border-2 border-muted dark:border-2"
-                  onClick={() => append({ name: "", role: "" })}
+                  onClick={() => append({ name: "", designation: "" })}
                 >
                   Add Technology
                 </Button>
               )}
-              <Button className="w-32" type="submit">
+              <Button
+                className="w-32"
+                type="submit"
+                disabled={isSubmitting || !form.formState.isValid}
+              >
                 {isSubmitting ? (
                   <>
                     Creating...

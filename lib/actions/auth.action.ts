@@ -41,10 +41,8 @@ export const signUp = async (values: signUpValidation) => {
       password,
       options: {
         data: {
-          // eslint-disable-next-line object-shorthand
-          name: name,
-          // eslint-disable-next-line object-shorthand
-          username: username,
+          name,
+          username,
           email,
           avatar_url: `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`
         },
@@ -67,7 +65,7 @@ export const signInWithGithub = async () => {
 	const { error, data } = await supabase.auth.signInWithOAuth({
 	  provider: "github",
 	  options: { 
-			scopes: "repo",
+			scopes: "repo delete_repo",
 			redirectTo: `${origin}/api/auth/callback` 
 		},
 	});
@@ -93,7 +91,7 @@ export const linkGitHub = async (path: string) => {
     const { data, error } = await supabaseServer.auth.linkIdentity({
       provider: "github",
       options: {
-        scopes: "repo",
+        scopes: "repo delete_repo",
         redirectTo: `${origin}/api/connect/callback`,
       },
     });
