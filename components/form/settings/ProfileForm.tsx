@@ -37,6 +37,7 @@ import {
 
 import { countries } from "@/constants";
 import { cn, getImageData } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
@@ -45,22 +46,58 @@ const defaultValues: Partial<ProfileFormValues> = {
   name: "",
   username: "",
   bio: "I own a computer.",
-  country: "",
+  country: undefined,
 };
 
 export function ProfileForm() {
+  const supabase = createClient();
   const [preview, setPreview] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [selectedCountryName, setSelectedCountryName] = useState("");
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
   });
 
-  function onSubmit(data: ProfileFormValues) {
+  async function onSubmit(data: ProfileFormValues) {
+    let publicUrl = null;
     try {
       setIsUpdating(true);
       console.log(data);
+
+      const file = data.photo;
+
+      if (file) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const userId = user?.id;
+
+        const fileExt = file.name.split(".").pop();
+        const filePath = `${userId}-${Math.random()}.${fileExt}`;
+        console.log(filePath);
+
+        const { data, error } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, file);
+
+        if (error) {
+          throw new Error("Error uploading avatar: " + error.message);
+        }
+
+        if (data) {
+          const {
+            data: { publicUrl: url },
+          } = supabase.storage.from("avatars").getPublicUrl(data.path);
+
+          publicUrl = url;
+          console.log(publicUrl);
+        }
+      }
+      console.log(publicUrl);
+
+      // await updateProfile(data.name, data.username, data.bio, data.country, publicUrl);
     } catch (error) {
       console.error(error);
     } finally {
@@ -187,7 +224,7 @@ export function ProfileForm() {
                     variant="outline"
                     className="justify-between bg-muted"
                   >
-                    {field.value || "Select country"}
+                    {selectedCountryName || "Select country"}
                     <ChevronsUpDownIcon className="ml-2 size-4 shrink-0" />
                   </Button>
                 </PopoverTrigger>
@@ -199,20 +236,21 @@ export function ProfileForm() {
                       <CommandGroup>
                         {countries.map((country) => (
                           <CommandItem
-                            key={country.value}
+                            key={country.id}
                             onSelect={() => {
-                              form.setValue("country", country.value);
+                              form.setValue("country", country.id);
+                              setSelectedCountryName(country.name);
                             }}
                           >
                             <CheckIcon
                               className={cn(
                                 "mr-2 h-4 w-4",
-                                country.value === field.value
+                                country.id === field.value
                                   ? "opacity-100"
                                   : "opacity-0"
                               )}
                             />
-                            {country.label}
+                            {country.name}
                           </CommandItem>
                         ))}
                       </CommandGroup>
