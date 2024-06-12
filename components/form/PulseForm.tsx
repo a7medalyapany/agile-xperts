@@ -22,6 +22,7 @@ import {
 
 import { getImageData } from "@/lib/utils";
 import { PostPulse } from "@/lib/validation";
+import { createClient } from "@/lib/supabase/client";
 
 type PulseFormSchema = z.infer<typeof PostPulse>;
 
@@ -30,6 +31,7 @@ interface PulseFormProps {
 }
 
 const PulseForm: FC<PulseFormProps> = ({ placeholder }) => {
+  const supabase = createClient();
   const [preview, setPreview] = useState("");
 
   const form = useForm<PulseFormSchema>({
@@ -40,10 +42,44 @@ const PulseForm: FC<PulseFormProps> = ({ placeholder }) => {
     },
   });
 
-  function onSubmit(values: PulseFormSchema) {
-    console.log(values);
-  }
+  async function onSubmit(data: PulseFormSchema) {
+    let publicUrl = null;
+    try {
+      const file = data.photo;
 
+      if (file) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const userId = user?.id;
+
+        const filePath = `${userId}/${Math.random()}-${file.name}`;
+        console.log(filePath);
+
+        const { data, error } = await supabase.storage
+          .from("public_posts")
+          .upload(filePath, file);
+
+        console.log(error);
+
+        if (error) {
+          throw new Error("Error uploading posts image: " + error.message);
+        }
+
+        if (data) {
+          const {
+            data: { publicUrl: url },
+          } = supabase.storage.from("public_posts").getPublicUrl(data.path);
+
+          publicUrl = url;
+          console.log(publicUrl);
+        }
+      }
+      console.log(publicUrl);
+    } catch (error) {
+      console.error(error);
+    }
+  }
   const handleImageRemove = () => {
     setPreview("");
     form.setValue("photo", undefined);
