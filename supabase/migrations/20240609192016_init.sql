@@ -2,6 +2,7 @@
 create type public.app_role as enum ('pro', 'normal');
 create type public.user_status as enum ('ONLINE', 'OFFLINE');
 create type public.request_status as enum ('pending', 'rejected', 'accepted');
+create type public.social_media_platform as enum ('Facebook', 'X', 'Instagram', 'LinkedIn', 'Google', 'Other');
 create type public.app_permission as enum ('project.insert', 'project.update', 'team.insert','team.update', 'team.delete', 'request.select', 'request.update');
 create type public.continents as enum (
     'Africa',
