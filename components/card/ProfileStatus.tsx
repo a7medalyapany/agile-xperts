@@ -1,13 +1,23 @@
 import { FC } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-interface ProfileStatusProps {}
+import Image from "next/image";
 
-const ProfileStatus: FC<ProfileStatusProps> = () => {
-  const stats =
-    "https://github-readme-stats.vercel.app/api?username=a7medalyapany&hide_title=true&hide_border=true&theme=transparent&show=reviews,discussions_started,prs_merged,prs_merged_percentage&hide=issues,discussions_started&show_icons=true";
+interface ProfileStatusProps {
+  githubUsername?: string;
+  strakPoints: number;
+  level: number;
+}
+
+const ProfileStatus: FC<ProfileStatusProps> = ({
+  level,
+  strakPoints,
+  githubUsername,
+}) => {
+  const stats = `https://github-readme-stats.vercel.app/api?username=${githubUsername}&hide_title=true&hide_border=true&theme=transparent&show=reviews,discussions_started,prs_merged,prs_merged_percentage&hide=issues,discussions_started&show_icons=true`;
+
   return (
-    <Card className="drop-shadow-md">
+    <Card className="grow drop-shadow-md">
       <CardHeader className="py-3 pl-4">
         <div className="w-fit rounded-lg bg-primary px-4">
           <p className="text-sm font-bold text-primary-foreground">Pro</p>
@@ -17,12 +27,12 @@ const ProfileStatus: FC<ProfileStatusProps> = () => {
         <div className="flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground ">
           <p className="flex gap-1">
             Level:
-            <span className="text-foreground">8</span>
+            <span className="text-foreground">{level}</span>
           </p>
           <span className="text-foreground">·</span>
           <p className="flex gap-1">
             Streak Points:
-            <span className="text-foreground">69</span>
+            <span className="text-foreground">{strakPoints}</span>
           </p>
         </div>
         <Progress
@@ -31,8 +41,16 @@ const ProfileStatus: FC<ProfileStatusProps> = () => {
           aria-label="30% increase"
         />
       </CardContent>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={stats} alt="Github Stats" />
+      {githubUsername && (
+        <Image
+          src={stats}
+          width={400}
+          height={400}
+          unoptimized={true}
+          alt="Github Stats"
+          className="size-fit"
+        />
+      )}
     </Card>
   );
 };

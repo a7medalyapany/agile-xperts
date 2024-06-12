@@ -3,9 +3,11 @@ import { Separator } from "@/components/ui/separator";
 import { checkUserIdentity } from "@/lib/actions/user.action";
 import SecurityForm from "@/components/form/settings/SecurityForm";
 
-interface pageProps {}
+interface pageProps {
+  searchParams: { code: string };
+}
 
-const Page: FC<pageProps> = async () => {
+const Page: FC<pageProps> = async ({ searchParams }) => {
   const { identitiesNumber, hasGitHubIdentity } = await checkUserIdentity();
   return (
     <div className="space-y-6">
@@ -20,6 +22,7 @@ const Page: FC<pageProps> = async () => {
       <SecurityForm
         identitiesNumber={identitiesNumber}
         hasGitHubIdentity={hasGitHubIdentity}
+        code={searchParams.code}
       />
     </div>
   );

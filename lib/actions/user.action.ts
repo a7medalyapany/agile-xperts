@@ -91,3 +91,26 @@ export async function getUserById(userId: string) {
     throw new Error("Error fetching user profile: " + error);
   }
 }
+
+export async function getUserSocialMedia(userId: string) {
+  const supabase = createClient<Database>();
+
+  try {
+    const { data: socialMedia, error } = await supabase
+      .from("social_media")
+      .select("*")
+      .eq("user_id", userId)
+
+    if (error) {
+      throw new Error("Error retrieving social media accounts: " + error.message);
+    }
+
+    if (!socialMedia) {
+      throw new Error("social media accounts not found");
+    }
+
+    return socialMedia
+  } catch (error) {
+    throw new Error("Error fetching user social media links: " + error);
+  }
+}

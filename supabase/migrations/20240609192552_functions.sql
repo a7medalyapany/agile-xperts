@@ -242,3 +242,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql
 SECURITY DEFINER; -- Ensures the function runs with the privileges of the user who created it
+
+
+-- Create trigger function to enforce row limit
+CREATE OR REPLACE FUNCTION check_row_limit_on_social_media()
+RETURNS TRIGGER AS
+$$
+DECLARE
+    row_count INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO row_count
+    FROM social_media
+    WHERE user_id = NEW.user_id;
+
+    IF row_count >= 7 THEN
+        RAISE EXCEPTION 'Cannot insert more than 7 rows per user';
+    END IF;
+
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+-- Create trigger to call the trigger function before insertion
+CREATE TRIGGER enforce_row_limit
+BEFORE INSERT ON public.social_media
+FOR EACH ROW
+EXECUTE FUNCTION check_row_limit_on_social_media();
