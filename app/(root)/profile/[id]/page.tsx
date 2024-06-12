@@ -1,25 +1,48 @@
 import { FC } from "react";
 import Skills from "@/components/card/Skills";
+import AboutMe from "@/components/card/AboutMe";
 import UserProjects from "@/components/card/UserProjects";
 import ProfileStatus from "@/components/card/ProfileStatus";
 import SocialAccounts from "@/components/card/SocialAccounts";
 import MostUsedLanguage from "@/components/card/MostUsedLanguage";
-import AboutMe from "@/components/card/AboutMe";
 
-interface pageProps {}
+import { checkUserIdentity, getUserById } from "@/lib/actions/user.action";
 
-const Page: FC<pageProps> = () => {
+interface pageProps {
+  params: {
+    id: string;
+  };
+}
+
+const Page: FC<pageProps> = async (data) => {
+  const userId = data.params.id;
+  const { githubUsername } = await checkUserIdentity();
+  const {
+    streak_points: strakPoints,
+    skills,
+    about_me: aboutMe,
+    user_level: level,
+  } = await getUserById(userId);
+
   return (
     <main className="mb-2 mt-4 space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-4 sm:space-y-2">
-          <SocialAccounts />
-          <MostUsedLanguage />
+        <div className="flex flex-col space-y-4 sm:space-y-2">
+          <SocialAccounts profileId={userId} githubUsername={githubUsername} />
+          {githubUsername && (
+            <MostUsedLanguage githubUsername={githubUsername} />
+          )}
         </div>
-        <ProfileStatus />
+        <ProfileStatus
+          githubUsername={githubUsername}
+          strakPoints={strakPoints!}
+          level={level!}
+        />
       </div>
-      <AboutMe />
-      <Skills />
+
+      {aboutMe && <AboutMe aboutMe={aboutMe!} />}
+      {skills && <Skills skills={skills!} />}
+
       <UserProjects />
     </main>
   );
