@@ -13,12 +13,7 @@ const Layout: FC<layoutProps> = ({ children, params }) => {
     <>
       <div className="flex gap-4">
         <div className="flex w-full flex-col rounded-lg border-0 p-0 sm:border sm:p-2 sm:pb-0">
-          <Profile
-            socialLinks={[
-              { name: "GitHub", url: "https://github.com/username" },
-              { name: "LinkedIn", url: "https://linkedin.com/in/username" },
-            ]}
-          />
+          <Profile profileId={params.id} />
           <Separator className="mb-2" />
           <ProfileTabs userId={params.id} />
           <main className="text-start">{children}</main>
