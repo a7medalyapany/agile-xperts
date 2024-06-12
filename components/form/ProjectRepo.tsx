@@ -49,10 +49,12 @@ import {
 } from "@/lib/actions/project.action";
 
 import { frameworks } from "@/constants/dummy";
+import { createClient } from "@/lib/supabase/client";
 
 interface ProjectRepoProps {}
 
 const ProjectRepo: FC<ProjectRepoProps> = () => {
+  const supabase = createClient();
   const router = useRouter();
   const [preview, setPreview] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,6 +83,7 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
   });
 
   async function onSubmit(values: z.infer<typeof CreateProjectValidation>) {
+    let publicUrl = "";
     setIsSubmitting(true);
     try {
       const {
@@ -90,6 +93,7 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
         teamName,
         technologies,
         title,
+        photo: file,
       } = values;
 
       const githubRepoUrl = await createRepository({
@@ -98,7 +102,30 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
         isPrivate,
       });
 
-      console.log("Github Repo Url:", githubRepoUrl);
+      if (file) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const userId = user?.id;
+
+        const filePath = `${userId}/${Math.random()}-${file.name}`;
+
+        const { data, error } = await supabase.storage
+          .from("public_projects")
+          .upload(filePath, file);
+
+        if (error) {
+          throw new Error("Error uploading project image: " + error.message);
+        }
+
+        if (data) {
+          const {
+            data: { publicUrl: url },
+          } = supabase.storage.from("public_projects").getPublicUrl(data.path);
+
+          publicUrl = url;
+        }
+      }
 
       if (githubRepoUrl) {
         try {
@@ -109,6 +136,7 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
             repoName: name,
             githubRepoUrl,
             teamName,
+            imgUrl: publicUrl,
             technologies: technologies.map((tech) => ({
               name: tech.name,
               designation: tech.designation,
