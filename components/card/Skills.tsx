@@ -1,11 +1,11 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { userSkills } from "@/constants/dummy";
+interface SkillsProps {
+  skills: string[];
+}
 
-interface SkillsProps {}
-
-const Skills: FC<SkillsProps> = () => {
+const Skills: FC<SkillsProps> = ({ skills }) => {
   return (
     <Card className="flex flex-col gap-4 pt-1.5 drop-shadow-md">
       <CardHeader className="py-0">
@@ -13,12 +13,12 @@ const Skills: FC<SkillsProps> = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2">
-          {userSkills.map((skill) => (
+          {skills.map((skill, index) => (
             <span
-              key={skill.name}
+              key={index}
               className="cursor-pointer rounded-md bg-muted p-1.5 text-sm text-muted-foreground"
             >
-              {skill.name}
+              {skill}
             </span>
           ))}
         </div>
