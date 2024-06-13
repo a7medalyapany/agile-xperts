@@ -262,7 +262,17 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
  
 
 insert into public.technologies (name) values
-  ('Admin')
+  ('Admin');
 
 insert into public.technology(id, name, designation) values 
-  (1, 'Admin', 'Leader')
+  (1, 'Admin', 'Leader');
+
+
+  INSERT INTO
+  technologies (NAME)
+VALUES
+  ('next.js'),
+  ('remix'),
+  ('astro'),
+  ('sevltekit'),
+  ('nuxt.js')
