@@ -19,6 +19,11 @@ import {
 } from "@/components/ui/form";
 
 import { githubSecurityFormSchema } from "@/lib/validation";
+import {
+  changePassword,
+  exchangeCodeForSession,
+  resetPassword,
+} from "@/lib/actions/auth.action";
 
 interface SecurityFormProps {
   code: string;
@@ -35,9 +40,15 @@ const GitHubSecurityForm: FC<SecurityFormProps> = ({ code }) => {
     mode: "onChange",
   });
 
-  function onSubmit(data: SecurityFormValues) {
+  async function handleResetPassword() {
+    await resetPassword();
+  }
+  async function onSubmit(data: SecurityFormValues) {
     try {
-      console.log(data);
+      const codeExchange = await exchangeCodeForSession(code);
+      if (codeExchange) {
+        await changePassword(data);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -121,7 +132,7 @@ const GitHubSecurityForm: FC<SecurityFormProps> = ({ code }) => {
             </Button>
           </>
         ) : (
-          <Button onClick={() => {}} className="w-full">
+          <Button onClick={handleResetPassword} className="w-full">
             Reset Password
           </Button>
         )}
