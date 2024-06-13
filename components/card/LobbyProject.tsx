@@ -11,6 +11,7 @@ import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 
 import SelectTech from "../form/SelectTech";
 import { ItechStack } from "@/types";
+import { formatNumber, formatTimestamp } from "@/lib/utils";
 
 interface LobbyProjectProps {
   imageUrl: string;
@@ -53,11 +54,13 @@ const LobbyProject: FC<LobbyProjectProps> = ({
 
       <CardFooter className="flex flex-wrap items-start justify-between gap-1.5 rounded-b-lg border-t bg-muted/50 px-6 py-3">
         <p className="grow text-start text-xs text-muted-foreground sm:grow-0">
-          <span className="pr-1 font-bold text-primary">{knockCount}k</span>
+          <span className="pr-1 font-bold text-primary">
+            {formatNumber(knockCount)}
+          </span>
           knocks on this project
         </p>
         <p className="text-xs text-muted-foreground">
-          <time dateTime="2023-11-23">{createdAt}</time>
+          <time dateTime={createdAt}>{formatTimestamp(createdAt)}</time>
         </p>
       </CardFooter>
     </Card>
