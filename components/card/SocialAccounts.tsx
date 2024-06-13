@@ -2,38 +2,44 @@ import { FC, JSX } from "react";
 import Link from "next/link";
 import { LinkIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { socialMediaAccounts } from "@/types/global";
 import { Icons } from "@/components/svg-icons/icons";
 import { Separator } from "@/components/ui/separator";
-import { getUserSocialMedia } from "@/lib/actions/user.action";
+import { getGitHubUsername } from "@/lib/utils";
 
 interface SocialAccountsProps {
-  profileId: string;
-  githubUsername?: string;
+  socialMedia: socialMediaAccounts[];
 }
 
 const platformIcons: { [key: string]: JSX.Element } = {
   Google: <Icons.google className="size-4" />,
   LinkedIn: <Icons.linkedIn className="size-3" />,
-  X: <Icons.twitter className="size-4 dark:invert" />, // Assuming 'X' is for Twitter
+  X: <Icons.twitter className="size-4 dark:invert" />,
   Facebook: <Icons.facebook className="size-3" />,
   Instagram: <Icons.instagram className="size-3" />,
-  Other: <LinkIcon className="size-4" />, // Default icon
+  Other: <LinkIcon className="size-4" />,
 };
 
-const SocialAccounts: FC<SocialAccountsProps> = async ({
-  profileId,
-  githubUsername,
-}) => {
-  const data = await getUserSocialMedia(profileId);
-
-  if (data.length === 0 && !githubUsername) {
-    return null; // Don't render the card if no social media accounts and no GitHub username
+const SocialAccounts: FC<SocialAccountsProps> = async ({ socialMedia }) => {
+  if (socialMedia.length === 0 || socialMedia === null) {
+    return (
+      <Card className="hidden items-center justify-around p-1.5 drop-shadow-md sm:flex sm:grow">
+        <p>No social media accounts found</p>
+      </Card>
+    );
   }
+
+  console.log(socialMedia);
+
+  const githubUsername = getGitHubUsername(socialMedia);
+
+  socialMedia = socialMedia.filter((account) => account.platform !== "GitHub");
 
   return (
     <Card className="flex grow flex-wrap items-center justify-around p-1.5 drop-shadow-md">
-      {data.length > 0 &&
-        data.map((account) => (
+      {socialMedia.length > 0 &&
+        // socialMedia[0].platform !== "GitHub" &&
+        socialMedia.map((account) => (
           <Link
             key={account.id}
             href={account.account_link}
@@ -46,7 +52,7 @@ const SocialAccounts: FC<SocialAccountsProps> = async ({
 
       {githubUsername && (
         <>
-          {data.length > 0 && <Separator orientation="vertical" />}
+          {socialMedia.length > 0 && <Separator orientation="vertical" />}
           <Link
             href={`https://github.com/${githubUsername}`}
             target="_blank"
