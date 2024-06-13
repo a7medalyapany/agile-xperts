@@ -59,3 +59,23 @@ export function getGitHubUsername(socialMediaArray: socialMediaAccounts[]) {
 
   return null;
 }
+
+export function formatNumber(n: number): string {
+  if (n >= 1000000) {
+    return (n / 1000000).toFixed(1) + 'M';
+  } else if (n >= 1000) {
+    return (n / 1000).toFixed(1) + 'K';
+  } else {
+    return n.toString();
+  }
+}
+
+export function formatTimestamp(timestamp: string): string {
+  const date = new Date(timestamp);
+
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
