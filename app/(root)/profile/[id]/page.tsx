@@ -6,7 +6,8 @@ import ProfileStatus from "@/components/card/ProfileStatus";
 import SocialAccounts from "@/components/card/SocialAccounts";
 import MostUsedLanguage from "@/components/card/MostUsedLanguage";
 
-import { checkUserIdentity, getUserById } from "@/lib/actions/user.action";
+import { getUserById, getUserSocialMedia } from "@/lib/actions/user.action";
+import { getGitHubUsername } from "@/lib/utils";
 
 interface pageProps {
   params: {
@@ -16,7 +17,9 @@ interface pageProps {
 
 const Page: FC<pageProps> = async (data) => {
   const userId = data.params.id;
-  const { githubUsername } = await checkUserIdentity();
+  const socialMedia = await getUserSocialMedia(userId);
+  const githubUsername = getGitHubUsername(socialMedia);
+
   const {
     streak_points: strakPoints,
     skills,
@@ -28,13 +31,13 @@ const Page: FC<pageProps> = async (data) => {
     <main className="mb-2 mt-4 space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col space-y-4 sm:space-y-2">
-          <SocialAccounts profileId={userId} githubUsername={githubUsername} />
+          <SocialAccounts socialMedia={socialMedia} />
           {githubUsername && (
             <MostUsedLanguage githubUsername={githubUsername} />
           )}
         </div>
         <ProfileStatus
-          githubUsername={githubUsername}
+          githubUsername={githubUsername!}
           strakPoints={strakPoints!}
           level={level!}
         />
