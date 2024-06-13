@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { redirect } from "next/navigation";
 import { createClient } from "../supabase/server";
@@ -7,117 +7,221 @@ import { SignInValidation, SignUpValidation } from "../validation";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { extractNameFromEmail } from "../utils";
+import { PasswordChangeParams } from "@/lib/types";
+import { getCurrentUser } from "./user.action";
 
 type loginValidation = z.infer<typeof SignInValidation>;
 type signUpValidation = z.infer<typeof SignUpValidation>;
 
-export const signIn = async (values: loginValidation) => { 
-	const { email, password } = values;
-  
-	const supabase = createClient(); 
-  
-	const { error } = await supabase.auth.signInWithPassword({
-	  email,
-	  password,
-	});
-  
-	if (error) {
-	  return redirect(`/login?message=${encodeURIComponent('Invalid credentials. Please try again.')}`);
-	}
-  
-	return redirect("/");
+export const signIn = async (values: loginValidation) => {
+  const { email, password } = values;
+
+  const supabase = createClient();
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    return redirect(
+      `/login?message=${encodeURIComponent("Invalid credentials. Please try again.")}`
+    );
+  }
+
+  return redirect("/");
 };
 
 export const signUp = async (values: signUpValidation) => {
-	const { email, password, username } = values;
-	
-    const origin = headers().get("origin");
-    const supabase = createClient();
+  const { email, password, username } = values;
 
-    const name = extractNameFromEmail(email);
+  const origin = headers().get("origin");
+  const supabase = createClient();
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-          username,
-          email,
-          avatar_url: `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`
-        },
-        emailRedirectTo: `${origin}/api/auth/callback`
+  const name = extractNameFromEmail(email);
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        name,
+        username,
+        email,
+        avatar_url: `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`,
       },
-    });
+      emailRedirectTo: `${origin}/api/auth/callback`,
+    },
+  });
 
-    if (error?.message) {
-      return redirect(`/register?message=${encodeURIComponent(error.message)}`);
-    }
+  if (error?.message) {
+    return redirect(`/register?message=${encodeURIComponent(error.message)}`);
+  }
 
-    return redirect(`/login?message=${encodeURIComponent('Check your email to complete the sign-up process.')}`)
+  return redirect(
+    `/login?message=${encodeURIComponent("Check your email to complete the sign-up process.")}`
+  );
 };
 
-
 export const signInWithGithub = async () => {
-	const supabase = createClient();
-	const origin = headers().get("origin");
-  
-	const { error, data } = await supabase.auth.signInWithOAuth({
-	  provider: "github",
-	  options: { 
-			scopes: "repo delete_repo",
-			redirectTo: `${origin}/api/auth/callback` 
-		},
-	});
+  const supabase = createClient();
+  const origin = headers().get("origin");
 
-	if (error) {
-	  console.error(error);
-	} else {
-	  return redirect(data.url);
-	}
+  const { error, data } = await supabase.auth.signInWithOAuth({
+    provider: "github",
+    options: {
+      scopes: "repo delete_repo",
+      redirectTo: `${origin}/api/auth/callback`,
+    },
+  });
 
+  if (error) {
+    console.error(error);
+  } else {
+    return redirect(data.url);
+  }
 };
 
 export const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    return redirect("/login");
+  const supabase = createClient();
+  await supabase.auth.signOut();
+  return redirect("/login");
 };
 
 export const linkGitHub = async (path: string) => {
-    const supabaseServer = createClient();
-    const origin = process.env.NEXT_PUBLIC_BASE_URL
+  const supabaseServer = createClient();
+  const origin = process.env.NEXT_PUBLIC_BASE_URL;
 
-    const { data, error } = await supabaseServer.auth.linkIdentity({
-      provider: "github",
-      options: {
-        scopes: "repo delete_repo",
-        redirectTo: `${origin}/api/connect/callback`,
-      },
-    });
+  const { data, error } = await supabaseServer.auth.linkIdentity({
+    provider: "github",
+    options: {
+      scopes: "repo delete_repo",
+      redirectTo: `${origin}/api/connect/callback`,
+    },
+  });
 
-    if (error) {
-      return console.log("error", error);
-    }
-    supabaseServer.auth.refreshSession();
-	  revalidatePath(path);
-    redirect(data.url)
+  if (error) {
+    return console.log("error", error);
+  }
+  supabaseServer.auth.refreshSession();
+  revalidatePath(path);
+  redirect(data.url);
 };
 
 export const UnLinkGitHub = async (path: string) => {
-    const supabase = createClient();
-    const {
-      data: { identities },
-    }: any = await supabase.auth.getUserIdentities();
+  const supabase = createClient();
+  const {
+    data: { identities },
+  }: any = await supabase.auth.getUserIdentities();
 
-    const githubIdentity = identities.find(
-      (identity: { provider: string }) => identity.provider === "github"
-    );
+  const githubIdentity = identities.find(
+    (identity: { provider: string }) => identity.provider === "github"
+  );
 
-    const { error } = await supabase.auth.unlinkIdentity(githubIdentity);
-    
-    if (error) {
-      return console.log("error", error);
+  const { error } = await supabase.auth.unlinkIdentity(githubIdentity);
+
+  if (error) {
+    return console.log("error", error);
+  }
+  revalidatePath(path);
+};
+
+export async function resetPassword() {
+  const supabase = createClient();
+  const { email } = await getCurrentUser();
+  const { data, error } = await supabase.auth.resetPasswordForEmail(
+    email ?? "",
+    {
+      redirectTo: "http://localhost:3000/settings/security/github", // Update the redirect URL
     }
-    revalidatePath(path);
+  );
+
+  if (error) {
+    console.error("Error resetting password:", error);
+    throw error;
+  }
+  console.log("Password reset email sent successfully:", data);
+  return data;
+}
+
+export const exchangeCodeForSession = async (code: string) => {
+  try {
+    const supabase = createClient();
+
+    const { error, data } = await supabase.auth.exchangeCodeForSession(code);
+    console.log(code);
+    console.log("exchangeCodeForSession");
+    if (error) {
+      throw new Error(`Error exchanging code for session: ${error.message}`);
+    }
+    return data;
+  } catch (error) {
+    throw new Error(`Error exchanging code for session: ${error}`);
+  }
+};
+
+export const changePassword = async (params: PasswordChangeParams) => {
+  const supabase = createClient();
+  const {
+    data: { user },
+    error: getUserError,
+  } = await supabase.auth.getUser();
+  // Update the user password
+  if (getUserError) {
+    throw new Error(
+      "Error retrieving user: " + getUserError?.message || "Unknown error"
+    );
+  }
+  console.log("server starts");
+  console.log("server:", params);
+  if (!user) {
+    throw new Error("error in changePassword");
+  }
+  const { data } = await supabase.auth.updateUser({
+    password: params.newPassword,
+  });
+
+  console.log("dddd", data, "dddddd");
+  console.log("after update");
+  if (data) {
+    console.log(data);
+    return redirect("/");
+  }
+};
+
+export const changeEmailPassword = async (params: PasswordChangeParams) => {
+  const supabase = createClient();
+
+  // Get the current user
+  const {
+    data: { user },
+    error: getUserError,
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error(
+      "Error retrieving user: " + getUserError?.message || "Unknown error"
+    );
+  }
+  // Re-authenticate the user with their old password
+  const { email } = user;
+
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: email ?? "",
+    password: params.oldPassword || "", // Fix: Ensure params.oldPassword is not undefined
+  });
+
+  if (signInError) {
+    throw new Error("Error old password is wrong " + signInError.message);
+  }
+
+  // Update the user password
+  const { data } = await supabase.auth.updateUser({
+    password: params.newPassword,
+  });
+  // console.log("dddd", data, "dddddd");
+  if (data) {
+    console.log(data);
+    return redirect("/");
+  }
 };
