@@ -1,7 +1,8 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
   RETURNS trigger
-  LANGUAGE plpgsql security definer
-  SET search_path = ''
+  LANGUAGE plpgsql
+  SECURITY DEFINER
+  SET search_path = 'public'
 AS $$
 DECLARE
   provider text;
@@ -11,61 +12,71 @@ DECLARE
   user_avatar_url text;
 BEGIN
   -- Determine the provider
-  provider := new.raw_app_meta_data->>'provider';
+  provider := NEW.raw_app_meta_data->>'provider';
   
   -- Log the provider for debugging
   RAISE INFO 'Provider: %', provider;
 
   -- Set values based on the provider
   IF provider = 'github' THEN
-    name := new.raw_user_meta_data->>'name';
-    user_name := new.raw_user_meta_data->>'user_name';
-    user_email := new.raw_user_meta_data->>'email';
-    user_avatar_url := new.raw_user_meta_data->>'avatar_url';
+    name := NEW.raw_user_meta_data->>'name';
+    user_name := NEW.raw_user_meta_data->>'user_name';
+    user_email := NEW.raw_user_meta_data->>'email';
+    user_avatar_url := NEW.raw_user_meta_data->>'avatar_url';
   ELSIF provider = 'email' THEN
-    name := new.raw_user_meta_data->>'name';
-    user_name := new.raw_user_meta_data->>'username';
-    user_email := new.raw_user_meta_data->>'email';
-    user_avatar_url := new.raw_user_meta_data->>'avatar_url';
+    name := NEW.raw_user_meta_data->>'name';
+    user_name := NEW.raw_user_meta_data->>'username';
+    user_email := NEW.raw_user_meta_data->>'email';
+    user_avatar_url := NEW.raw_user_meta_data->>'avatar_url';
   ELSE
     -- Handle other providers or default case if needed
     name := 'Unknown';
     user_name := 'Unknown';
     user_email := 'unknown@provider.com';
-    user_avatar_url := null;
+    user_avatar_url := NULL;
   END IF;
 
   -- Log the values for debugging
   RAISE INFO 'Name: %, Username: %, Email: %, Avatar URL: %', name, user_name, user_email, user_avatar_url;
 
+  -- Insert into the profile table
   INSERT INTO public.profile (
     id, name, username, email, avatar_url
   ) VALUES (
-    new.id,
+    NEW.id,
     name,
     user_name,
     user_email,
     user_avatar_url
   );
 
+  -- Insert into user_role and user_level tables
   INSERT INTO public.user_role(user_id)
   VALUES (NEW.id);
 
   INSERT INTO public.user_level(user_id)
   VALUES (NEW.id);
 
-  RETURN new;
+  -- Insert GitHub profile link into social_media table if the provider is GitHub
+  IF provider = 'github' THEN
+    INSERT INTO public.social_media (user_id, platform, account_link)
+    VALUES (NEW.id, 'GitHub', 'https://github.com/' || user_name);
+  END IF;
+
+  -- Return the new record
+  RETURN NEW;
+
 EXCEPTION
   WHEN others THEN
+    -- Raise an exception with the error message
     RAISE EXCEPTION 'Error occurred: %', SQLERRM;
 END;
 $$;
 
-create trigger on_auth_user_created
-after insert on auth.users
-for each row
-execute procedure public.handle_new_user();
-
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_new_user();
 
 
 create or replace function public.custom_access_token_hook(event jsonb)
@@ -255,8 +266,8 @@ BEGIN
     FROM social_media
     WHERE user_id = NEW.user_id;
 
-    IF row_count >= 7 THEN
-        RAISE EXCEPTION 'Cannot insert more than 7 rows per user';
+    IF row_count >= 8 THEN
+        RAISE EXCEPTION 'Cannot insert more than 8 rows per user';
     END IF;
 
     RETURN NEW;
