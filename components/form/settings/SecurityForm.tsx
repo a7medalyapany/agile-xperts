@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 
 import { securityFormSchema } from "@/lib/validation";
+import { changeEmailPassword } from "@/lib/actions/auth.action";
 
 interface SecurityFormProps {}
 
@@ -33,9 +34,10 @@ const SecurityForm: FC<SecurityFormProps> = () => {
     mode: "onChange",
   });
 
-  function onSubmit(data: SecurityFormValues) {
+  async function onSubmit(data: SecurityFormValues) {
     try {
       console.log(data);
+      await changeEmailPassword(data);
     } catch (error) {
       console.error(error);
     }
