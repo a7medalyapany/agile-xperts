@@ -78,11 +78,8 @@ export const accountFormSchema = z.object({
     .optional(),
 });
 
-export const securityFormSchema = (identitiesNumber: number, hasGitHubIdentity: boolean) => z
-  .object({
-    oldPassword: (!hasGitHubIdentity || (hasGitHubIdentity && identitiesNumber > 1))
-      ? z.string().min(8, { message: "Old password must be at least 8 characters." })
-      : z.string().optional(),
+export const securityFormSchema = z.object({
+    oldPassword: z.string().min(8, { message: "Old password must be at least 8 characters." }),
     newPassword: z
       .string()
       .min(8, { message: "New password must be at least 8 characters." }),
@@ -108,7 +105,6 @@ export const securityFormSchema = (identitiesNumber: number, hasGitHubIdentity: 
       });
     }
 
-    if (!hasGitHubIdentity || (hasGitHubIdentity && identitiesNumber > 1)) {
       const oldPasswordIsCorrect = true;  // Replace with actual validation logic
       if (!oldPasswordIsCorrect) {
         ctx.addIssue({
@@ -117,5 +113,23 @@ export const securityFormSchema = (identitiesNumber: number, hasGitHubIdentity: 
           path: ["oldPassword"],
         });
       }
+  });
+
+export const githubSecurityFormSchema = z.object({
+    newPassword: z
+      .string()
+      .min(8, { message: "New password must be at least 8 characters." }),
+    confirmPassword: z
+      .string()
+      .min(8, { message: "Confirmed password must be at least 8 characters." }),
+    twoFactorAuth: z.boolean().default(false).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.newPassword !== data.confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "New password and confirmed password do not match.",
+        path: ["confirmPassword"],
+      });
     }
   });

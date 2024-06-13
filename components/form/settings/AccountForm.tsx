@@ -133,7 +133,7 @@ export function AccountForm() {
               )}
             />
           ))}
-          {fields.length < 7 && (
+          {fields.length < 8 && (
             <Button
               type="button"
               variant="outline"

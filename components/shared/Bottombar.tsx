@@ -3,7 +3,7 @@
 import { FC } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { pageLinks } from "@/constants";
+import { PhonePageLinks } from "@/constants";
 import { usePathname } from "next/navigation";
 
 interface BottombarProps {}
@@ -16,7 +16,7 @@ const Bottombar: FC<BottombarProps> = () => {
   };
 
   const renderIcon = (route: string, label: string) => {
-    if (label.toLowerCase() === "profile") {
+    if (label.toLowerCase() === "settings") {
       if (isActive(route)) {
         return "/assets/icons/menu-fill.svg";
       }
@@ -29,14 +29,14 @@ const Bottombar: FC<BottombarProps> = () => {
     }
   };
 
-  const filteredLinks = pageLinks.filter(
-    (link) => link.label !== "Bookmarks" && link.label !== "Activity"
-  );
+  // const filteredLinks = pageLinks.filter(
+  //   (link) => link.label !== "Bookmarks" && link.label !== "Activity"
+  // );
 
   return (
     <section className="xs:px-5 fixed inset-x-2 bottom-0 rounded-lg bg-gradient-to-b from-neutral-300 p-1 backdrop-blur-lg dark:from-neutral-900 sm:hidden">
       <div className="xs:gap-5 flex items-center justify-between gap-1">
-        {filteredLinks.map((link) => {
+        {PhonePageLinks.map((link) => {
           return (
             <Link
               key={link.route}
