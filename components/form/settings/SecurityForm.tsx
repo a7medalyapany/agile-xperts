@@ -1,5 +1,5 @@
 "use client";
-import { FC, useState } from "react";
+import { FC } from "react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -20,24 +20,13 @@ import {
 
 import { securityFormSchema } from "@/lib/validation";
 
-interface SecurityFormProps {
-  identitiesNumber: number;
-  hasGitHubIdentity: boolean;
-  code: string;
-}
+interface SecurityFormProps {}
 
-type SecurityFormValues = z.infer<ReturnType<typeof securityFormSchema>>;
+type SecurityFormValues = z.infer<typeof securityFormSchema>;
 
-const SecurityForm: FC<SecurityFormProps> = ({
-  identitiesNumber,
-  hasGitHubIdentity,
-  code,
-}) => {
-  const [isUpdating, setIsUpdating] = useState(false);
+const SecurityForm: FC<SecurityFormProps> = () => {
   const form = useForm<SecurityFormValues>({
-    resolver: zodResolver(
-      securityFormSchema(identitiesNumber, hasGitHubIdentity)
-    ),
+    resolver: zodResolver(securityFormSchema),
     defaultValues: {
       twoFactorAuth: false,
     },
@@ -46,114 +35,103 @@ const SecurityForm: FC<SecurityFormProps> = ({
 
   function onSubmit(data: SecurityFormValues) {
     try {
-      setIsUpdating(true);
       console.log(data);
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsUpdating(false);
     }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {(!hasGitHubIdentity ||
-          (hasGitHubIdentity && identitiesNumber > 1)) && (
-          <FormField
-            control={form.control}
-            name="oldPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Current Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter current password"
-                    {...field}
+        <FormField
+          control={form.control}
+          name="oldPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Current Password</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  placeholder="Enter current password"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="newPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>New Password</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  placeholder="Enter new password"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm New Password</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  placeholder="Confirm new password"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="twoFactorAuth"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {code ? (
-          <>
-            <FormField
-              control={form.control}
-              name="newPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>New Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter new password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm New Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Confirm new password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="twoFactorAuth"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <FormLabel className="ml-2">
-                        Enable Two-Factor Authentication
-                      </FormLabel>
-                    </>
-                  </FormControl>
-                  <FormDescription>
-                    Boost your account&apos;s security by adding an extra layer
-                    of verification.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              className="mt-4"
-              disabled={
-                !form.formState.isDirty || !form.formState.isValid || isUpdating
-              }
-            >
-              {isUpdating ? "Updating..." : " Update Security Settings"}
-            </Button>
-          </>
-        ) : (
-          <Button type="button" className="w-full" onClick={() => {}}>
-            Reset Password
-          </Button>
-        )}
+                  <FormLabel className="ml-2">
+                    Enable Two-Factor Authentication
+                  </FormLabel>
+                </>
+              </FormControl>
+              <FormDescription>
+                Boost your account&apos;s security by adding an extra layer of
+                verification.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button
+          type="submit"
+          className="mt-4"
+          disabled={
+            !form.formState.isDirty ||
+            !form.formState.isValid ||
+            form.formState.isSubmitting
+          }
+        >
+          {form.formState.isSubmitting
+            ? "Updating..."
+            : " Update Security Settings"}
+        </Button>
       </form>
     </Form>
   );

@@ -1,16 +1,21 @@
 import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { user } from "@/constants/dummy";
 import { SettingsLinks, RemainingSettingsLinks } from "@/constants";
 
 import { signOut } from "@/lib/actions/auth.action";
-export default function SettingsProfilePage() {
+import { getCurrentUser } from "@/lib/actions/user.action";
+export default async function SettingsProfilePage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  const firstLetter = user?.name?.charAt(0)?.toUpperCase() ?? "";
+
   return (
     <>
       <Image
@@ -27,8 +32,8 @@ export default function SettingsProfilePage() {
             className="flex items-center gap-2 p-2"
           >
             <Avatar>
-              <AvatarImage src={user.imgUrl} alt="@userPhoto" />
-              <AvatarFallback>{user.firstLetter}</AvatarFallback>
+              <AvatarImage src={user.avatar_url ?? ""} alt="@userPhoto" />
+              <AvatarFallback>{firstLetter}</AvatarFallback>
             </Avatar>
             <h3 className="text-xl font-bold">{user.name}</h3>
           </Link>
