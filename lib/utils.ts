@@ -1,6 +1,7 @@
 import React from "react";
 import { twMerge } from "tailwind-merge"
 import { type ClassValue, clsx } from "clsx"
+import { socialMediaAccounts } from "@/types/global";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -46,4 +47,15 @@ export function formatDate(dateString: string): string {
   const year = date.getFullYear();
 
   return `Joined - ${month} ${year}`;
+}
+
+export function getGitHubUsername(socialMediaArray: socialMediaAccounts[]) {
+  const githubAccount = socialMediaArray.find(account => account.platform === "GitHub");
+
+  if (githubAccount) {
+      // Extract the GitHub username from the account link
+      return githubAccount.account_link.split("https://github.com/")[1] || null;
+  }
+
+  return null;
 }
