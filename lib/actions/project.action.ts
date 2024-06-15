@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { checkUserIdentity } from "./user.action";
 import { createClient } from "@/lib/supabase/server";
 import { CreateRepositoryParams, InsertProjectParams } from "@/lib/types";
+import { ILastProject, ITeamMember, ITechStack } from "@/types";
 
 export async function createRepository(params: CreateRepositoryParams) {
 	const supabase = createClient();
@@ -124,6 +125,33 @@ export async function insertProject(params: InsertProjectParams) {
 
 	} catch (error) {
 		console.error('Insert Project Error:', error);
+		throw error;
+	}
+}
+
+export async function getLatestProject() {
+	const supabase = createClient<Database>();
+
+	try {
+		const { data } = await supabase.rpc("get_last_project_details");
+	  
+		const project = data?.[0] ?? ({} as ILastProject);
+	  
+		const stack = project.stack as ITechStack[];
+		const members = project.team_members as ITeamMember[];
+		const owner = project.project_owner as {
+		  name: string;
+		  username: string;
+		  email: string;
+		  avatar_url: string;
+		  user_id: string;
+		};
+	  
+	  
+		return { project, members, stack, owner };
+	  
+	} catch (error) {
+		console.error('Get Latest Project Error:', error);
 		throw error;
 	}
 }
