@@ -24,6 +24,7 @@ import ProjectDetails from "@/components/card/ProjectDetails";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/actions/user.action";
+import { getLatestProject } from "@/lib/actions/project.action";
 
 interface pageProps {}
 
@@ -42,6 +43,8 @@ const Page: FC<pageProps> = async () => {
   if (!user) {
     return redirect("/login");
   }
+
+  const { project, owner, members, stack } = await getLatestProject();
 
   return (
     <main className="grid flex-1 items-start gap-4 lg:grid-cols-3">
@@ -224,7 +227,17 @@ const Page: FC<pageProps> = async () => {
           </Card>
         </section>
       </div>
-      <ProjectDetails projectId="1" openProject={true} />
+      <ProjectDetails
+        openProject={true}
+        projectId={project.project_id}
+        title={project.project_title}
+        description={project.project_description}
+        githubUrl={project.github_repo_url}
+        createdAt={project.project_created_at}
+        members={members}
+        stack={stack}
+        owner={owner}
+      />
     </main>
   );
 };
