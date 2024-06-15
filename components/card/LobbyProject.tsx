@@ -10,13 +10,13 @@ import Image from "next/image";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 
 import SelectTech from "../form/SelectTech";
-import { ItechStack } from "@/types";
-import { formatNumber, formatTimestamp } from "@/lib/utils";
+import { ITechStack } from "@/types";
+import { formatDate, formatNumber } from "@/lib/utils";
 
 interface LobbyProjectProps {
   imageUrl: string;
   title: string;
-  techStack: ItechStack[];
+  techStack: ITechStack[];
   knockCount: number;
   createdAt: string;
 }
@@ -36,7 +36,7 @@ const LobbyProject: FC<LobbyProjectProps> = ({
           className="h-auto w-full rounded-lg"
           width="250"
           height="150"
-          src={imageUrl}
+          src={imageUrl || "/assets/images/project-placeholder.png"}
           style={{
             aspectRatio: "250/150",
             objectFit: "cover",
@@ -60,7 +60,11 @@ const LobbyProject: FC<LobbyProjectProps> = ({
           knocks on this project
         </p>
         <p className="text-xs text-muted-foreground">
-          <time dateTime={createdAt}>{formatTimestamp(createdAt)}</time>
+          <time dateTime={createdAt}>
+            {formatDate({
+              dateString: createdAt,
+            })}
+          </time>
         </p>
       </CardFooter>
     </Card>

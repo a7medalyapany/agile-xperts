@@ -22,32 +22,44 @@ import ReadMore from "../shared/ReadMore";
 import { Separator } from "@/components/ui/separator";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
-
-import { projectsData } from "@/constants/dummy";
+import { IProjectOwner, ITeamMember, ITechStack } from "@/types";
+import { formatDate } from "@/lib/utils";
 
 interface ProjectDetailsProps {
-  projectId: string;
   openProject?: boolean;
+  projectId: number;
+  title: string;
+  description: string;
+  githubUrl: string;
+  createdAt: string;
+  owner: IProjectOwner;
+  members: ITeamMember[];
+  stack: ITechStack[];
 }
 
-const ProjectDetails: FC<ProjectDetailsProps> = ({
+const ProjectDetails: FC<ProjectDetailsProps> = async ({
   projectId,
-  openProject = false,
+  title,
+  description,
+  createdAt,
+  owner,
+  members,
+  stack,
+  openProject,
 }) => {
-  const project = projectsData.find((project) => project.id === projectId);
   return (
     <Card className="overflow-hidden drop-shadow-md">
       <CardHeader className="flex flex-row items-start bg-muted/50">
         <div className="grid gap-0.5">
           <CardTitle className="group flex items-center gap-2 text-lg">
-            {project!.title}
+            {title}
           </CardTitle>
           <CardDescription className="text-start text-sm text-muted-foreground">
             <Link
-              href={`/profile/${project?.ownerId}`}
+              href={`/profile/${owner.user_id}`}
               className="hover:underline"
             >
-              @owner
+              {owner.name}
             </Link>
           </CardDescription>
         </div>
@@ -55,7 +67,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
         <div className="ml-auto flex items-center gap-1">
           {openProject && (
             <Link
-              href={`/project/${project!.id}`}
+              href={`/project/${projectId}`}
               className={buttonVariants({
                 variant: "outline",
                 size: "sm",
@@ -79,7 +91,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
                 <Link
-                  href={`/project/settings/${project!.id}`}
+                  href={`/project/settings/${projectId}`}
                   className="w-full"
                 >
                   Edit
@@ -99,7 +111,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             <ReadMore
               maxLength={200}
               className="text-muted-foreground"
-              text={project!.description}
+              text={description}
             />
           </ul>
         </div>
@@ -107,13 +119,16 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
         <div className="grid gap-3">
           <div className="font-semibold">Members</div>
           <ul className="grid gap-1">
-            {project!.members.map((member) => (
-              <li key={member.id} className="flex items-center justify-between">
-                <Link href={`/profile/${member.id}`}>{member.name}</Link>
+            {members.map((member) => (
+              <li
+                key={member.user_id}
+                className="flex items-center justify-between"
+              >
+                <Link href={`/profile/${member.user_id}`}>{member.name}</Link>
                 <span className="flex gap-0.5 text-sm text-muted-foreground">
-                  {member.tech}
+                  {member.tech_name}
                   <span>·</span>
-                  {member.role}
+                  {member.tech_designation}
                 </span>
               </li>
             ))}
@@ -123,13 +138,18 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
         <div className="grid gap-3">
           <div className="font-semibold">Tech Stack</div>
           <div className="flex w-full flex-row items-center justify-center">
-            <AnimatedTooltip items={project!.techStack} className="size-9" />
+            <AnimatedTooltip items={stack} className="size-9" />
           </div>
         </div>
       </CardContent>
       <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
         <div className="text-xs text-muted-foreground">
-          Created at <time dateTime="2023-11-23">{project!.createdAt}</time>
+          <time dateTime={createdAt}>
+            {formatDate({
+              dateString: createdAt,
+              type: "createdAt",
+            })}
+          </time>
         </div>
       </CardFooter>
     </Card>
