@@ -1,11 +1,12 @@
 import { FC } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { formatNumber } from "@/lib/utils";
 
 interface MetricProps {
   imgUrl: string;
   alt: string;
-  value: string | number;
+  value?: number;
   href?: string;
   title: string;
   textStyle?: string;
@@ -22,7 +23,11 @@ const Metric: FC<MetricProps> = ({ imgUrl, alt, value, href, textStyle }) => {
         height={16}
         className={`object-contain invert  ${href ? "size-[28px] rounded-full" : ""}`}
       />
-      <p className={`${textStyle} flex items-center gap-1`}>{value}</p>
+      {value !== undefined && value > 0 && (
+        <p className={`${textStyle} flex items-center gap-1`}>
+          {formatNumber(value)}
+        </p>
+      )}
     </div>
   );
 

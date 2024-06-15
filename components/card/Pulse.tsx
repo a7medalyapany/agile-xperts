@@ -6,13 +6,23 @@ import { IPulseProps } from "@/types";
 import Metric from "../shared/Metric";
 import ReadMore from "../shared/ReadMore";
 
-const Pulse: FC<IPulseProps> = ({
+interface PulseProps extends IPulseProps {
+  isEchoBack?: boolean;
+  echoBack: string[];
+}
+
+const Pulse: FC<PulseProps> = ({
   id,
-  author,
   content,
-  echoBack,
-  isEchoBack,
   photo,
+  authorId,
+  authorName,
+  authorAvatar,
+  likeCount,
+  replyCount,
+  repostCount,
+  isEchoBack,
+  echoBack,
 }) => {
   return (
     <article
@@ -22,10 +32,10 @@ const Pulse: FC<IPulseProps> = ({
       <div className="flex items-start">
         <div className="flex w-full flex-1 flex-row gap-2">
           <div className="flex flex-col items-center">
-            <Link href={`/profile/${author.id}`} className="relative size-11">
+            <Link href={`/profile/${authorId}`} className="relative size-11">
               <Avatar>
-                <AvatarImage src={author.imgUrl} alt="@userPhoto" />
-                <AvatarFallback>{author.firstLetter}</AvatarFallback>
+                <AvatarImage src={authorAvatar} alt="@userPhoto" />
+                <AvatarFallback>{authorName.charAt(0)}</AvatarFallback>
               </Avatar>
             </Link>
 
@@ -33,23 +43,27 @@ const Pulse: FC<IPulseProps> = ({
           </div>
 
           <div className="flex w-full flex-col space-y-2">
-            <Link href={`/profile/${author.id}`} className="w-fit">
+            <Link href={`/profile/${authorId}`} className="w-fit">
               <h4 className="base-medium cursor-pointer font-bold">
-                {author.name}
+                {authorName}
               </h4>
             </Link>
 
-            <ReadMore text={content} className="text-start text-sm" />
+            <Link href={`/dev-pulse/${id}`} className="w-full">
+              {content && (
+                <ReadMore text={content} className="text-start text-sm" />
+              )}
 
-            {photo && (
-              <Image
-                src={photo}
-                alt="pulse-photo"
-                width={1200}
-                height={400}
-                className=" xs:h-[400px] h-64 w-full rounded-lg object-cover lg:h-[450px]"
-              />
-            )}
+              {photo && (
+                <Image
+                  src={photo}
+                  alt="pulse-photo"
+                  width={1200}
+                  height={400}
+                  className=" xs:h-[400px] h-64 w-full rounded-lg object-cover lg:h-[450px]"
+                />
+              )}
+            </Link>
 
             <div
               className={`${isEchoBack && "mb-10"} mt-5 flex flex-col gap-3`}
@@ -58,27 +72,27 @@ const Pulse: FC<IPulseProps> = ({
                 <Metric
                   imgUrl="/assets/icons/echo.svg"
                   alt="Echo"
-                  value={13}
+                  value={likeCount}
                   title="Echoes"
                   textStyle="small-medium text-muted-foreground"
                 />
                 <Metric
                   imgUrl="/assets/icons/echoOut.svg"
                   alt="Echo Out "
-                  value={112}
+                  value={repostCount}
                   title="Echo Outs"
                   textStyle="small-medium text-muted-foreground"
                 />
                 <Metric
                   imgUrl="/assets/icons/echoBack.svg"
                   alt="Echo Backs"
-                  value={74}
+                  value={replyCount}
                   title="Replies"
                   textStyle="small-medium text-muted-foreground"
                 />
                 <Metric
                   imgUrl="/assets/icons/analytics.svg"
-                  alt="Heart"
+                  alt="Views"
                   value={228}
                   title={`Views`}
                   textStyle="small-medium text-muted-foreground"
@@ -86,7 +100,6 @@ const Pulse: FC<IPulseProps> = ({
                 <Metric
                   imgUrl={"/assets/icons/bookmarks-fill.svg"}
                   alt="Bookmarks"
-                  value={6}
                   title={`Bookmarks`}
                   textStyle="small-medium text-muted-foreground"
                 />
@@ -102,14 +115,6 @@ const Pulse: FC<IPulseProps> = ({
             </div>
           </div>
         </div>
-
-        {/* <DeleteThread
-          threadId={JSON.stringify(id)}
-          currentUserId={currentUserId}
-          authorId={author.id}
-          parentId={parentId}
-          isComment={isComment}
-        /> */}
       </div>
 
       {!isEchoBack && echoBack.length > 0 && (
@@ -117,7 +122,7 @@ const Pulse: FC<IPulseProps> = ({
           {echoBack.slice(0, 2).map((echoBack, index) => (
             <Image
               key={index}
-              src={echoBack.author.imgUrl}
+              src={echoBack}
               alt={`author_${index}`}
               width={24}
               height={24}

@@ -116,3 +116,97 @@ USING (
     WHERE m.team_id = team.id AND m.user_id = auth.uid()
   )
 );
+
+
+-- RLS For Social Media Tables
+-- Select all posts
+CREATE POLICY "Allow select for all" ON post
+FOR SELECT
+USING (true);
+
+-- Insert posts for authenticated users
+CREATE POLICY "Allow insert for authenticated users" ON post
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Update only own posts
+CREATE POLICY "Allow update for own posts" ON post
+FOR UPDATE
+USING (auth.uid() = user_id);
+
+-- Delete only own posts
+CREATE POLICY "Allow delete for own posts" ON post
+FOR DELETE
+USING (auth.uid() = user_id);
+
+
+-- Select all likes
+CREATE POLICY "Allow select for all" ON likes
+FOR SELECT
+USING (true);
+
+-- Insert likes for authenticated users
+CREATE POLICY "Allow insert for authenticated users" ON likes
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Delete only own likes
+CREATE POLICY "Allow delete for own likes" ON likes
+FOR DELETE
+USING (auth.uid() = user_id);
+
+
+-- Select all bookmarks
+CREATE POLICY "Allow select for own " ON bookmark
+FOR SELECT
+USING (auth.uid() = user_id);
+
+-- Insert bookmarks for authenticated users
+CREATE POLICY "Allow insert for authenticated users" ON bookmark
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Delete only own bookmarks
+CREATE POLICY "Allow delete for own bookmarks" ON bookmark
+FOR DELETE
+USING (auth.uid() = user_id);
+
+
+
+-- Select all replies
+CREATE POLICY "Allow select for all" ON reply
+FOR SELECT
+USING (true);
+
+-- Insert replies for authenticated users
+CREATE POLICY "Allow insert for authenticated users" ON reply
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Update only own replies
+CREATE POLICY "Allow update for own replies" ON reply
+FOR UPDATE
+USING (auth.uid() = user_id);
+
+-- Delete only own replies
+CREATE POLICY "Allow delete for own replies" ON reply
+FOR DELETE
+USING (auth.uid() = user_id);
+
+
+
+-- Select all reposts
+CREATE POLICY "Allow select for all" ON repost
+FOR SELECT
+USING (true);
+
+-- Insert reposts for authenticated users
+CREATE POLICY "Allow insert for authenticated users" ON repost
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Delete only own reposts
+CREATE POLICY "Allow delete for own reposts" ON repost
+FOR DELETE
+USING (auth.uid() = user_id);
+
