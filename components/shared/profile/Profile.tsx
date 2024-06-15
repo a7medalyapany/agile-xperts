@@ -51,7 +51,12 @@ const Profile: FC<ProfileProps> = async ({ profileId }) => {
           )}
           <div className="flex items-center justify-center gap-1">
             <CalendarDaysIcon strokeWidth={1} size={16} />
-            <p>{formatDate(joinedAt!)}</p>
+            <p>
+              {formatDate({
+                dateString: joinedAt!,
+                type: "joinedAt",
+              })}
+            </p>
           </div>
         </div>
         <FollowersCounter followers={4} following={20} />
