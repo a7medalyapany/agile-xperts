@@ -13,12 +13,18 @@ export interface IUser {
 }
 
 export interface IPulseProps {
-	id?: string;
-	author: IUser;
-	content: string;
-	photo?: string;
-	isEchoBack?: boolean;
-	echoBack: IPulseProps[];
+	id: number;
+	content?: string | null;
+	photo?: string | null;
+	createdAt: string;
+	updatedAt: string;
+	authorId: string;
+	authorName: string;
+	authorUsername: string;
+	authorAvatar: string;
+	likeCount: number;
+	replyCount: number;
+	repostCount: number;
 }
 
 export interface ITeamMember {
@@ -65,9 +71,9 @@ export interface IProject {
 export interface ILastProject extends IProject {}
 
 export interface IPostPulse {
-	content: string;
-	photo?: string;
-	author?: IUser;
+	content?: string;
+	imgUrl?: string;
+	parentId?: number;
 }
 
 export interface URLProps {
@@ -78,4 +84,16 @@ export interface URLProps {
 export interface FormatDateTypes {
 	dateString: string,
 	type?: 'joinedAt' | 'createdAt' | 'updatedAt'
+}
+
+export interface IPulseReply {
+	replyId: number,
+	content?: string | null;
+	photo?: string | null;
+	createdAt:string;
+	updatedAt: string;
+	authorId: string;
+	authorName: string;
+	authorUsername: string;
+	authorAvatar: string
 }
