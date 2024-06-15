@@ -84,3 +84,35 @@ create policy "Enable read access for all users" on "public"."user_role" as PERM
 
 -- Profile 
 create policy "Enable read access for users to read own data" on "public"."profile" as PERMISSIVE for SELECT to public using (  auth.uid() = id );
+
+
+-- Stack
+alter policy "Enable read access for all users" on "public"."stack" to public using ( true );
+
+-- Member
+
+-- Allow users to select from the member table if they are part of the team
+CREATE POLICY select_member_if_team_member
+ON public.member
+FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 
+    FROM public.member m
+    WHERE m.team_id = member.team_id AND m.user_id = auth.uid()
+  )
+);
+
+
+-- Team
+-- Allow users to select from the team table if they are part of the team
+CREATE POLICY select_team_if_member
+ON public.team
+FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 
+    FROM public.member m
+    WHERE m.team_id = team.id AND m.user_id = auth.uid()
+  )
+);
