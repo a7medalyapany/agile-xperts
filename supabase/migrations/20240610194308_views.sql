@@ -87,3 +87,180 @@ group by
   p.created_at,
   p.img_url,
   r.request_count;
+
+
+
+CREATE VIEW public.post_details AS
+SELECT 
+    post.id AS post_id,
+    post.content,
+    post.img_url,
+    post.created_at,
+    post.updated_at,
+    profile.id AS author_id,
+    profile.name AS author_name,
+    profile.username AS author_username,
+    profile.avatar_url AS author_avatar_url,
+    -- Counting likes
+    COALESCE(like_counts.like_count, 0) AS like_count,
+    -- Counting replies
+    COALESCE(reply_counts.reply_count, 0) AS reply_count,
+    -- Counting reposts
+    COALESCE(repost_counts.repost_count, 0) AS repost_count,
+    -- Reply authors' avatars
+    reply_avatars.avatars AS reply_avatars
+FROM 
+    post
+JOIN 
+    profile ON post.user_id = profile.id
+-- Aggregating like counts
+LEFT JOIN (
+    SELECT 
+        post_id,
+        COUNT(*) AS like_count
+    FROM 
+        likes
+    GROUP BY 
+        post_id
+) AS like_counts ON post.id = like_counts.post_id
+-- Aggregating reply counts
+LEFT JOIN (
+    SELECT 
+        post_id,
+        COUNT(*) AS reply_count
+    FROM 
+        reply
+    GROUP BY 
+        post_id
+) AS reply_counts ON post.id = reply_counts.post_id
+-- Aggregating repost counts
+LEFT JOIN (
+    SELECT 
+        original_post_id AS post_id,
+        COUNT(*) AS repost_count
+    FROM 
+        repost
+    GROUP BY 
+        original_post_id
+) AS repost_counts ON post.id = repost_counts.post_id
+-- Aggregating reply avatars
+LEFT JOIN (
+    SELECT 
+        r.post_id,
+        ARRAY(
+            SELECT p.avatar_url 
+            FROM reply r2 
+            JOIN profile p ON r2.user_id = p.id 
+            WHERE r2.post_id = r.post_id 
+            ORDER BY r2.created_at 
+            LIMIT 3
+        ) AS avatars
+    FROM 
+        reply r
+    GROUP BY 
+        r.post_id
+) AS reply_avatars ON post.id = reply_avatars.post_id;
+
+
+
+
+
+
+
+CREATE VIEW public.post_details_with_replies AS
+SELECT 
+    post.id AS post_id,
+    post.content,
+    post.img_url,
+    post.created_at,
+    post.updated_at,
+    profile.id AS author_id,
+    profile.name AS author_name,
+    profile.username AS author_username,
+    profile.avatar_url AS author_avatar_url,
+    -- Counting likes
+    COALESCE(like_counts.like_count, 0) AS like_count,
+    -- Counting replies
+    COALESCE(reply_counts.reply_count, 0) AS reply_count,
+    -- Counting reposts
+    COALESCE(repost_counts.repost_count, 0) AS repost_count,
+    -- Reply authors' avatars
+    reply_avatars.avatars AS reply_avatars,
+    -- Replies details
+    reply_details.reply_data AS replies
+FROM 
+    post
+JOIN 
+    profile ON post.user_id = profile.id
+-- Aggregating like counts
+LEFT JOIN (
+    SELECT 
+        post_id,
+        COUNT(*) AS like_count
+    FROM 
+        likes
+    GROUP BY 
+        post_id
+) AS like_counts ON post.id = like_counts.post_id
+-- Aggregating reply counts
+LEFT JOIN (
+    SELECT 
+        post_id,
+        COUNT(*) AS reply_count
+    FROM 
+        reply
+    GROUP BY 
+        post_id
+) AS reply_counts ON post.id = reply_counts.post_id
+-- Aggregating repost counts
+LEFT JOIN (
+    SELECT 
+        original_post_id AS post_id,
+        COUNT(*) AS repost_count
+    FROM 
+        repost
+    GROUP BY 
+        original_post_id
+) AS repost_counts ON post.id = repost_counts.post_id
+-- Aggregating reply avatars
+LEFT JOIN (
+    SELECT 
+        r.post_id,
+        ARRAY(
+            SELECT p.avatar_url 
+            FROM reply r2 
+            JOIN profile p ON r2.user_id = p.id 
+            WHERE r2.post_id = r.post_id 
+            ORDER BY r2.created_at 
+            LIMIT 3
+        ) AS avatars
+    FROM 
+        reply r
+    GROUP BY 
+        r.post_id
+) AS reply_avatars ON post.id = reply_avatars.post_id
+-- Collecting replies details
+LEFT JOIN (
+    SELECT 
+        post_id,
+        json_agg(json_build_object(
+            'reply_id', r.id,
+            'content', r.content,
+            'img_url', r.img_url,
+            'created_at', r.created_at,
+            'updated_at', r.updated_at,
+            'author_id', p.id,
+            'author_name', p.name,
+            'author_username', p.username,
+            'author_avatar_url', p.avatar_url
+        )) AS reply_data
+    FROM 
+        reply r
+    JOIN 
+        profile p ON r.user_id = p.id
+    GROUP BY 
+        r.post_id
+) AS reply_details ON post.id = reply_details.post_id;
+
+
+select * from public.post_details_with_replies
