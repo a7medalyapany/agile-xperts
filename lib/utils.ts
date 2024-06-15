@@ -2,6 +2,7 @@ import React from "react";
 import { twMerge } from "tailwind-merge"
 import { type ClassValue, clsx } from "clsx"
 import { socialMediaAccounts } from "@/types/global";
+import { FormatDateTypes } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -36,18 +37,6 @@ export function getImageData(event: React.ChangeEvent<HTMLInputElement>) {
   return { files, displayUrl };
 }
 
-export function formatDate(dateString: string): string {
-  const months = [
-    "January", "February", "March", "April", "May", "June", 
-    "July", "August", "September", "October", "November", "December"
-  ];
-
-  const date = new Date(dateString);
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-
-  return `Joined - ${month} ${year}`;
-}
 
 export function getGitHubUsername(socialMediaArray: socialMediaAccounts[]) {
   const githubAccount = socialMediaArray.find(account => account.platform === "GitHub");
@@ -70,12 +59,31 @@ export function formatNumber(n: number): string {
   }
 }
 
-export function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp);
+export function formatDate(params: FormatDateTypes): string {
+  const { dateString, type} = params;
+  const months = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid date string");
+  }
 
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
+  const monthName = months[date.getMonth()];
 
-  return `${year}-${month}-${day}`;
+  if (type === "joinedAt") {
+    return `Joined - ${monthName} ${year}`;
+  } else if (type === "createdAt") {
+    return `Created at ${monthName} ${day}, ${year}`;
+  } else if (type === "updatedAt") {
+    return `Updated at ${monthName} ${day}, ${year}`;
+  } else {
+    return `${year}-${month}-${day}`;
+  }
 }
