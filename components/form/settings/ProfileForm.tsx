@@ -53,7 +53,6 @@ export function ProfileForm() {
   const supabase = createClient();
   const [preview, setPreview] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const [selectedCountryName, setSelectedCountryName] = useState("");
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -224,7 +223,11 @@ export function ProfileForm() {
                     variant="outline"
                     className="justify-between bg-muted"
                   >
-                    {selectedCountryName || "Select country"}
+                    {field.value
+                      ? countries.find(
+                          (country) => country.id === field.value?.id
+                        )?.name
+                      : "Select country"}
                     <ChevronsUpDownIcon className="ml-2 size-4 shrink-0" />
                   </Button>
                 </PopoverTrigger>
@@ -238,14 +241,16 @@ export function ProfileForm() {
                           <CommandItem
                             key={country.id}
                             onSelect={() => {
-                              form.setValue("country", country.id);
-                              setSelectedCountryName(country.name);
+                              form.setValue("country", {
+                                id: country.id,
+                                name: country.name,
+                              });
                             }}
                           >
                             <CheckIcon
                               className={cn(
                                 "mr-2 h-4 w-4",
-                                country.id === field.value
+                                country.id === field.value?.id
                                   ? "opacity-100"
                                   : "opacity-0"
                               )}
