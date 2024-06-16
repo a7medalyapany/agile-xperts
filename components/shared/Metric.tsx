@@ -1,6 +1,6 @@
 import { FC } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { formatNumber } from "@/lib/utils";
 
 interface MetricProps {
@@ -11,17 +11,34 @@ interface MetricProps {
   title: string;
   textStyle?: string;
   isAuthor?: boolean;
+  onClick?: () => void;
 }
 
-const Metric: FC<MetricProps> = ({ imgUrl, alt, value, href, textStyle }) => {
+const Metric: FC<MetricProps> = ({
+  imgUrl,
+  alt,
+  value,
+  href,
+  textStyle,
+  onClick,
+}) => {
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
+
   const metricContent = (
-    <div className="flex cursor-pointer gap-2 p-2 hover:rounded-full hover:bg-primary/30 hover:backdrop-blur-lg">
+    <div
+      onClick={handleClick}
+      className="flex cursor-pointer gap-2 p-2 hover:rounded-full hover:bg-primary/30 hover:backdrop-blur-lg"
+    >
       <Image
         src={imgUrl}
         alt={alt}
         width={16}
         height={16}
-        className={`object-contain invert  ${href ? "size-[28px] rounded-full" : ""}`}
+        className={`object-contain invert ${href ? "size-[28px] rounded-full" : ""}`}
       />
       {value !== undefined && value > 0 && (
         <p className={`${textStyle} flex items-center gap-1`}>
