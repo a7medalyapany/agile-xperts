@@ -227,17 +227,19 @@ const Page: FC<pageProps> = async () => {
           </Card>
         </section>
       </div>
-      <ProjectDetails
-        openProject={true}
-        projectId={project.project_id}
-        title={project.project_title}
-        description={project.project_description}
-        githubUrl={project.github_repo_url}
-        createdAt={project.project_created_at}
-        members={members}
-        stack={stack}
-        owner={owner}
-      />
+      {Object.keys(project).length !== 0 && (
+        <ProjectDetails
+          openProject={true}
+          projectId={project.project_id}
+          title={project.project_title}
+          description={project.project_description}
+          githubUrl={project.github_repo_url}
+          createdAt={project.project_created_at}
+          members={members}
+          stack={stack}
+          owner={owner}
+        />
+      )}
     </main>
   );
 };
