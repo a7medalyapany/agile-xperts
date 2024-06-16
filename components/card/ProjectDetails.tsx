@@ -22,7 +22,7 @@ import ReadMore from "../shared/ReadMore";
 import { Separator } from "@/components/ui/separator";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
-import { IProjectOwner, ITeamMember, ITechStack } from "@/types";
+import { IProjectOwner, ITeamMember } from "@/types";
 import { formatDate } from "@/lib/utils";
 
 interface ProjectDetailsProps {
@@ -34,7 +34,11 @@ interface ProjectDetailsProps {
   createdAt: string;
   owner: IProjectOwner;
   members: ITeamMember[];
-  stack: ITechStack[];
+  stack: {
+    id: number;
+    name: string;
+    designation: string;
+  }[];
 }
 
 const ProjectDetails: FC<ProjectDetailsProps> = async ({
@@ -43,6 +47,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = async ({
   description,
   createdAt,
   owner,
+  githubUrl,
   members,
   stack,
   openProject,
@@ -56,7 +61,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = async ({
           </CardTitle>
           <CardDescription className="text-start text-sm text-muted-foreground">
             <Link
-              href={`/profile/${owner.user_id}`}
+              href={`/profile/${owner.user_id!}`}
               className="hover:underline"
             >
               {owner.name}
@@ -99,7 +104,11 @@ const ProjectDetails: FC<ProjectDetailsProps> = async ({
               </DropdownMenuItem>
               <DropdownMenuItem>Leave</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>GitHub</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link target="_blank" href={githubUrl} className="w-full">
+                  GitHub
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
