@@ -25,6 +25,9 @@ export interface IPulseProps {
 	likeCount: number;
 	replyCount: number;
 	repostCount: number;
+	hasLiked: boolean;
+	hasReposted: boolean;
+	hasBookmarked: boolean;
 }
 
 export interface ITeamMember {

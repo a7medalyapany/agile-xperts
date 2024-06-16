@@ -85,6 +85,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/profile',
+    '/bookmarks',
     '/settings', // make sure to add the settings pages *
     '/create-project',
     '/settings/security',

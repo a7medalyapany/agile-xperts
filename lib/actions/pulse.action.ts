@@ -1,8 +1,9 @@
 'use server'
 
-import { IPostPulse, IPulseReply } from "@/types"
 import { revalidatePath } from "next/cache"
 import { createClient } from "../supabase/server"
+import { IPostPulse, IPulseReply } from "@/types"
+import { LikePulseParams } from "../types"
 
 export async function postPulse(params: IPostPulse) {
 	const { content, imgUrl, parentId } = params
@@ -100,6 +101,154 @@ export async function getPulseById(params: { id: string }) {
 		  })) : []
 	  
 		  return { pulse, replies }
+	} catch (error) {
+		console.error(error)
+		throw error
+	}
+}
+
+export async function handlePulseLike(params: LikePulseParams) {
+	const { postId } = params;
+	const supabase = createClient<Database>()
+
+	try {
+		const { data: { user }, error: userError } = await supabase.auth.getUser()
+		if (userError) {
+		  throw userError
+		}
+		if (!user) {
+		  throw new Error("User not found")
+		}
+		const userId = user.id
+	
+		const { error: postError } = await supabase.from('post').select('id').eq('id', postId).single()
+	
+		if (postError) {
+		  throw new Error("Post not found")
+		}
+	
+		const { data: like, error: likeError } = await supabase.from('likes').select('id').eq('post_id', postId).eq('user_id', userId).single()
+	
+		if (like && !likeError) {
+		  const { error: deleteError } = await supabase.from('likes').delete().eq('id', like.id)
+	
+		  if (deleteError) {
+			throw deleteError
+		  }
+	
+		  const { count: updatedLikeCount, error: countError } = await supabase.from('likes').select('id', { count: 'exact' }).eq('post_id', postId)
+	
+		  if (countError) {
+			throw countError
+		  }
+		  
+		  revalidatePath(`/dev-pulse}`)
+		  return { message: 'Post disliked', likeCount: updatedLikeCount }
+		} else {
+		  const { data: likeData, error: insertError } = await supabase.from('likes').insert({
+			user_id: userId,
+			post_id: postId
+		  }).single()
+	
+		  if (insertError) {
+			throw insertError
+		  }
+	
+		  const { count: updatedLikeCount, error: countError } = await supabase.from('likes').select('id', { count: 'exact' }).eq('post_id', postId)
+	
+		  if (countError) {
+			throw countError
+		  }
+		  
+		  revalidatePath(`/dev-pulse}`)
+		  return { message: 'Post liked', likeData, likeCount: updatedLikeCount }
+		}
+	
+	  } catch (error) {
+		console.error(error)
+		throw error
+	  }
+}
+
+export async function handlePulseBookMark(params: LikePulseParams) {
+	const { postId } = params;
+	const supabase = createClient<Database>()
+
+	try {
+		const { data: { user }, error: userError } = await supabase.auth.getUser()
+		if (userError) {
+		  throw userError
+		}
+		if (!user) {
+		  throw new Error("User not found")
+		}
+		const userId = user.id
+	
+		const { error: postError } = await supabase.from('post').select('id').eq('id', postId).single()
+	
+		if (postError) {
+		  throw new Error("Post not found")
+		}
+	
+		const { data: bookmark, error: bookmarkError } = await supabase.from('bookmark').select('id').eq('post_id', postId).eq('user_id', userId).single()
+	
+		if (bookmark && !bookmarkError) {
+		  const { error: deleteError } = await supabase.from('bookmark').delete().eq('id', bookmark.id)
+	
+		  if (deleteError) {
+			throw deleteError
+		  }
+	
+		  
+		  revalidatePath(`/dev-pulse}`)
+		  return { message: 'Post deleted from bookmark' }
+		} else {
+		  const { data: bookmarkData, error: insertError } = await supabase.from('bookmark').insert({
+			user_id: userId,
+			post_id: postId
+		  }).single()
+	
+		  if (insertError) {
+			throw insertError
+		  }
+	
+		  revalidatePath(`/dev-pulse}`)
+		  return { message: 'Post bookmarked', bookmarkData }
+		}
+	
+	  } catch (error) {
+		console.error(error)
+		throw error
+	  }
+}
+
+export async function removeBookmarkedPulse(params: { bookmarkId:  number }) {
+	const { bookmarkId } = params;
+	const supabase = createClient<Database>()
+
+	try {
+		const { error: deleteError } = await supabase.from('bookmark').delete().eq('id', bookmarkId)
+	
+		if (deleteError) {
+			throw deleteError
+		}
+		revalidatePath('/bookmarks')
+		return { message: 'Post deleted from bookmark' }
+	  } catch (error) {
+		console.error(error)
+		throw error
+	  }
+}
+
+export async function getUserBookmarks() {
+	const supabase = createClient<Database>()
+
+	try{
+		const { data, error } = await supabase.from("bookmark").select("*, profile(*), post(*)")
+		if (error) {
+			throw error
+		}
+		return data
 	} catch (error) {
 		console.error(error)
 		throw error

@@ -8,6 +8,7 @@ interface pageProps {}
 
 const Page: FC<pageProps> = async () => {
   const data = await getAllPulses();
+
   return (
     <div className="size-full space-y-4 overflow-auto sm:rounded-lg sm:border">
       <PulseForm placeholder="Echo in DevPulse…" />
@@ -28,6 +29,9 @@ const Page: FC<pageProps> = async () => {
           repostCount={pulse.repost_count!}
           isEchoBack={false}
           echoBack={pulse.reply_avatars || []}
+          hasLiked={pulse.has_liked!}
+          hasReposted={pulse.has_reposted!}
+          hasBookmarked={pulse.has_bookmarked!}
         />
       ))}
     </div>
