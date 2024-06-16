@@ -8,15 +8,17 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
-
 import SelectTech from "../form/SelectTech";
-import { ITechStack } from "@/types";
 import { formatDate, formatNumber } from "@/lib/utils";
 
 interface LobbyProjectProps {
   imageUrl: string;
   title: string;
-  techStack: ITechStack[];
+  techStack: {
+    id: number;
+    name: string;
+    designation: string;
+  }[];
   knockCount: number;
   createdAt: string;
 }
@@ -61,9 +63,7 @@ const LobbyProject: FC<LobbyProjectProps> = ({
         </p>
         <p className="text-xs text-muted-foreground">
           <time dateTime={createdAt}>
-            {formatDate({
-              dateString: createdAt,
-            })}
+            {formatDate({ dateString: createdAt })}
           </time>
         </p>
       </CardFooter>

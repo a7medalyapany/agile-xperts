@@ -1,10 +1,16 @@
 import { FC } from "react";
 import { URLProps } from "@/types";
+import { createClient } from "@/lib/supabase/server";
 import ProjectRepo from "@/components/form/ProjectRepo";
 
 interface pageProps extends URLProps {}
 
-const Page: FC<pageProps> = ({ params }) => {
+const Page: FC<pageProps> = async ({ params }) => {
+  const supabase = createClient<Database>();
+  const { data: technologies } = await supabase
+    .from("technologies")
+    .select("*")
+    .neq("name", "Admin");
   return (
     <>
       <header className="flex py-4">
@@ -12,7 +18,7 @@ const Page: FC<pageProps> = ({ params }) => {
           Update your project settings
         </h1>
       </header>
-      <ProjectRepo />
+      <ProjectRepo technologies={technologies!} />
     </>
   );
 };

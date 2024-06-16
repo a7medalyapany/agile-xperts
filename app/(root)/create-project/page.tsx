@@ -1,11 +1,15 @@
 import { FC } from "react";
 import CreateRepo from "@/components/form/ProjectRepo";
+import { createClient } from "@/lib/supabase/server";
 
-interface pageProps {
-  searchParams: { message: string };
-}
+interface pageProps {}
 
-const Page: FC<pageProps> = ({ searchParams }) => {
+const Page: FC<pageProps> = async () => {
+  const supabase = createClient<Database>();
+  const { data: technologies } = await supabase
+    .from("technologies")
+    .select("*")
+    .neq("name", "Admin");
   return (
     <>
       <header className="flex py-4">
@@ -13,7 +17,7 @@ const Page: FC<pageProps> = ({ searchParams }) => {
           Get Started: Bring Your Idea to Life
         </h1>
       </header>
-      <CreateRepo />
+      <CreateRepo technologies={technologies!} />
     </>
   );
 };

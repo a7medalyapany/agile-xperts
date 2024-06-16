@@ -210,3 +210,8 @@ CREATE POLICY "Allow delete for own reposts" ON repost
 FOR DELETE
 USING (auth.uid() = user_id);
 
+
+
+
+-- Select all technologies
+alter policy "Enable read access for all users" on "public"."technologies" to public using ( true );
