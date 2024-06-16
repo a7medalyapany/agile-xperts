@@ -27,6 +27,9 @@ const page: FC<URLProps> = async ({ params }: URLProps) => {
             repostCount={pulse.repost_count!}
             isEchoBack={false}
             echoBack={pulse.reply_avatars || []}
+            hasLiked={pulse.has_liked!}
+            hasReposted={pulse.has_reposted!}
+            hasBookmarked={pulse.has_bookmarked!}
           />
           <PulseForm
             parentPostId={parseInt(params.id)}
@@ -51,6 +54,9 @@ const page: FC<URLProps> = async ({ params }: URLProps) => {
           likeCount={0}
           replyCount={0}
           repostCount={0}
+          hasLiked={false}
+          hasReposted={false}
+          hasBookmarked={false}
         />
       ))}
     </div>
