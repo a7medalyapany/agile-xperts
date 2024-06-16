@@ -65,7 +65,11 @@ select
   p.img_url as project_img_url,
   coalesce(r.request_count, 0::bigint) as request_count,
   jsonb_agg(
-    jsonb_build_object('name', t.name, 'designation', t.designation)
+    jsonb_build_object(
+      'id', t.id,
+      'name', t.name,
+      'designation', t.designation
+    )
   ) as technologies
 from
   project p
@@ -87,6 +91,8 @@ group by
   p.created_at,
   p.img_url,
   r.request_count;
+
+
 
 
 
