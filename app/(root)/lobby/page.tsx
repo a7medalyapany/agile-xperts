@@ -1,13 +1,11 @@
 import { FC } from "react";
-import LobbyProject from "@/components/card/LobbyProject";
-import { techStack } from "@/constants/dummy";
 import { getLobby } from "@/lib/actions/lobby.action";
+import LobbyProject from "@/components/card/LobbyProject";
 
 interface pageProps {}
 
 const Page: FC<pageProps> = async () => {
   const projects = await getLobby();
-  console.log(projects[0].technologies);
   return (
     <>
       <header className="flex py-4">
@@ -21,10 +19,7 @@ const Page: FC<pageProps> = async () => {
             key={project.project_id}
             title={project.project_title!}
             imageUrl={project.project_img_url!}
-            techStack={
-              techStack
-              // project.technologies as { name: string; designation: string }[]
-            }
+            techStack={project.technologies!}
             knockCount={project.request_count!}
             createdAt={project.project_created_at!}
           />
