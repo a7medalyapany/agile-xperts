@@ -31,3 +31,7 @@ export interface PasswordChangeParams {
   confirmPassword: string | undefined;
   twoFactorAuth?: boolean | undefined;
 }
+
+export interface LikePulseParams {
+  postId: number;
+}
