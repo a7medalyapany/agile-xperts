@@ -1,15 +1,18 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
+import { IconName, cn } from "@/lib/utils";
 import { motion, useTransform, useMotionValue, useSpring } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { ITechStack } from "@/types";
 
 export const AnimatedTooltip = ({
   items,
   className,
 }: {
-  items: ITechStack[];
+  items: {
+    id: number;
+    name: string;
+    designation: string;
+  }[];
   className?: string;
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -33,7 +36,7 @@ export const AnimatedTooltip = ({
       {items.map((item, idx) => (
         <div
           className="group relative -mr-4"
-          key={item.tech_name}
+          key={item.name}
           onMouseEnter={() => setHoveredIndex(idx)}
           onMouseLeave={() => setHoveredIndex(null)}
         >
@@ -61,10 +64,10 @@ export const AnimatedTooltip = ({
               <div className="absolute inset-x-10 -bottom-px z-30 h-px w-1/5 bg-gradient-to-r from-transparent via-emerald-500 to-transparent" />
               <div className="absolute -bottom-px z-30 h-px w-2/5 bg-gradient-to-r from-transparent via-primary to-transparent " />
               <div className="relative z-30 text-sm font-bold text-foreground">
-                {item.tech_name}
+                {item.name}
               </div>
               <div className="text-xs text-muted-foreground">
-                {item.tech_designation}
+                {item.designation}
               </div>
             </motion.div>
           )}
@@ -73,10 +76,10 @@ export const AnimatedTooltip = ({
             height={100}
             width={100}
             src={
-              // `/assets/${item.tech_name}` ||
-              "/assets/mages/project-placeholder.png"
+              `/assets/icons/technologies/${IconName(item.name)}.svg` ||
+              "/assets/icons/technologies/default.svg"
             }
-            alt={item.tech_name}
+            alt={item.name}
             className={cn(
               `relative bg-white !m-0 size-14 rounded-full border border-primary object-cover object-top !p-0 transition duration-500  group-hover:z-30 group-hover:scale-105`,
               className
