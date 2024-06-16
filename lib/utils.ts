@@ -21,6 +21,18 @@ export function extractNameFromEmail(email: string) {
   return name;
 }
 
+export function IconName(name: string): string {
+  if (name ) {
+    name = name.toLowerCase();
+    name = name.replace(/ /g, '_');
+    name = name.split('.')[0];
+    return name;
+  }
+  else {
+    return "default";
+  }
+}
+
 
 export function getImageData(event: React.ChangeEvent<HTMLInputElement>) {
   // FileList is immutable, so we need to create a new one

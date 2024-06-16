@@ -42,9 +42,9 @@ export interface ITeamMember {
 }
 
 export interface ITechStack {
-    tech_id: number;
-    tech_name: string;
-    tech_designation: string;
+    id: number;
+    name: string;
+    designation: string;
 }
 
 export interface IProjectOwner {

@@ -48,12 +48,14 @@ import {
   insertProject,
 } from "@/lib/actions/project.action";
 
-import { frameworks } from "@/constants/dummy";
+// import { frameworks } from "@/constants/dummy";
 import { createClient } from "@/lib/supabase/client";
 
-interface ProjectRepoProps {}
+interface ProjectRepoProps {
+  technologies: { name: string }[];
+}
 
-const ProjectRepo: FC<ProjectRepoProps> = () => {
+const ProjectRepo: FC<ProjectRepoProps> = ({ technologies }) => {
   const supabase = createClient();
   const router = useRouter();
   const [preview, setPreview] = useState("");
@@ -350,25 +352,25 @@ const ProjectRepo: FC<ProjectRepoProps> = () => {
                             <CommandEmpty>No Tech found.</CommandEmpty>
                             <CommandList>
                               <CommandGroup>
-                                {frameworks.map((framework) => (
+                                {technologies.map((technology) => (
                                   <CommandItem
-                                    key={framework.value}
+                                    key={technology.name}
                                     onSelect={() => {
                                       form.setValue(
                                         `technologies.${index}.name`,
-                                        framework.value
+                                        technology.name
                                       );
                                     }}
                                   >
                                     <Check
                                       className={cn(
                                         "mr-2 h-4 w-4",
-                                        framework.value === field.value
+                                        technology.name === field.value
                                           ? "opacity-100"
                                           : "opacity-0"
                                       )}
                                     />
-                                    {framework.label}
+                                    {technology.name}
                                   </CommandItem>
                                 ))}
                               </CommandGroup>

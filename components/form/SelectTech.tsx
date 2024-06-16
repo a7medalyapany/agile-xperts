@@ -37,16 +37,20 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ItechStack } from "@/types";
 
 interface SelectTechProps {
-  technologies: ItechStack[];
+  technologies: {
+    id: number;
+    name: string;
+    designation: string;
+  }[];
 }
 
 const SelectTech: FC<SelectTechProps> = ({ technologies }) => {
   const FormSchema = z.object({
-    technology: z.string({
-      required_error: "Please select a technology.",
+    technology: z.object({
+      id: z.number(),
+      name: z.string(),
     }),
   });
 
@@ -94,7 +98,7 @@ const SelectTech: FC<SelectTechProps> = ({ technologies }) => {
                         >
                           {field.value
                             ? technologies.find(
-                                (technology) => technology.name === field.value
+                                (technology) => technology.id === field.value.id
                               )?.name
                             : "Select technology"}
                           <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
@@ -110,13 +114,16 @@ const SelectTech: FC<SelectTechProps> = ({ technologies }) => {
                                 value={technology.name}
                                 key={technology.id}
                                 onSelect={() => {
-                                  form.setValue("technology", technology.name);
+                                  form.setValue("technology", {
+                                    id: technology.id,
+                                    name: technology.name,
+                                  });
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    technology.name === field.value
+                                    technology.id === field.value?.id
                                       ? "opacity-100"
                                       : "opacity-0"
                                   )}
