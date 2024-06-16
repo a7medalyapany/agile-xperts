@@ -47,8 +47,9 @@ export const profileFormSchema = z.object({
       message: "Username must not be longer than 30 characters.",
     }),
   bio: z.string().trim().max(160).optional(),
-  country: z.number({
-    required_error: "Please select a country.",
+  country: z.object({
+    id: z.number(),
+    name: z.string(),
   }).optional(),
 });
 
