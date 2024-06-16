@@ -335,9 +335,9 @@ BEGIN
             'tech_designation', t.designation
         )) AS team_members,
         jsonb_agg(DISTINCT jsonb_build_object(
-            'tech_id', tech.id,
-            'tech_name', tech.name,
-            'tech_designation', tech.designation
+            'id', tech.id,
+            'name', tech.name,
+            'designation', tech.designation
         )) AS stack,
         jsonb_build_object(
             'user_id', owner.id,
@@ -370,6 +370,87 @@ BEGIN
             SELECT 1 
             FROM public.member 
             WHERE team_id = lmp.team_id AND user_id = auth.uid()
+        )
+    GROUP BY 
+        p.id, owner.id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+
+
+CREATE OR REPLACE FUNCTION get_project_details_by_id(project_id_param BIGINT)
+RETURNS TABLE (
+    project_id BIGINT,
+    project_title VARCHAR,
+    project_description VARCHAR,
+    is_private BOOLEAN,
+    repo_name VARCHAR,
+    project_img_url TEXT,
+    github_repo_url TEXT,
+    project_created_at TIMESTAMPTZ,
+    project_updated_at TIMESTAMPTZ,
+    team_members JSONB,
+    stack JSONB,
+    project_owner JSONB
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        p.id AS project_id,
+        p.title AS project_title,
+        p.description AS project_description,
+        p.is_private,
+        p.repo_name,
+        p.img_url AS project_img_url,
+        p.github_repo_url,
+        p.created_at AS project_created_at,
+        p.update_at AS project_updated_at,
+        jsonb_agg(DISTINCT jsonb_build_object(
+            'user_id', u.id,
+            'name', u.name,
+            'username', u.username,
+            'email', u.email,
+            'avatar_url', u.avatar_url,
+            'tech_id', t.id,
+            'tech_name', t.name,
+            'tech_designation', t.designation
+        )) AS team_members,
+        jsonb_agg(DISTINCT jsonb_build_object(
+            'id', tech.id,
+            'name', tech.name,
+            'designation', tech.designation
+        )) AS stack,
+        jsonb_build_object(
+            'user_id', owner.id,
+            'name', owner.name,
+            'username', owner.username,
+            'email', owner.email,
+            'avatar_url', owner.avatar_url
+        ) AS project_owner
+    FROM 
+        public.project p
+    JOIN 
+        public.team tm ON tm.project_id = p.id
+    JOIN 
+        public.member m ON m.team_id = tm.id
+    JOIN 
+        public.profile u ON u.id = m.user_id
+    LEFT JOIN 
+        public.stack s ON s.project_id = p.id
+    LEFT JOIN 
+        public.technology tech ON tech.id = s.tech_id
+    LEFT JOIN 
+        public.technology t ON t.id = m.tech_id
+    LEFT JOIN 
+        public.profile owner ON owner.id = p.owner_id
+    WHERE 
+        p.id = project_id_param
+        AND EXISTS (
+            SELECT 1
+            FROM public.member m2
+            WHERE m2.team_id = tm.id
+            AND m2.user_id = auth.uid()
         )
     GROUP BY 
         p.id, owner.id;
