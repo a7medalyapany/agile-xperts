@@ -140,7 +140,6 @@ export async function resetPassword() {
     console.error("Error resetting password:", error);
     throw error;
   }
-  console.log("Password reset email sent successfully:", data);
   return data;
 }
 
@@ -149,8 +148,6 @@ export const exchangeCodeForSession = async (code: string) => {
     const supabase = createClient();
 
     const { error, data } = await supabase.auth.exchangeCodeForSession(code);
-    console.log(code);
-    console.log("exchangeCodeForSession");
     if (error) {
       throw new Error(`Error exchanging code for session: ${error.message}`);
     }
@@ -172,8 +169,7 @@ export const changePassword = async (params: PasswordChangeParams) => {
       "Error retrieving user: " + getUserError?.message || "Unknown error"
     );
   }
-  console.log("server starts");
-  console.log("server:", params);
+
   if (!user) {
     throw new Error("error in changePassword");
   }
@@ -181,10 +177,7 @@ export const changePassword = async (params: PasswordChangeParams) => {
     password: params.newPassword,
   });
 
-  console.log("dddd", data, "dddddd");
-  console.log("after update");
   if (data) {
-    console.log(data);
     return redirect("/");
   }
 };
@@ -219,9 +212,7 @@ export const changeEmailPassword = async (params: PasswordChangeParams) => {
   const { data } = await supabase.auth.updateUser({
     password: params.newPassword,
   });
-  // console.log("dddd", data, "dddddd");
   if (data) {
-    console.log(data);
     return redirect("/");
   }
 };

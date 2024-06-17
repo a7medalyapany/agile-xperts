@@ -71,8 +71,6 @@ export async function middleware(request: NextRequest) {
 
     const { identitiesNumber, hasGitHubIdentity } = await checkUserIdentity();
 
-    console.log(identitiesNumber, hasGitHubIdentity);
-
     if (hasGitHubIdentity && identitiesNumber === 1) {
       return NextResponse.redirect(new URL('/settings/security/github', request.url));
     }

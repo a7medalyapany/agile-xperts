@@ -29,8 +29,6 @@ const SocialAccounts: FC<SocialAccountsProps> = async ({ socialMedia }) => {
     );
   }
 
-  console.log(socialMedia);
-
   const githubUsername = getGitHubUsername(socialMedia);
 
   socialMedia = socialMedia.filter((account) => account.platform !== "GitHub");
@@ -38,7 +36,6 @@ const SocialAccounts: FC<SocialAccountsProps> = async ({ socialMedia }) => {
   return (
     <Card className="flex grow flex-wrap items-center justify-around p-1.5 drop-shadow-md">
       {socialMedia.length > 0 &&
-        // socialMedia[0].platform !== "GitHub" &&
         socialMedia.map((account) => (
           <Link
             key={account.id}

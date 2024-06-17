@@ -41,7 +41,6 @@ const Page: FC<pageProps> = async () => {
 
   const { project, owner, members, stack } = await getLatestProject();
   const myProjects = await getCurrentUserProjects();
-  console.log(myProjects);
 
   return (
     <main className="grid flex-1 items-start gap-4 lg:grid-cols-3">
