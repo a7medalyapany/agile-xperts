@@ -46,7 +46,7 @@ const Page: FC<pageProps> = async (data) => {
       {aboutMe && <AboutMe aboutMe={aboutMe!} />}
       {skills && <Skills skills={skills!} />}
 
-      <UserProjects />
+      <UserProjects userId={userId} />
     </main>
   );
 };
