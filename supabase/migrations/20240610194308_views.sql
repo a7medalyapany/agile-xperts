@@ -344,3 +344,35 @@ LEFT JOIN (
     GROUP BY 
         original_post_id
 ) AS repost_counts ON post.id = repost_counts.post_id;
+
+
+
+
+CREATE VIEW public.user_projects AS
+SELECT
+    p.id AS project_id,
+    p.owner_id,
+    p.title,
+    p.description,
+    p.is_private,
+    p.repo_name,
+    p.img_url,
+    p.github_repo_url,
+    p.created_at AS project_created_at,
+    p.update_at AS project_updated_at,
+    t.id AS team_id,
+    t.name AS team_name,
+    t.description AS team_description,
+    t.created_at AS team_created_at,
+    m.user_id,
+    tech.id AS technology_id,
+    tech.name AS technology_name,
+    tech.designation AS technology_designation
+FROM
+    project p
+LEFT JOIN
+    team t ON p.id = t.project_id
+LEFT JOIN
+    member m ON t.id = m.team_id
+LEFT JOIN
+    technology tech ON m.tech_id = tech.id;
