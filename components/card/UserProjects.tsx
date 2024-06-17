@@ -1,15 +1,25 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/app/(root)/(home)/table-components/data-table";
+// import { columns } from "@/app/(root)/(home)/table-components/column";
+import { getUserProjectsById } from "@/lib/actions/project.action";
+import { columns } from "@/app/(root)/profile/table-components/column";
 
-interface UserProjectsProps {}
+interface UserProjectsProps {
+  userId: string;
+}
 
-const UserProjects: FC<UserProjectsProps> = () => {
+const UserProjects: FC<UserProjectsProps> = async ({ userId }) => {
+  const myProjects = await getUserProjectsById(userId);
+
   return (
     <Card className="flex flex-col gap-4 pt-1.5 drop-shadow-md">
       <CardHeader className="py-0">
         <CardTitle className="text-balance leading-relaxed">Projects</CardTitle>
       </CardHeader>
-      <CardContent>User Projects</CardContent>
+      <CardContent>
+        <DataTable data={myProjects || []} columns={columns} />
+      </CardContent>
     </Card>
   );
 };
