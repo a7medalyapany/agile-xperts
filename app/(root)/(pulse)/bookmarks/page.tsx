@@ -7,7 +7,6 @@ interface pageProps {}
 
 const Page: FC<pageProps> = async () => {
   const pulses = await getUserBookmarks();
-  console.log(pulses);
 
   return (
     <div className="size-full space-y-4 overflow-auto sm:rounded-lg sm:border">

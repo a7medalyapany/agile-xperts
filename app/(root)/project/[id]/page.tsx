@@ -15,7 +15,6 @@ const Page: FC<pageProps> = async ({ params }) => {
     redirect("/404?error=project_not_found");
     return <div>Project not found</div>;
   }
-  console.log(project, owner, members, stack);
 
   return (
     <div className="text-center">

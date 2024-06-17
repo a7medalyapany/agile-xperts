@@ -144,8 +144,6 @@ const ProjectRepo: FC<ProjectRepoProps> = ({ technologies }) => {
             })),
           });
 
-          console.log("Project Id:", projectId);
-
           if (projectId) {
             router.push(`/project/${projectId}`);
           }
