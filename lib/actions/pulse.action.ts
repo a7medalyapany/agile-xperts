@@ -65,6 +65,25 @@ export async function postPulse(params: IPostPulse) {
 	}
 }
 
+export async function getUserPulses(userID: string) {
+	const supabase = createClient<Database>()
+
+	try {
+		const { data: pulses, error } = await supabase
+		  .from("user_posts_with_reposts")
+		  .select("*")
+		  .or(`author_id.eq.${userID},original_author_id.eq.${userID}`);
+  
+		if (error) {
+		  throw error;
+		}
+		return pulses;
+	} catch (error) {
+		console.error(error)
+		throw error
+	}
+
+}
 export async function getAllPulses() {
 	const supabase = createClient<Database>()
 	const { data, error } = await supabase.from("post_details").select("*")

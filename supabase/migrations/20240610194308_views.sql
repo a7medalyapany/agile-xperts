@@ -272,3 +272,75 @@ LEFT JOIN (
 ) AS reply_details ON post.id = reply_details.post_id;
 
 
+
+
+CREATE VIEW public.user_posts_with_reposts AS
+SELECT 
+    post.id AS post_id,
+    post.content,
+    post.img_url,
+    post.created_at,
+    post.updated_at,
+    profile.id AS author_id,
+    profile.name AS author_name,
+    profile.username AS author_username,
+    profile.avatar_url AS author_avatar_url,
+    -- Counting likes
+    COALESCE(like_counts.like_count, 0) AS like_count,
+    -- Counting replies
+    COALESCE(reply_counts.reply_count, 0) AS reply_count,
+    -- Counting reposts
+    COALESCE(repost_counts.repost_count, 0) AS repost_count,
+    -- Check if the current user has liked the post
+    CASE WHEN auth.uid() IN (SELECT user_id FROM likes WHERE likes.post_id = post.id) THEN TRUE ELSE FALSE END AS has_liked,
+    -- Check if the current user has reposted the post
+    CASE WHEN auth.uid() IN (SELECT user_id FROM repost WHERE repost.original_post_id = post.id) THEN TRUE ELSE FALSE END AS has_reposted,
+    -- Check if the current user has bookmarked the post
+    CASE WHEN auth.uid() IN (SELECT user_id FROM bookmark WHERE bookmark.post_id = post.id) THEN TRUE ELSE FALSE END AS has_bookmarked,
+    -- Indicator if the post is a repost
+    CASE WHEN repost.id IS NOT NULL THEN TRUE ELSE FALSE END AS is_repost,
+    -- Original author details if the post is a repost
+    original_author.id AS original_author_id,
+    original_author.name AS original_author_name,
+    original_author.username AS original_author_username,
+    original_author.avatar_url AS original_author_avatar_url,
+    repost.quote_content,
+    repost.quote_img_url
+FROM 
+    post
+JOIN 
+    profile ON post.user_id = profile.id
+LEFT JOIN 
+    repost ON post.id = repost.original_post_id
+LEFT JOIN 
+    profile AS original_author ON repost.user_id = original_author.id
+-- Aggregating like counts
+LEFT JOIN (
+    SELECT 
+        post_id,
+        COUNT(*) AS like_count
+    FROM 
+        likes
+    GROUP BY 
+        post_id
+) AS like_counts ON post.id = like_counts.post_id
+-- Aggregating reply counts
+LEFT JOIN (
+    SELECT 
+        post_id,
+        COUNT(*) AS reply_count
+    FROM 
+        reply
+    GROUP BY 
+        post_id
+) AS reply_counts ON post.id = reply_counts.post_id
+-- Aggregating repost counts
+LEFT JOIN (
+    SELECT 
+        original_post_id AS post_id,
+        COUNT(*) AS repost_count
+    FROM 
+        repost
+    GROUP BY 
+        original_post_id
+) AS repost_counts ON post.id = repost_counts.post_id;

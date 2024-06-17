@@ -48,7 +48,6 @@ import {
   insertProject,
 } from "@/lib/actions/project.action";
 
-// import { frameworks } from "@/constants/dummy";
 import { createClient } from "@/lib/supabase/client";
 
 interface ProjectRepoProps {
