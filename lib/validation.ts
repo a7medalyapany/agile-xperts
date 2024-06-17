@@ -134,3 +134,16 @@ export const githubSecurityFormSchema = z.object({
       });
     }
   });
+
+
+
+
+export const userProjectsTable = z.object({
+    title: z.string(),
+    project_id: z.number(),
+    technology_name: z.string(),
+    github_repo_url: z.string(),
+})
+  
+export type Task = z.infer<typeof userProjectsTable>
+  
