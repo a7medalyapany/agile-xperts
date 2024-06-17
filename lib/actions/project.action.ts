@@ -168,7 +168,7 @@ export async function getProjectById(id: number) {
 		const { data } = await supabase.rpc("get_project_details_by_id", {
 			project_id_param: id
 		})
-	  
+		
 		const project = data?.[0] ?? ({} as ILastProject);
 	  
 		const stack = project.stack as {
@@ -191,6 +191,43 @@ export async function getProjectById(id: number) {
 	  
 	} catch (error) {
 		console.error('Get Latest Project Error:', error);
+		throw error;
+	}
+}
+
+export async function getCurrentUserProjects() {
+	const supabase = createClient<Database>();
+	
+	try {
+		const { data: { user} } = await supabase.auth.getUser();
+
+		if (!user) {
+			redirect('/login');
+			return;
+		}
+		const { data } = await supabase
+		.from('user_projects')
+		.select('*')
+    	.eq('user_id', user.id)
+
+		if (data) {
+
+			const transformedData: {
+				project_id: number;
+				title: string;
+				github_repo_url: string;
+				technology_name: string;
+			}[] = data.map(item => ({
+				project_id: item.project_id!,
+				title: item.title!,
+				github_repo_url: item.github_repo_url!,
+				technology_name: item.technology_name!,
+			}));
+			return transformedData
+		}
+	
+	} catch (error) {
+		console.error('Get Current User Projects Error:', error);
 		throw error;
 	}
 }
