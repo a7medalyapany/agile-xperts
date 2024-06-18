@@ -49,8 +49,6 @@ CREATE POLICY "Allow pro user update their own project " ON public.project FOR U
 CREATE POLICY "Allow all individual select access" ON public.team FOR SELECT USING( true );
 -- INSERT
 CREATE POLICY "Allow pro to insert teams for their own project" ON public.team FOR INSERT WITH CHECK ( authorize('team.insert') AND ( auth.uid() = (select owner_id from project where id = project_id )));
--- When a user create a project should be inserted by trigger in table team and pass project_id
-
 -- UPDATE
 CREATE POLICY "Allow pro to update their own team " ON public.team FOR UPDATE USING ( authorize('team.update') AND ( auth.uid() = (select owner_id from project where id = project_id )));
 -- DLETEE
@@ -100,20 +98,6 @@ USING (
     SELECT 1 
     FROM public.member m
     WHERE m.team_id = member.team_id AND m.user_id = auth.uid()
-  )
-);
-
-
--- Team
--- Allow users to select from the team table if they are part of the team
-CREATE POLICY select_team_if_member
-ON public.team
-FOR SELECT
-USING (
-  EXISTS (
-    SELECT 1 
-    FROM public.member m
-    WHERE m.team_id = team.id AND m.user_id = auth.uid()
   )
 );
 

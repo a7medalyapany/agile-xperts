@@ -1,10 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { FC } from "react";
+import { FC, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { joinRequest } from "@/lib/actions/user.action";
 
 interface SelectTechProps {
   technologies: {
@@ -48,6 +49,8 @@ interface SelectTechProps {
 }
 
 const SelectTech: FC<SelectTechProps> = ({ technologies, projectId }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const FormSchema = z.object({
     technology: z.object({
       id: z.number(),
@@ -59,21 +62,32 @@ const SelectTech: FC<SelectTechProps> = ({ technologies, projectId }) => {
     resolver: zodResolver(FormSchema),
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-    console.log(projectId);
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      await joinRequest({
+        projectId,
+        technologyId: data.technology.id,
+      });
+      setIsDialogOpen(false);
+    } catch (error) {
+      // TODO: Show error message Toast
+      console.error(error);
+      throw new Error("Error sending join request: " + error);
+    }
   }
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Knock</Button>
+        <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
+          Knock
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Join request</DialogTitle>
           <DialogDescription>
-            select which technology you want to join with
+            Select which technology you want to join with
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -148,7 +162,9 @@ const SelectTech: FC<SelectTechProps> = ({ technologies, projectId }) => {
                   Close
                 </Button>
               </DialogClose>
-              <Button type="submit">Send Request</Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Submitting..." : "Send Request"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

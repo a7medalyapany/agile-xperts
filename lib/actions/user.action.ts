@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { joinRequestParams } from "../types";
 
 export const checkUserIdentity = async () => {
   const supabase = createClient();
@@ -112,5 +113,43 @@ export async function getUserSocialMedia(userId: string) {
     return socialMedia
   } catch (error) {
     throw new Error("Error fetching user social media links: " + error);
+  }
+}
+
+
+export async function joinRequest(params: joinRequestParams ) {
+  const supabase = createClient<Database>();
+  const { projectId, technologyId } = params;
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) {
+      throw new Error("Error fetching user: " + error.message);
+    }
+    const userId = user?.id;
+    const { data } = await supabase.from('team').select('id').eq('project_id', projectId).single();
+    const teamId = data?.id;
+
+    if (userId && teamId) {
+
+      
+      const { error: insertRequestError } = await supabase.from('request')
+      .insert([
+        {
+          user_id: userId,
+          team_id: teamId,
+          tech_id: technologyId,
+        }
+      ])
+      
+      console.log(insertRequestError)
+      
+      if (insertRequestError) {
+        throw new Error("Error inserting request: " + insertRequestError.message);
+      }
+    }
+
+  }
+  catch (error) {
+    throw new Error("Error fetching user: " + error);
   }
 }
