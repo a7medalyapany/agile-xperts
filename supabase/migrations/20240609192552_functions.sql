@@ -468,6 +468,7 @@ RETURNS TABLE (
     sender_username text,
     sender_email varchar,
     sender_avatar_url text,
+    tech_id bigint,
     tech_name text,
     tech_designation varchar,
     team_id bigint,
@@ -499,6 +500,7 @@ BEGIN
                 p.username AS sender_username,
                 p.email AS sender_email,
                 p.avatar_url AS sender_avatar_url,
+                rd.tech_id,
                 t.name AS tech_name,
                 t.designation AS tech_designation,
                 rd.team_id,
@@ -514,3 +516,48 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+
+
+CREATE OR REPLACE FUNCTION accept_request(user_id_param uuid, team_id_param bigint, tech_id_param bigint)
+RETURNS void AS $$
+BEGIN
+    -- Check if the current user is the owner of the project associated with the request
+    IF (SELECT owner_id 
+        FROM public.project 
+        WHERE id = (SELECT project_id 
+                    FROM public.team 
+                    WHERE id = team_id_param)) = auth.uid() THEN
+        -- Update the request status to 'accepted'
+        UPDATE public.request
+        SET status = 'accepted'
+        WHERE user_id = user_id_param AND team_id = team_id_param AND tech_id = tech_id_param;
+    ELSE
+        RAISE EXCEPTION 'You are not authorized to accept this request';
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+
+
+CREATE OR REPLACE FUNCTION reject_request(user_id_param uuid, team_id_param bigint, tech_id_param bigint)
+RETURNS void AS $$
+BEGIN
+    -- Check if the current user is the owner of the project associated with the request
+    IF (SELECT owner_id 
+        FROM public.project 
+        WHERE id = (SELECT project_id 
+                    FROM public.team 
+                    WHERE id = team_id_param)) = auth.uid() THEN
+        -- Update the request status to 'accepted'
+        UPDATE public.request
+        SET status = 'rejected'
+        WHERE user_id = user_id_param AND team_id = team_id_param AND tech_id = tech_id_param;
+    ELSE
+        RAISE EXCEPTION 'You are not authorized to reject this request';
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
