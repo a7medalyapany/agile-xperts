@@ -12,6 +12,7 @@ import SelectTech from "../form/SelectTech";
 import { formatDate, formatNumber } from "@/lib/utils";
 
 interface LobbyProjectProps {
+  projectId: number;
   imageUrl: string;
   title: string;
   techStack: {
@@ -29,6 +30,7 @@ const LobbyProject: FC<LobbyProjectProps> = ({
   techStack,
   knockCount,
   createdAt,
+  projectId,
 }) => {
   return (
     <Card className="bg-gradient-to-t from-card to-muted">
@@ -51,7 +53,7 @@ const LobbyProject: FC<LobbyProjectProps> = ({
         <div className="mr-2 flex grow items-center">
           <AnimatedTooltip items={techStack} className="size-9" />
         </div>
-        <SelectTech technologies={techStack} />
+        <SelectTech technologies={techStack} projectId={projectId} />
       </CardContent>
 
       <CardFooter className="flex flex-wrap items-start justify-between gap-1.5 rounded-b-lg border-t bg-muted/50 px-6 py-3">
