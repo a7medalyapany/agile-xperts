@@ -53,6 +53,7 @@ interface ProjectDetailsProps {
         tech_name: string;
         tech_designation: string;
         team_id: number;
+        tech_id: number;
         request_status: "pending" | "rejected" | "accepted";
       }[]
     | null;
@@ -135,9 +136,9 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
                         <span className="sr-only">Requests</span>
                       </Button>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                   </>
                 )}
-                <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Link target="_blank" href={githubUrl} className="w-full">
                     GitHub
