@@ -27,6 +27,7 @@ import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 import { IProjectOwner, ITeamMember } from "@/types";
 import { formatDate } from "@/lib/utils";
 import RequestsDialog from "../shared/RequestsDialog";
+import { leaveProject } from "@/lib/actions/project.action";
 
 interface ProjectDetailsProps {
   currentUserId: string;
@@ -144,10 +145,16 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
                     GitHub
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <form action={() => {}} className="flex w-full items-center">
-                  <DropdownMenuItem className="w-full">Leave</DropdownMenuItem>
-                </form>
+                {currentUserId !== owner.user_id && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="w-full">
+                      <button onClick={() => leaveProject(projectId)}>
+                        Leave
+                      </button>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
