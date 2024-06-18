@@ -35,3 +35,9 @@ export interface PasswordChangeParams {
 export interface LikePulseParams {
   postId: number;
 }
+
+
+export interface joinRequestParams {
+  projectId: number;
+  technologyId: number;
+}
