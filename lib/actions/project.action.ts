@@ -290,31 +290,19 @@ export async function getProjectRequests(projectId: number) {
 
 export async function acceptRequest(params: AcceptRejectMemberParams) {
 	const supabase = createClient<Database>();
-
 	const { teamId, technologyId, userId, pathname } = params
 
-	console.log('here')
-	console.log(params)
-
-	
 	try {
-		console.log('here')
 		const { data, error } = await supabase.rpc('accept_request', {
 			user_id_param: userId,
 			team_id_param: teamId,
 			tech_id_param: technologyId,
 		})
-		console.log('here')
-		
-		console.log(data)
-		console.log(error)
 		
 		if (error) {
 			console.log('Supabase RPC Error:', error);
 			throw error;
 		}
-		console.log('here')
-
 		revalidatePath(pathname)
 		return data;
 	} catch (error) {
@@ -325,12 +313,7 @@ export async function acceptRequest(params: AcceptRejectMemberParams) {
 
 export async function rejectRequest(params: AcceptRejectMemberParams) {
 	const supabase = createClient<Database>();
-
 	const { teamId, technologyId, userId, pathname } = params
-
-	console.log(params)
-	console.log('here')
-
 
 	try {
 		const { data, error } = await supabase.rpc('reject_request', {
@@ -339,19 +322,48 @@ export async function rejectRequest(params: AcceptRejectMemberParams) {
 			tech_id_param: technologyId,
 		})
 
-		console.log('here')
-
-		console.log(data)
-		console.log(error)
-		
 		if (error) {
 			console.log('Supabase RPC Error:', error);
 			throw error;
 		}
 
-		console.log('here')
 		revalidatePath(pathname)
 		return data;
+	} catch (error) {
+		console.error('Reject Request Error:', error);
+		throw error;
+	}
+}
+
+export async function leaveProject(projectId: number) {
+	const supabase = createClient<Database>();
+
+	try {
+		const { data: { user } } = await supabase.auth.getUser();
+		if (!user) {
+			redirect('/login')
+			return;
+		}
+		
+		const { data: teamData, error: teamError } = await supabase.from('team').select('id').eq('project_id', projectId).single()
+		if (teamError) {
+			console.error('Error fetching team:', teamError);
+			throw teamError;
+		}
+
+		const teamId = teamData?.id;
+		
+		const { error } = await supabase.rpc('delete_member', {
+			p_team_id: teamId,
+			p_user_id: user.id
+		})
+		
+		if (error) {
+			console.error('Supabase RPC Error:', error);
+			throw error;
+		}
+
+		redirect('/')
 	} catch (error) {
 		console.error('Reject Request Error:', error);
 		throw error;

@@ -561,3 +561,22 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+
+
+CREATE OR REPLACE FUNCTION public.delete_member(p_user_id uuid, p_team_id bigint)
+RETURNS void
+SECURITY DEFINER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM public.member
+    WHERE user_id = p_user_id
+    AND team_id = p_team_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Member not found for user_id: % and team_id: %', p_user_id, p_team_id;
+    END IF;
+END;
+$$;
