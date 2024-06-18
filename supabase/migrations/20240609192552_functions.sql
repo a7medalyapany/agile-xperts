@@ -456,3 +456,61 @@ BEGIN
         p.id, owner.id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+
+
+-- Function to get all the users who have requested to join a team
+CREATE OR REPLACE FUNCTION get_detailed_requests(proj_id bigint)
+RETURNS TABLE (
+    user_id uuid,
+    sender_name text,
+    sender_username text,
+    sender_email varchar,
+    sender_avatar_url text,
+    tech_name text,
+    tech_designation varchar,
+    team_id bigint,
+    request_status public.request_status
+) SECURITY DEFINER AS $$
+BEGIN
+    -- Check if the current user is the owner of the project
+    IF (SELECT owner_id FROM public.project WHERE id = proj_id) = auth.uid() THEN
+        RETURN QUERY
+        WITH team_ids AS (
+            SELECT id
+            FROM public.team
+            WHERE project_id = proj_id
+        ),
+        request_data AS (
+            SELECT 
+                r.user_id, 
+                r.tech_id, 
+                r.team_id, 
+                r.status
+            FROM public.request r
+            JOIN team_ids t ON r.team_id = t.id
+            WHERE r.status = 'pending'
+        ),
+        detailed_requests AS (
+            SELECT 
+                rd.user_id,
+                p.name AS sender_name,
+                p.username AS sender_username,
+                p.email AS sender_email,
+                p.avatar_url AS sender_avatar_url,
+                t.name AS tech_name,
+                t.designation AS tech_designation,
+                rd.team_id,
+                rd.status AS request_status
+            FROM request_data rd
+            JOIN public.profile p ON rd.user_id = p.id
+            JOIN public.technology t ON rd.tech_id = t.id
+        )
+        SELECT *
+        FROM detailed_requests;
+    ELSE
+        RAISE EXCEPTION 'You are not authorized to execute this function';
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
