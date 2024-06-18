@@ -268,3 +268,19 @@ export async function getUserProjectsById(id: string) {
 		throw error;
 	}
 }
+
+export async function getProjectRequests(projectId: number) {
+	const supabase = createClient<Database>();
+
+	try {
+		const { data } = await supabase
+		.rpc('get_detailed_requests', {
+			proj_id: projectId
+		})
+
+		return data
+	} catch (error) {
+		console.error('Get Project Requests Error:', error);
+		throw error;
+	}
+}

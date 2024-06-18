@@ -57,8 +57,6 @@ CREATE POLICY "Allow pro to delete thier own team" ON public.team FOR DELETE USI
 
 
 -- RLS for Request
--- SELECT
-CREATE POLICY "Allow sender and receiver read access" ON public.request FOR SELECT USING( auth.uid() = user_id OR (authorize('request.select') AND  auth.uid()=(  select owner_id from project where id = (select project_id from team))) );
 -- INSERT
 CREATE POLICY "Allow all to send request " ON public.request FOR INSERT WITH CHECK ( true );
 --  make a trigger insert req id in requestStatus table
