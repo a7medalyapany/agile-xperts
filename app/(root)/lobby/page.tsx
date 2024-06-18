@@ -17,6 +17,7 @@ const Page: FC<pageProps> = async () => {
         {projects.map((project) => (
           <LobbyProject
             key={project.project_id}
+            projectId={project.project_id!}
             title={project.project_title!}
             imageUrl={project.project_img_url!}
             techStack={project.technologies!}

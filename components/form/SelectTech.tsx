@@ -44,9 +44,10 @@ interface SelectTechProps {
     name: string;
     designation: string;
   }[];
+  projectId: number;
 }
 
-const SelectTech: FC<SelectTechProps> = ({ technologies }) => {
+const SelectTech: FC<SelectTechProps> = ({ technologies, projectId }) => {
   const FormSchema = z.object({
     technology: z.object({
       id: z.number(),
@@ -60,6 +61,7 @@ const SelectTech: FC<SelectTechProps> = ({ technologies }) => {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data);
+    console.log(projectId);
   }
 
   return (
