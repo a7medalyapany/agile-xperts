@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/command";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Check, XIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { acceptRequest, rejectRequest } from "@/lib/actions/project.action";
 
 interface RequestsDialogProps {
   open: boolean;
@@ -29,6 +31,7 @@ interface RequestsDialogProps {
         tech_name: string;
         tech_designation: string;
         team_id: number;
+        tech_id: number;
         request_status: "pending" | "rejected" | "accepted";
       }[]
     | null;
@@ -39,6 +42,7 @@ const RequestsDialog: FC<RequestsDialogProps> = ({
   onOpenChange: setOpen,
   requests,
 }) => {
+  const pathname = usePathname();
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="gap-0 p-0 outline-none">
@@ -68,8 +72,31 @@ const RequestsDialog: FC<RequestsDialogProps> = ({
                     </p>
                   </div>
                   <div className="ml-auto flex gap-4 text-primary">
-                    <Check className="size-7 rounded-full bg-card/30 p-0.5 hover:cursor-pointer" />
-                    <XIcon className="size-7 rounded-full bg-destructive/30 p-0.5 hover:cursor-pointer" />
+                    <button
+                      onClick={() =>
+                        acceptRequest({
+                          userId: user.user_id,
+                          teamId: user.team_id,
+                          technologyId: user.tech_id,
+                          pathname,
+                        })
+                      }
+                    >
+                      <Check className="size-7 rounded-full bg-card/30 p-0.5 hover:cursor-pointer" />
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        rejectRequest({
+                          userId: user.user_id,
+                          teamId: user.team_id,
+                          technologyId: user.tech_id,
+                          pathname,
+                        })
+                      }
+                    >
+                      <XIcon className="size-7 rounded-full bg-destructive/30 p-0.5 hover:cursor-pointer" />
+                    </button>
                   </div>
                 </CommandItem>
               ))}

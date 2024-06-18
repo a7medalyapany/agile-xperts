@@ -4,8 +4,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { checkUserIdentity } from "./user.action";
 import { createClient } from "@/lib/supabase/server";
-import { CreateRepositoryParams, InsertProjectParams } from "@/lib/types";
+import { AcceptRejectMemberParams, CreateRepositoryParams, InsertProjectParams } from "@/lib/types";
 import { ILastProject, ITeamMember } from "@/types";
+import { revalidatePath } from "next/cache";
 
 export async function createRepository(params: CreateRepositoryParams) {
 	const supabase = createClient();
@@ -281,6 +282,78 @@ export async function getProjectRequests(projectId: number) {
 		return data
 	} catch (error) {
 		console.error('Get Project Requests Error:', error);
+		throw error;
+	}
+}
+
+
+
+export async function acceptRequest(params: AcceptRejectMemberParams) {
+	const supabase = createClient<Database>();
+
+	const { teamId, technologyId, userId, pathname } = params
+
+	console.log('here')
+	console.log(params)
+
+	
+	try {
+		console.log('here')
+		const { data, error } = await supabase.rpc('accept_request', {
+			user_id_param: userId,
+			team_id_param: teamId,
+			tech_id_param: technologyId,
+		})
+		console.log('here')
+		
+		console.log(data)
+		console.log(error)
+		
+		if (error) {
+			console.log('Supabase RPC Error:', error);
+			throw error;
+		}
+		console.log('here')
+
+		revalidatePath(pathname)
+		return data;
+	} catch (error) {
+		console.error('Accept Request Error:', error);
+		throw error;
+	}
+}
+
+export async function rejectRequest(params: AcceptRejectMemberParams) {
+	const supabase = createClient<Database>();
+
+	const { teamId, technologyId, userId, pathname } = params
+
+	console.log(params)
+	console.log('here')
+
+
+	try {
+		const { data, error } = await supabase.rpc('reject_request', {
+			user_id_param: userId,
+			team_id_param: teamId,
+			tech_id_param: technologyId,
+		})
+
+		console.log('here')
+
+		console.log(data)
+		console.log(error)
+		
+		if (error) {
+			console.log('Supabase RPC Error:', error);
+			throw error;
+		}
+
+		console.log('here')
+		revalidatePath(pathname)
+		return data;
+	} catch (error) {
+		console.error('Reject Request Error:', error);
 		throw error;
 	}
 }

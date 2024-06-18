@@ -41,3 +41,10 @@ export interface joinRequestParams {
   projectId: number;
   technologyId: number;
 }
+
+export interface AcceptRejectMemberParams {
+  userId: string;
+  teamId: number;
+  technologyId: number;
+  pathname: string;
+}
