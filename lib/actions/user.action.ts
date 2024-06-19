@@ -161,7 +161,7 @@ export async function joinRequest(params: joinRequestParams) {
   }
 }
 
-export const getUserRelatedNotifications = async () => {
+export const getUserNotifications = async () => {
   const supabase = createClient<Database>();
 
   try {
@@ -173,6 +173,11 @@ export const getUserRelatedNotifications = async () => {
       throw new Error("Error fetching user: " + error.message);
     }
     const userId = user?.id;
+
+    if (!userId) {
+      throw new Error("User not found");
+    }
+
     const { data } = await supabase
       .from("user_notifications_view")
       .select("*")
@@ -182,9 +187,8 @@ export const getUserRelatedNotifications = async () => {
       throw new Error("Error retrieving notifications: " + error);
     }
 
-    console.log(data); // Logging fetched data for debugging
 
-    return data ?? []; // Ensure data is returned (or empty array if null)
+    return data ?? [];
   } catch (error) {
     throw new Error("Error fetching user-related notifications: " + error);
   }
