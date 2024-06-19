@@ -3,6 +3,8 @@ import { URLProps } from "@/types";
 import Profile from "@/components/shared/profile/Profile";
 import ProfileTabs from "@/components/shared/profile/ProfileTabs";
 import { Separator } from "@/components/ui/separator";
+import { Trending } from "@/components/card/RecommendationSideBar/trending";
+import { UserYouMayKnow } from "@/components/card/RecommendationSideBar/UserYouMayKnow";
 
 interface layoutProps extends URLProps {
   children: React.ReactNode;
@@ -19,7 +21,8 @@ const Layout: FC<layoutProps> = ({ children, params }) => {
           <main className="text-start">{children}</main>
         </div>
         <aside className="sticky right-0 top-2 flex h-full flex-col rounded-lg border p-6 max-xl:hidden sm:w-[600px]">
-          Profile Info
+          <Trending />
+          <UserYouMayKnow />
         </aside>
       </div>
     </>
