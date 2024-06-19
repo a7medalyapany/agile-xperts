@@ -376,3 +376,26 @@ LEFT JOIN
     member m ON t.id = m.team_id
 LEFT JOIN
     technology tech ON m.tech_id = tech.id;
+
+
+
+
+CREATE OR REPLACE VIEW public.user_notifications_view AS
+SELECT
+    n.id AS notification_id,
+    n.notification_type,
+    n.is_read,
+    n.created_at,
+    n.user_id,
+    pu.username,
+    pu.avatar_url,
+    n.related_user_id,
+    n.related_post_id,
+    p.content AS post_content,  -- Add the post content column
+    p.img_url AS post_img_url   -- Add the post image URL column if needed
+FROM
+    public.notification n
+JOIN
+    public.profile pu ON n.user_id = pu.id
+LEFT JOIN
+    public.post p ON n.related_post_id = p.id;  -- Join with the post table based on related_post_id

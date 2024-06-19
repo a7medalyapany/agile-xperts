@@ -580,3 +580,72 @@ BEGIN
     END IF;
 END;
 $$;
+
+
+
+
+CREATE OR REPLACE FUNCTION notify_on_like()
+RETURNS TRIGGER
+SECURITY DEFINER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO public.notification (user_id, related_user_id, related_post_id, notification_type, is_read, created_at)
+    VALUES (
+        NEW.user_id,         -- related_user_id is the user who made the like
+        (SELECT user_id FROM public.post WHERE id = NEW.post_id),  -- user_id is the owner of the post
+        NEW.post_id,         -- related_post_id is the post that was liked
+        'liked',                -- notification_type is 'sc'
+        false,               -- is_read is false by default
+        now()                -- created_at is the current timestamp
+    );
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trigger_notify_on_like
+AFTER INSERT ON public.likes
+FOR EACH ROW
+EXECUTE FUNCTION notify_on_like();
+
+
+
+
+CREATE OR REPLACE FUNCTION notify_reply_insert()
+RETURNS TRIGGER 
+SECURITY DEFINER  -- Ensure the function executes with the privileges of the owner
+AS $$
+BEGIN
+    -- Insert a notification when a new reply is inserted
+    INSERT INTO public.notification (user_id, related_user_id, related_post_id, notification_type, is_read, created_at)
+    VALUES (NEW.user_id, (SELECT user_id FROM public.post WHERE id = NEW.post_id), NEW.post_id, 'replied', false, NOW());
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_reply_insert
+AFTER INSERT ON public.reply
+FOR EACH ROW
+EXECUTE FUNCTION notify_reply_insert();
+
+
+
+
+CREATE OR REPLACE FUNCTION notify_repost_insert()
+RETURNS TRIGGER 
+SECURITY DEFINER  -- Ensure the function executes with the privileges of the owner
+AS $$
+BEGIN
+    -- Insert a notification when a new repost is inserted
+    INSERT INTO public.notification (user_id, related_user_id, related_post_id, notification_type, is_read, created_at)
+    VALUES (NEW.user_id, (SELECT user_id FROM public.post WHERE id = NEW.original_post_id), NEW.original_post_id, 'reposted', false, NOW());
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_repost_insert
+AFTER INSERT ON public.repost
+FOR EACH ROW
+EXECUTE FUNCTION notify_repost_insert();

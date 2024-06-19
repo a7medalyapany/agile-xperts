@@ -100,56 +100,92 @@ export async function getUserSocialMedia(userId: string) {
     const { data: socialMedia, error } = await supabase
       .from("social_media")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", userId);
 
     if (error) {
-      throw new Error("Error retrieving social media accounts: " + error.message);
+      throw new Error(
+        "Error retrieving social media accounts: " + error.message
+      );
     }
 
     if (!socialMedia) {
       throw new Error("social media accounts not found");
     }
 
-    return socialMedia
+    return socialMedia;
   } catch (error) {
     throw new Error("Error fetching user social media links: " + error);
   }
 }
 
-
-export async function joinRequest(params: joinRequestParams ) {
+export async function joinRequest(params: joinRequestParams) {
   const supabase = createClient<Database>();
   const { projectId, technologyId } = params;
   try {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
     if (error) {
       throw new Error("Error fetching user: " + error.message);
     }
     const userId = user?.id;
-    const { data } = await supabase.from('team').select('id').eq('project_id', projectId).single();
+    const { data } = await supabase
+      .from("team")
+      .select("id")
+      .eq("project_id", projectId)
+      .single();
     const teamId = data?.id;
 
     if (userId && teamId) {
+      const { error: insertRequestError } = await supabase
+        .from("request")
+        .insert([
+          {
+            user_id: userId,
+            team_id: teamId,
+            tech_id: technologyId,
+          },
+        ]);
 
-      
-      const { error: insertRequestError } = await supabase.from('request')
-      .insert([
-        {
-          user_id: userId,
-          team_id: teamId,
-          tech_id: technologyId,
-        }
-      ])
-      
-      console.log(insertRequestError)
-      
+      console.log(insertRequestError);
+
       if (insertRequestError) {
-        throw new Error("Error inserting request: " + insertRequestError.message);
+        throw new Error(
+          "Error inserting request: " + insertRequestError.message
+        );
       }
     }
-
-  }
-  catch (error) {
+  } catch (error) {
     throw new Error("Error fetching user: " + error);
   }
 }
+
+export const getUserRelatedNotifications = async () => {
+  const supabase = createClient<Database>();
+
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      throw new Error("Error fetching user: " + error.message);
+    }
+    const userId = user?.id;
+    const { data } = await supabase
+      .from("user_notifications_view")
+      .select("*")
+      .eq("related_user_id", userId);
+
+    if (error) {
+      throw new Error("Error retrieving notifications: " + error);
+    }
+
+    console.log(data); // Logging fetched data for debugging
+
+    return data ?? []; // Ensure data is returned (or empty array if null)
+  } catch (error) {
+    throw new Error("Error fetching user-related notifications: " + error);
+  }
+};
