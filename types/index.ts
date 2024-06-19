@@ -100,3 +100,19 @@ export interface IPulseReply {
 	authorUsername: string;
 	authorAvatar: string
 }
+
+
+export interface INotification {
+	avatar_url: string | null;
+    created_at: string | null;
+    is_read: boolean | null;
+    notification_id: number | null;
+    notification_type: string | null;
+    post_content: string | null;
+	name: string | null;
+    username: string | null;
+	user_id: string | null;
+	related_user_id: string | null;
+	related_post_id: number | null;
+	post_img_url: string | null
+}
