@@ -1,23 +1,24 @@
 import { FC } from "react";
-import Pulse from "@/components/card/Pulse";
-
-import { pulses } from "@/constants/dummy";
+import ActivityCard from "./activity-card";
+import { Separator } from "@/components/ui/separator";
+import { getUserNotifications } from "@/lib/actions/user.action";
 
 interface pageProps {}
 
-const Page: FC<pageProps> = () => {
+const Page: FC<pageProps> = async () => {
+  const data = await getUserNotifications();
+  console.log(data);
+
   return (
-    <div className="size-full space-y-4 overflow-auto sm:rounded-lg sm:border">
-      {pulses.map((pulse) => (
-        <Pulse
-          key={pulse.id}
-          id={pulse.id}
-          author={pulse.author}
-          content={pulse.content}
-          photo={pulse.photo}
-          isEchoBack={pulse.isEchoBack}
-          echoBack={pulse.echoBack}
-        />
+    <div className="size-full overflow-auto sm:rounded-lg sm:border">
+      {data.map((notification) => (
+        <>
+          <ActivityCard
+            key={notification.notification_id}
+            notification={notification}
+          />
+          <Separator />
+        </>
       ))}
     </div>
   );
