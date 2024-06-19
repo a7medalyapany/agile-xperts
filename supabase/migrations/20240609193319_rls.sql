@@ -83,7 +83,7 @@ create policy "Enable read access for users to read own data" on "public"."profi
 
 
 -- Stack
-alter policy "Enable read access for all users" on "public"."stack" to public using ( true );
+alter policy "Enable read access for all users" on "public"."stack" for SELECT to public using ( true );
 
 -- Member
 
@@ -153,7 +153,7 @@ CREATE POLICY "Allow delete for own bookmarks" ON bookmark
 FOR DELETE
 USING (auth.uid() = user_id);
 
-
+to public using ( true );
 
 -- Select all replies
 CREATE POLICY "Allow select for all" ON reply
@@ -197,3 +197,9 @@ USING (auth.uid() = user_id);
 
 -- Select all technologies
 alter policy "Enable read access for all users" on "public"."technologies" to public using ( true );
+
+
+-- Select
+CREATE POLICY "Allow sleetc for owner of notifications" ON notification
+FOR SELECT
+USING (auth.uid() = related_user_id);
