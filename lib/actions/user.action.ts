@@ -161,42 +161,6 @@ export async function joinRequest(params: joinRequestParams) {
   }
 }
 
-export async function insertComment(
-  postId: number,
-  content: string,
-  imgUrl: string
-) {
-  try {
-    const supabase = createClient<Database>();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
-      throw new Error("Error fetching user: " + error.message);
-    }
-    const userId = user?.id;
-    const { data } = await supabase.from("reply").insert([
-      {
-        user_id: userId,
-        post_id: postId,
-        content: content,
-        img_url: imgUrl,
-      },
-    ]);
-
-    if (error) {
-      throw error;
-    }
-
-    console.log("Comment inserted successfully:", data);
-    return data;
-  } catch (error) {
-    console.error("Error inserting comment:", error);
-    throw error;
-  }
-}
-
 export const getUserRelatedNotifications = async () => {
   const supabase = createClient<Database>();
 
