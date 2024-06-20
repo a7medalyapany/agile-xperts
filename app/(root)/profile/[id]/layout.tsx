@@ -20,9 +20,9 @@ const Layout: FC<layoutProps> = ({ children, params }) => {
           <ProfileTabs userId={params.id} />
           <main className="text-start">{children}</main>
         </div>
-        <aside className="sticky right-0 top-2 flex h-full flex-col rounded-lg border p-6 max-xl:hidden sm:w-[600px]">
-          <Trending />
+        <aside className="sticky right-0 top-2 flex h-full flex-col gap-4 max-xl:hidden sm:w-[600px]">
           <UserYouMayKnow />
+          <Trending />
         </aside>
       </div>
     </>
