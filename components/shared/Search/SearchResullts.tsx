@@ -1,9 +1,8 @@
-import { FC } from 'react';
+import { FC } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -13,7 +12,7 @@ interface SearchResultsProps {
 }
 
 const SearchResults: FC<SearchResultsProps> = ({ results }) => (
-  <div className="search-results">
+  <div className="">
     {results.length === 0 ? (
       <p>No results found</p>
     ) : (
