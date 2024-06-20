@@ -1,63 +1,65 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import { URLProps } from "@/types";
-
-import { CornerDownLeft, Mic, Paperclip } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { getTeamMessages } from "@/lib/actions/chat.action";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import ChatForm from "./chat-form";
 
-interface pageProps extends URLProps {}
+interface PageProps extends URLProps {}
 
-const Page: FC<pageProps> = ({ params }) => {
+const Page: FC<PageProps> = async ({ params }) => {
+  const supabase = createClient<Database>();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    redirect("/login");
+  }
+  const data = await getTeamMessages(parseInt(params.id));
+
+  console.log(data);
+
   return (
-    <div
-      className="flex h-full min-h-[75vh] flex-col rounded-xl bg-muted/50 p-4 drop-shadow-md md:min-h-[84vh] lg:col-span-2"
-      style={{ height: "fit-content" }}
-    >
-      <div className="flex-1" />
-      <form
-        className="relative overflow-hidden rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"
-        x-chunk="dashboard-03-chunk-1"
-      >
-        <Label htmlFor="message" className="sr-only">
-          Message
-        </Label>
-        <Textarea
-          id="message"
-          placeholder="Type your message here..."
-          className="min-h-12 resize-none border-0 p-3 shadow-none focus-visible:ring-0"
-        />
-        <div className="flex items-center p-3 pt-0">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Paperclip className="size-4" />
-                <span className="sr-only">Attach file</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">Attach File</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Mic className="size-4" />
-                <span className="sr-only">Use Microphone</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">Use Microphone</TooltipContent>
-          </Tooltip>
-          <Button type="submit" size="sm" className="ml-auto gap-1.5">
-            Send Message
-            <CornerDownLeft className="size-3.5" />
-          </Button>
-        </div>
-      </form>
+    <div className="flex h-full min-h-[75vh] flex-col overflow-y-auto rounded-xl bg-muted/50 p-4 drop-shadow-md md:min-h-[84vh] lg:col-span-2">
+      <Card className="flex grow flex-col">
+        <CardHeader className="flex items-center space-x-4">
+          {data.teamName}
+        </CardHeader>
+        <Separator />
+        <CardContent className="mt-6 grow space-y-4 overflow-y-auto">
+          {data.messages?.map((message, index) => (
+            <div key={index}>
+              {message.send_by !== user?.id && (
+                <p className="mb-1 text-xs font-medium text-muted-foreground">
+                  {message.sender_name}
+                </p>
+              )}
+              <div
+                className={cn(
+                  "flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                  message.send_by === user.id
+                    ? "ml-auto bg-primary text-primary-foreground"
+                    : "bg-muted"
+                )}
+              >
+                {message.content}
+              </div>
+            </div>
+          ))}
+        </CardContent>
+        <CardFooter>
+          <ChatForm userId={user.id} teamId={data.teamId} />
+        </CardFooter>
+      </Card>
     </div>
   );
 };
