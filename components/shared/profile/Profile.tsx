@@ -1,11 +1,13 @@
 import { FC } from "react";
 import { CalendarDaysIcon, MapPinIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { formatDate } from "@/lib/utils";
+import FollowButton from "../FollowButton";
+import { createClient } from "@/lib/supabase/server";
 import { getUserById } from "@/lib/actions/user.action";
+import { checkIsFollowing, getFollowCount } from "@/lib/actions/follow.action";
 import FollowersCounter from "@/components/shared/FollowersCounter";
 
 interface ProfileProps {
@@ -13,7 +15,22 @@ interface ProfileProps {
 }
 
 const Profile: FC<ProfileProps> = async ({ profileId }) => {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const data = await getUserById(profileId);
+  console.log(data);
+
+  const isFollowing = await checkIsFollowing({
+    userId: user?.id!,
+    targetUserId: profileId,
+  });
+  console.log(isFollowing);
+
+  const { followers, following } = await getFollowCount(profileId);
+
+  console.log(followers, following);
 
   const {
     name,
@@ -59,9 +76,18 @@ const Profile: FC<ProfileProps> = async ({ profileId }) => {
             </p>
           </div>
         </div>
-        <FollowersCounter followers={4} following={20} />
+        <FollowersCounter
+          followers={followers || 0}
+          following={following || 0}
+        />
       </div>
-      <Button className="w-full md:w-[120px] md:rounded-full">Follow</Button>
+      {user?.id !== profileId && (
+        <FollowButton
+          userId={user?.id!}
+          targetUserId={profileId}
+          Following={isFollowing}
+        />
+      )}
     </header>
   );
 };
