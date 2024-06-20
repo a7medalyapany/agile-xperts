@@ -48,3 +48,10 @@ export interface AcceptRejectMemberParams {
   technologyId: number;
   pathname: string;
 }
+
+
+export interface SendMessageParams {
+  teamId: number;
+  userId: string;
+  content: string;
+}
