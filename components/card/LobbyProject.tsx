@@ -40,7 +40,7 @@ const LobbyProject: FC<LobbyProjectProps> = ({
           className="h-auto w-full rounded-lg"
           width="250"
           height="150"
-          src={imageUrl || "/assets/images/project-placeholder.png"}
+          src={imageUrl || "/assets/images/project-placeholder.webp"}
           style={{
             aspectRatio: "250/150",
             objectFit: "cover",
