@@ -399,3 +399,21 @@ JOIN
     public.profile pu ON n.user_id = pu.id
 LEFT JOIN
     public.post p ON n.related_post_id = p.id;  -- Join with the post table based on related_post_id
+
+
+
+create view
+  public.chat_view as
+select
+  c.id,
+  c.team_id,
+  t.name as team_name,
+  c.send_by,
+  p.name as sender_name,
+  p.username as sender_username,
+  c.content,
+  c.created_at
+from
+  chat c
+  join profile p on c.send_by = p.id
+  join team t on c.team_id = t.id;
