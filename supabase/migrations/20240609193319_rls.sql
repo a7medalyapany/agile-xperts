@@ -203,3 +203,21 @@ alter policy "Enable read access for all users" on "public"."technologies" to pu
 CREATE POLICY "Allow sleetc for owner of notifications" ON notification
 FOR SELECT
 USING (auth.uid() = related_user_id);
+
+
+
+-- Follows
+-- Create a policy to allow users to insert a follow only if they are the follower
+create policy "allow_user_to_insert_own_follows" on public.follows for insert
+with
+  check (auth.uid () = followe_id);
+
+-- Create a policy to allow users to delete a follow only if they are the follower
+create policy "allow_user_to_delete_own_follows" on public.follows for delete using (auth.uid () = followe_id);
+
+-- Create a policy to allow users to select their own follows
+create policy "allow_user_to_select_own_follows" on public.follows for
+select
+  using (
+    auth.uid () = followe_id
+  );
