@@ -39,6 +39,8 @@ import {
 } from "@/components/ui/dialog";
 import { joinRequest } from "@/lib/actions/user.action";
 
+import { toast } from "sonner";
+
 interface SelectTechProps {
   technologies: {
     id: number;
@@ -69,10 +71,9 @@ const SelectTech: FC<SelectTechProps> = ({ technologies, projectId }) => {
         technologyId: data.technology.id,
       });
       setIsDialogOpen(false);
-    } catch (error) {
-      // TODO: Show error message Toast
-      console.error(error);
-      throw new Error("Error sending join request: " + error);
+      toast.success("Join request sent successfully");
+    } catch (error: any) {
+      toast.error("You might have already sent a request to this project.");
     }
   }
 
