@@ -1,9 +1,8 @@
 import { FC } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable } from "@/app/(root)/(home)/table-components/data-table";
-// import { columns } from "@/app/(root)/(home)/table-components/column";
 import { getUserProjectsById } from "@/lib/actions/project.action";
 import { columns } from "@/app/(root)/profile/table-components/column";
+import { DataTable } from "@/app/(root)/(home)/table-components/data-table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface UserProjectsProps {
   userId: string;
