@@ -1,7 +1,7 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
 import { joinRequestParams } from "../types";
+import { createClient } from "@/lib/supabase/server";
 
 export const checkUserIdentity = async () => {
   const supabase = createClient();
@@ -127,7 +127,7 @@ export async function joinRequest(params: joinRequestParams) {
       error,
     } = await supabase.auth.getUser();
     if (error) {
-      throw new Error("Error fetching user: " + error.message);
+      throw new Error("you need to be logged in to perform this action. ");
     }
     const userId = user?.id;
     const { data } = await supabase
@@ -148,7 +148,6 @@ export async function joinRequest(params: joinRequestParams) {
           },
         ]);
 
-      console.log(insertRequestError);
 
       if (insertRequestError) {
         throw new Error(
