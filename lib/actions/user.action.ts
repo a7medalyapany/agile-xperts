@@ -212,7 +212,8 @@ export const getUserRelatedNotifications = async () => {
     const { data } = await supabase
       .from("user_notifications_view")
       .select("*")
-      .eq("related_user_id", userId);
+      .eq("related_user_id", userId)
+      .neq("user_id", userId);
 
     if (error) {
       throw new Error("Error retrieving notifications: " + error);
