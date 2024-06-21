@@ -7,8 +7,8 @@ import { formatDate } from "@/lib/utils";
 import FollowButton from "../FollowButton";
 import { createClient } from "@/lib/supabase/server";
 import { getUserById } from "@/lib/actions/user.action";
-import { checkIsFollowing, getFollowCount } from "@/lib/actions/follow.action";
 import FollowersCounter from "@/components/shared/FollowersCounter";
+import { checkIsFollowing, getFollowCount } from "@/lib/actions/follow.action";
 
 interface ProfileProps {
   profileId: string;
@@ -20,17 +20,13 @@ const Profile: FC<ProfileProps> = async ({ profileId }) => {
     data: { user },
   } = await supabase.auth.getUser();
   const data = await getUserById(profileId);
-  console.log(data);
 
   const isFollowing = await checkIsFollowing({
     userId: user?.id!,
     targetUserId: profileId,
   });
-  console.log(isFollowing);
 
   const { followers, following } = await getFollowCount(profileId);
-
-  console.log(followers, following);
 
   const {
     name,
