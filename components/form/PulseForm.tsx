@@ -24,6 +24,7 @@ import { getImageData } from "@/lib/utils";
 import { PostPulse } from "@/lib/validation";
 import { createClient } from "@/lib/supabase/client";
 import { postPulse } from "@/lib/actions/pulse.action";
+import { toast } from "sonner";
 
 type PulseFormSchema = z.infer<typeof PostPulse>;
 
@@ -62,7 +63,9 @@ const PulseForm: FC<PulseFormProps> = ({ placeholder, parentPostId }) => {
           .upload(filePath, file);
 
         if (error) {
-          throw new Error("Error uploading posts image: " + error.message);
+          return toast.error("Error uploading image", {
+            description: `Maximum file size is 1 MB`,
+          });
         }
 
         if (data) {
@@ -82,7 +85,7 @@ const PulseForm: FC<PulseFormProps> = ({ placeholder, parentPostId }) => {
       form.reset();
       setPreview("");
     } catch (error) {
-      console.error(error);
+      toast.error("User must be logged in to post a pulse");
     }
   }
   const handleImageRemove = () => {
