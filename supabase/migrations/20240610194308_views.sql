@@ -380,6 +380,7 @@ LEFT JOIN
 
 
 
+
 CREATE OR REPLACE VIEW public.user_notifications_view AS
 SELECT
     n.id AS notification_id,
@@ -391,11 +392,13 @@ SELECT
     pu.avatar_url,
     n.related_user_id,
     n.related_post_id,
-    p.content AS post_content,  -- Add the post content column
-    p.img_url AS post_img_url   -- Add the post image URL column if needed
+    p.content AS post_content,
+    p.img_url AS post_img_url
 FROM
     public.notification n
 JOIN
     public.profile pu ON n.user_id = pu.id
 LEFT JOIN
-    public.post p ON n.related_post_id = p.id;  -- Join with the post table based on related_post_id
+    public.post p ON n.related_post_id = p.id
+ORDER BY
+    n.nocks DESC;  -- Assuming 'nocks' is a column representing the number of interactions or notifications
