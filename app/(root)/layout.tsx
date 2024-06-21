@@ -1,6 +1,7 @@
 import React, { FC } from "react";
-import Sidebar from "@/components/shared/Sidebar";
 import Navbar from "@/components/shared/Navbar";
+import { Toaster } from "@/components/ui/sonner";
+import Sidebar from "@/components/shared/Sidebar";
 import Bottombar from "@/components/shared/Bottombar";
 
 interface layoutProps {
@@ -18,6 +19,7 @@ const Layout: FC<layoutProps> = ({ children }) => {
         </div>
       </div>
       <Bottombar />
+      <Toaster invert={true} className="" />
     </main>
   );
 };
