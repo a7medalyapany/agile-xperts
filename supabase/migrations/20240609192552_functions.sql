@@ -649,3 +649,45 @@ CREATE TRIGGER after_repost_insert
 AFTER INSERT ON public.repost
 FOR EACH ROW
 EXECUTE FUNCTION notify_repost_insert();
+
+
+
+
+CREATE OR REPLACE FUNCTION get_users_in_same_team(p_user_id uuid)
+RETURNS TABLE(user_id uuid, username text, name text, avatar_url text)
+SECURITY DEFINER AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT p.id, p.username, p.name, p.avatar_url
+    FROM profile p
+    JOIN member m ON p.id = m.user_id
+    LEFT JOIN follows f ON f.following_id = p.id AND f.followe_id = p_user_id
+    WHERE m.team_id IN (
+        SELECT m2.team_id
+        FROM member m2
+        WHERE m2.user_id = p_user_id
+    )
+    AND p.id != p_user_id
+    AND f.id IS NULL -- Ensures member_id is not followed by followe_id
+    LIMIT 10;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+-- Function return number of users not following noob users 
+CREATE OR REPLACE FUNCTION get_recent_users(num_users integer, p_user_id uuid)
+RETURNS TABLE(user_id uuid, username text, name text, avatar_url text, signup_date timestamp with time zone)
+SECURITY DEFINER AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT ON (p.id)
+           p.id, p.username, p.name, p.avatar_url, p.created_at AS signup_date
+    FROM profile p
+    LEFT JOIN follows f ON p.id = f.following_id AND f.followe_id = p_user_id
+    WHERE f.id IS NULL -- Ensures p.id is not followed by p_user_id
+    ORDER BY p.id, p.created_at DESC
+    LIMIT num_users;
+END;
+$$ LANGUAGE plpgsql;

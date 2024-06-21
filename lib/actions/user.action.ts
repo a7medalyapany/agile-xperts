@@ -192,3 +192,119 @@ export const getUserNotifications = async () => {
     throw new Error("Error fetching user-related notifications: " + error);
   }
 };
+
+export const getUserRelatedNotifications = async () => {
+  const supabase = createClient<Database>();
+
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      throw new Error("Error fetching user: " + error.message);
+    }
+    const userId = user?.id;
+    const { data } = await supabase
+      .from("user_notifications_view")
+      .select("*")
+      .eq("related_user_id", userId)
+      .neq("user_id", userId);
+
+    if (error) {
+      throw new Error("Error retrieving notifications: " + error);
+    }
+
+    console.log(data); // Logging fetched data for debugging
+
+    return data ?? []; // Ensure data is returned (or empty array if null)
+  } catch (error) {
+    throw new Error("Error fetching user-related notifications: " + error);
+  }
+};
+
+export async function fetchRecentUsers(numUsers: number) {
+  const supabase = createClient<Database>();
+
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError) {
+      throw new Error("Error fetching user: " + userError);
+    }
+    const userId = user?.id;
+
+    if (!userId) {
+      throw new Error("User not found");
+    }
+    const { data, error } = await supabase.rpc("get_recent_users", {
+      num_users: numUsers,
+      p_user_id: userId,
+    });
+
+    if (error) {
+      throw new Error(`Error fetching recent users: ${error.message}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching recent users:", error);
+    return null;
+  }
+}
+
+// Function to call the RPC
+export async function getUsersInSameTeam() {
+  const supabase = createClient<Database>();
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      throw new Error("Error fetching user: " + error);
+    }
+    const userId = user?.id;
+
+    if (!userId) {
+      throw new Error("User not found");
+    }
+
+    // Call the RPC function
+    const { data, error: rpcError } = await supabase.rpc(
+      "get_users_in_same_team",
+      {
+        p_user_id: userId,
+      }
+    );
+
+    if (rpcError) {
+      throw new Error("Error executing RPC: " + rpcError.message);
+    }
+
+    console.log("Users in the same team:", data);
+
+    const numberOfRows = data?.length ?? 0;
+
+    if (numberOfRows < 10) {
+      const restOfUsers = await fetchRecentUsers(10 - numberOfRows);
+
+      if (restOfUsers) {
+        const _combinedUsers = unionBy(data, restOfUsers, "user_id");
+        const combinedUsers = _combinedUsers.filter(
+          (user) => user.user_id !== userId
+        );
+
+        console.log("Combined unique users:", combinedUsers);
+        return combinedUsers;
+      }
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error in getUsersInSameTeam:", error);
+    return null;
+  }
+}
