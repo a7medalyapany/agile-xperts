@@ -1,11 +1,11 @@
 "use client";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FC, useState } from "react";
 import { usePathname } from "next/navigation";
 import { FollowUserParams } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { followUser, unfollowUser } from "@/lib/actions/follow.action";
-// import { useToast } from "@/components/ui/use-toast";
 
 interface FollowButtonProps extends FollowUserParams {
   Following: boolean;
@@ -19,16 +19,14 @@ const FollowButton: FC<FollowButtonProps> = ({
   className,
 }) => {
   const pathname = usePathname();
-  //   const { toast } = useToast();
   const [isFollowing, setIsFollowing] = useState<boolean>(Following);
 
   const handleFollowToggle = async () => {
     try {
       if (!userId || !targetUserId) {
-        // return toast({
-        //   title: "You need to be logged in",
-        //   description: "Please login to follow this user",
-        // });
+        return toast("You need to be logged in", {
+          description: "Please login to follow this user",
+        });
       }
 
       if (isFollowing) {
