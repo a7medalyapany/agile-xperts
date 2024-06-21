@@ -49,6 +49,7 @@ import {
 } from "@/lib/actions/project.action";
 
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 interface ProjectRepoProps {
   technologies: { name: string }[];
@@ -116,7 +117,9 @@ const ProjectRepo: FC<ProjectRepoProps> = ({ technologies }) => {
           .upload(filePath, file);
 
         if (error) {
-          throw new Error("Error uploading project image: " + error.message);
+          return toast.error("Error uploading image", {
+            description: `Maximum file size is 1 MB`,
+          });
         }
 
         if (data) {
@@ -148,8 +151,9 @@ const ProjectRepo: FC<ProjectRepoProps> = ({ technologies }) => {
             router.push(`/project/${projectId}`);
           }
           setIsSubmitting(false);
+          toast.success("Project created successfully");
         } catch (error) {
-          console.error("Insert Project Error:", error);
+          toast.error("Error creating project. Please try again.");
           await deleteRepository(name);
         }
       }
