@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { createClient } from "../supabase/server"
 import { IPostPulse, IPulseReply } from "@/types"
 import { LikePulseParams } from "../types"
+import { toast } from "sonner"
 
 export async function postPulse(params: IPostPulse) {
 	const { content, imgUrl, parentId } = params
@@ -60,8 +61,7 @@ export async function postPulse(params: IPostPulse) {
 		}
 		   
 	} catch (error) {
-		console.error(error)
-		throw error
+		toast.error('User Must be logged in to post a pulse')
 	}
 }
 
