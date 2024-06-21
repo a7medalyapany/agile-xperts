@@ -237,12 +237,6 @@ export async function getUserProjectsById(id: string) {
 	const supabase = createClient<Database>();
 	
 	try {
-		const { data: { user} } = await supabase.auth.getUser();
-
-		if (!user) {
-			redirect('/login');
-			return;
-		}
 		const { data } = await supabase
 		.from('user_projects')
 		.select('*')
