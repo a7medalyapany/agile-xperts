@@ -72,10 +72,6 @@ export async function checkIsFollowing(params: FollowUserParams) {
     try {
         const { userId, targetUserId } = params;
 
-        // if (userId === targetUserId) {
-        //     throw new Error('You cannot follow yourself.');
-        // }
-
         const { data: existingFollow } = await supabase
             .from('follows')
             .select('id')
