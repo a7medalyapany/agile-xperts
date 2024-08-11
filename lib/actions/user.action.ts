@@ -1,5 +1,6 @@
 "use server";
 
+import unionBy from 'lodash.unionby';
 import { joinRequestParams } from "../types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -180,34 +181,6 @@ export const getUserNotifications = async () => {
     const { data } = await supabase
       .from("user_notifications_view")
       .select("*")
-      .eq("related_user_id", userId);
-
-    if (error) {
-      throw new Error("Error retrieving notifications: " + error);
-    }
-
-
-    return data ?? [];
-  } catch (error) {
-    throw new Error("Error fetching user-related notifications: " + error);
-  }
-};
-
-export const getUserRelatedNotifications = async () => {
-  const supabase = createClient<Database>();
-
-  try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
-      throw new Error("Error fetching user: " + error.message);
-    }
-    const userId = user?.id;
-    const { data } = await supabase
-      .from("user_notifications_view")
-      .select("*")
       .eq("related_user_id", userId)
       .neq("user_id", userId);
 
@@ -215,9 +188,8 @@ export const getUserRelatedNotifications = async () => {
       throw new Error("Error retrieving notifications: " + error);
     }
 
-    console.log(data); // Logging fetched data for debugging
 
-    return data ?? []; // Ensure data is returned (or empty array if null)
+    return data ?? [];
   } catch (error) {
     throw new Error("Error fetching user-related notifications: " + error);
   }
@@ -255,7 +227,7 @@ export async function fetchRecentUsers(numUsers: number) {
   }
 }
 
-// Function to call the RPC
+
 export async function getUsersInSameTeam() {
   const supabase = createClient<Database>();
   try {
@@ -272,7 +244,6 @@ export async function getUsersInSameTeam() {
       throw new Error("User not found");
     }
 
-    // Call the RPC function
     const { data, error: rpcError } = await supabase.rpc(
       "get_users_in_same_team",
       {
