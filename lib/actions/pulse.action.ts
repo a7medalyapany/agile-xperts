@@ -72,7 +72,8 @@ export async function getUserPulses(userID: string) {
 		const { data: pulses, error } = await supabase
 		  .from("user_posts_with_reposts")
 		  .select("*")
-		  .or(`author_id.eq.${userID},original_author_id.eq.${userID}`);
+		  .or(`author_id.eq.${userID},original_author_id.eq.${userID}`)
+		  .order("created_at", { ascending: false });
   
 		if (error) {
 		  throw error;
@@ -86,7 +87,7 @@ export async function getUserPulses(userID: string) {
 }
 export async function getAllPulses() {
 	const supabase = createClient<Database>()
-	const { data, error } = await supabase.from("post_details").select("*")
+	const { data, error } = await supabase.from("post_details").select("*").order("created_at", { ascending: false })
 	if (error) {
 		throw error
 	}
