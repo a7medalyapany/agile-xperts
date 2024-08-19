@@ -58,8 +58,7 @@ export interface SendMessageParams {
 
 export interface UrlQueryParams {
   params: string;
-  key: string;
-  value: string | null;
+  updates: Record<string, string | string[] | null>;
 }
   
 export interface RemoveUrlQueryParams {
