@@ -116,6 +116,39 @@ export const SearchFilters = [
 	{ name: "Posts", value: "post" },
 ];
 
+export const categories = {
+	framework: [
+	  "Next.js", "Django", "Flask", "Ruby on Rails", "Spring", "Express", 
+	  "Laravel", "Symfony", "Angular", "React", "Vue.js", "Svelte", 
+	  "Node.js", "Electron", "Nest.js", "Nuxt.js", "Remix"
+	],
+	
+	language: [
+	  "JavaScript", "Python", "Java", "C#", "PHP", "C++", 
+	  "TypeScript", "Ruby", "Swift", "Go", "Kotlin", "R", 
+	  "Scala", "Rust", "Dart", "C", "Objective-C", "Perl"
+	],
+	
+	database: [
+	  "SQL", "NoSQL", "PostgreSQL", "MySQL", "MongoDB", "SQLite", 
+	  "Redis", "Cassandra", "MariaDB", "Oracle", "Firebase", 
+	  "Supabase"
+	],
+	
+	css: [
+	  "CSS", "Bootstrap", "Tailwind CSS", "jQuery"
+	],
+	
+	authentication: [
+	  "OAuth", "Firebase", "AWS", "Azure", "Google Cloud"
+	],
+	
+	usecase: [
+	  "Machine Learning", "AI", "TensorFlow", "PyTorch", "Keras", 
+	  "Pandas", "NumPy", "Open AI", "Docker", "Unity", "Terraform"
+	]
+}
+
 export const countries = 
 [
 	{
@@ -518,4 +551,4 @@ export const countries =
 	  "id": 440,
 	  "name": "Peru"
 	}
-] as const
+] as const

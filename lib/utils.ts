@@ -131,30 +131,35 @@ export const getTimeStamp = (createdAt: string): string => {
   }
 };
 
-export const formUrlQuery = ({ params, key, value}: UrlQueryParams ) => {
+export const formUrlQuery = ({ params, updates }: UrlQueryParams) => {
   const currentUrl = qs.parse(params);
 
-  currentUrl[key] = value;
+  const updatedUrl = {
+    ...currentUrl,
+    ...updates,
+  };
 
-  return qs.stringifyUrl({
-    url: window.location.pathname,
-    query: currentUrl
-  },
-  { skipNull: true}
+  return qs.stringifyUrl(
+    {
+      url: window.location.pathname,
+      query: updatedUrl,
+    },
+    { skipNull: true }
   );
-}
+};
 
-export const removeKeysFromQuery = ({ params, keysToRemove }: RemoveUrlQueryParams ) => {
+export const removeKeysFromQuery = ({ params, keysToRemove }: RemoveUrlQueryParams) => {
   const currentUrl = qs.parse(params);
 
-  keysToRemove.forEach((key: string | number) => {
+  keysToRemove.forEach((key) => {
     delete currentUrl[key];
   });
 
-  return qs.stringifyUrl({
-    url: window.location.pathname,
-    query: currentUrl
-  },
-  { skipNull: true}
+  return qs.stringifyUrl(
+    {
+      url: window.location.pathname,
+      query: currentUrl,
+    },
+    { skipNull: true }
   );
-}
+};
