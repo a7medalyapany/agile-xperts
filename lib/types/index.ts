@@ -53,5 +53,16 @@ export interface AcceptRejectMemberParams {
 export interface SendMessageParams {
   teamId: number;
   userId: string;
-  content: string;
+  content: string;
+}
+
+export interface UrlQueryParams {
+  params: string;
+  key: string;
+  value: string | null;
+}
+  
+export interface RemoveUrlQueryParams {
+  params: string;
+  keysToRemove: string[];
 }
