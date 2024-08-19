@@ -11,6 +11,6 @@ export default function SearchLayout({ children }: SettingsLayoutProps) {
         <SearchFilter />
       </aside>
       <div className="block lg:max-w-2xl lg:flex-1">{children}</div>
-    </div>
-  );
+    </div>
+  );
 }
