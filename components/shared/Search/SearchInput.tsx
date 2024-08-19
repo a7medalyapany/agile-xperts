@@ -16,9 +16,8 @@ const Search: FC<SearchBarProps> = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Fetch search query and type from URL
   const query = searchParams.get("q") || "";
-  const type = searchParams.get("type") || "project"; // Default to 'project' if type is missing or undefined
+  const type = searchParams.get("type") || "project";
 
   const [search, setSearch] = useState<string>(query);
 
@@ -27,8 +26,7 @@ const Search: FC<SearchBarProps> = () => {
       if (search) {
         const newUrl = formUrlQuery({
           params: searchParams.toString(),
-          key: "q",
-          value: search,
+          updates: { q: search },
         });
         router.push(newUrl, { scroll: false });
       } else if (query) {
