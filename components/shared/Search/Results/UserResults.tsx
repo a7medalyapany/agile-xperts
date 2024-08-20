@@ -1,33 +1,48 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import Image from "next/image";
 import FollowButton from "../../FollowButton";
+import { searchUsers } from "@/lib/actions/search.action";
 
-interface UserResultsProps {}
+interface UserResultsProps {
+  query: string;
+}
 
-const UserResults: FC<UserResultsProps> = () => {
+const UserResults: FC<UserResultsProps> = ({ query }) => {
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      const result = await searchUsers(query);
+      setUsers(result);
+      setLoading(false);
+    };
+
+    fetchUsers();
+  }, [query]);
+
+  if (loading) return <div>Loading...</div>;
   return (
     <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
-      {[1, 2, 3, 4].map((result, index) => (
+      {users?.map((user, index) => (
         <div
           key={index}
           className="flex cursor-pointer flex-col items-center rounded-lg border p-4 drop-shadow-lg transition-transform duration-200 hover:scale-105"
         >
           <Image
-            src={"https://avatars.githubusercontent.com/u/103336732?v=4"}
-            // alt={`${result.artist} - ${result.title}`}
-            alt={"name - title"}
+            src={user.avatar_url!}
+            alt={`${user.name}`}
             width={100}
             height={100}
             className="rounded-full"
           />
-          <p className="mt-4 font-semibold">{/* {result.artist} */} Name</p>
-          <p className="text-sm text-muted-foreground">
-            {/* {result.title} */} title
-          </p>
+          <p className="mt-4 font-semibold">{user.name}</p>
+          <p className="text-sm text-muted-foreground">@{user.username}</p>
           <FollowButton
             Following={false}
             userId={""}
-            targetUserId={""}
+            targetUserId={user.id!}
             className="mt-2 h-fit min-w-[100px] rounded-full px-3 py-1.5 text-sm font-medium"
           />
         </div>

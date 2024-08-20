@@ -44,12 +44,12 @@ const Search: FC<SearchBarProps> = () => {
   const renderResults = () => {
     switch (type) {
       case "user":
-        return <UserResults />;
+        return <UserResults query={query} />;
       case "post":
-        return <PostResults />;
+        return <PostResults query={query} />;
       case "project":
       default:
-        return <ProjectResults />;
+        return <ProjectResults query={query} />;
     }
   };
 

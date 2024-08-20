@@ -691,3 +691,51 @@ BEGIN
     LIMIT num_users;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION search_projects(query TEXT, tech_filter TEXT[])
+RETURNS TABLE (
+  project_id BIGINT,
+  project_title TEXT,
+  project_created_at TIMESTAMP,
+  project_img_url TEXT,
+  request_count BIGINT,
+  technologies JSONB
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    p.id AS project_id,
+    p.title::TEXT AS project_title,
+    p.created_at::TIMESTAMP AS project_created_at,
+    p.img_url AS project_img_url,
+    COALESCE(r.request_count, 0::bigint) AS request_count,
+    JSONB_AGG(
+      JSONB_BUILD_OBJECT(
+        'id', t.id,
+        'name', t.name,
+        'designation', t.designation
+      )
+    ) AS technologies
+  FROM
+    project p
+    JOIN stack s ON p.id = s.project_id
+    JOIN technology t ON s.tech_id = t.id
+    LEFT JOIN (
+      SELECT
+        team.project_id,
+        COUNT(*) AS request_count
+      FROM
+        request req
+        JOIN team team ON req.team_id = team.id
+      GROUP BY
+        team.project_id
+    ) r ON p.id = r.project_id
+  WHERE
+    p.title ILIKE '%' || query || '%'
+    AND (tech_filter IS NULL OR t.name = ANY(tech_filter))
+  GROUP BY
+    p.id, p.title, p.created_at, p.img_url, r.request_count;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
