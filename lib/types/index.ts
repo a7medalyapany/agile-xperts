@@ -65,3 +65,8 @@ export interface RemoveUrlQueryParams {
   params: string;
   keysToRemove: string[];
 }
+
+export interface ProjectSearchParams {
+  query?: string;
+  techFilter?: string[];
+}

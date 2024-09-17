@@ -34,28 +34,27 @@ export async function searchPosts(query: string) {
   }
 }
 
-export async function searchProjects(query: string | null, techFilter: string[] | null) {
-  const supabase = createClient<Database>();
-  
+export async function searchProjects(query: string |  null, techFilter: string[] | null) {
+  const supabase = createClient(); 
+  // const params: { query?: string, tech_filter?: string[] } = {};
+  // if (query) params.query = query;
+  // if (techFilter) params.tech_filter = techFilter;
+  const params = {
+    query,
+    tech_filter: techFilter
+  };
   try {
-    // Define a default value for techFilter if it's not provided
-    const techFilterValue: string[] = techFilter || null;
+    const { data, error } = await supabase.rpc('search_projects', params);
 
-    // Call the Supabase RPC function with appropriate parameters
-    const { data, error } = await supabase
-    .rpc('search_projects', { query: query || '', tech_filter: techFilterValue.length > 0 ? techFilterValue : null });
-
-    // Check for errors
     if (error) {
-    throw error;
+      console.error('Error searching tech stack:', error);
+      return [];
     }
 
-    // Log data if necessary
-    console.log('Projects:', data);
     return data;
-  } catch (error: any) {
-    console.error('Error fetching projects:', error.message);
+
+  } catch (error) {
+    console.error('Error searching tech stack:', error);
     return null;
   }
 }
-  
