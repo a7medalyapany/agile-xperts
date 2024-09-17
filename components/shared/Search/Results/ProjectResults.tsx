@@ -33,13 +33,13 @@ const ProjectResults: FC<ProjectResultsProps> = ({ query }) => {
     <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
       {projects?.map((project: any) => (
         <LobbyProject
-          key={project.id!}
-          projectId={project.id!}
+          key={project.project_id!}
+          projectId={project.project_id!}
           imageUrl={project.project_image_url}
-          title={project.project_title}
-          techStack={project.technologies}
-          knockCount={project.request_count}
-          createdAt={project.project_created_at}
+          title={project.title}
+          techStack={project.tech_stack}
+          knockCount={project.knock_count}
+          createdAt={project.created_at}
         />
       ))}
     </div>
