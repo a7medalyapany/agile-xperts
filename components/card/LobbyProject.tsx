@@ -51,7 +51,9 @@ const LobbyProject: FC<LobbyProjectProps> = ({
 
       <CardContent className="flex flex-col justify-between gap-4 md:flex-row">
         <div className="mr-2 flex grow items-center">
-          <AnimatedTooltip items={techStack} className="size-9" />
+          {techStack && (
+            <AnimatedTooltip items={techStack} className="size-9" />
+          )}
         </div>
         <SelectTech technologies={techStack} projectId={projectId} />
       </CardContent>
