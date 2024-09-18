@@ -35,13 +35,10 @@ export async function searchPosts(query: string) {
 }
 
 export async function searchProjects(query: string |  null, techFilter: string[] | null) {
-  const supabase = createClient(); 
-  // const params: { query?: string, tech_filter?: string[] } = {};
-  // if (query) params.query = query;
-  // if (techFilter) params.tech_filter = techFilter;
+  const supabase = createClient<Database>(); 
   const params = {
-    query,
-    tech_filter: techFilter
+    query: query || undefined,
+    tech_filter: techFilter || undefined,
   };
   try {
     const { data, error } = await supabase.rpc('search_projects', params);
