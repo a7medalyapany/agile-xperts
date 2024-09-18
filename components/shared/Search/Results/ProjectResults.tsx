@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
-import LobbyProject from "@/components/card/LobbyProject";
 import { useSearchParams } from "next/navigation";
+import LobbyProject from "@/components/card/LobbyProject";
 import { searchProjects } from "@/lib/actions/search.action";
 
 interface ProjectResultsProps {
@@ -11,6 +11,7 @@ const ProjectResults: FC<ProjectResultsProps> = ({ query }) => {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
+
   // Extract filters from searchParams, excluding "q" and "type" and flatten the values into a single array
   const filters = Array.from(searchParams.entries())
     .filter(([key]) => !["q", "type"].includes(key))
@@ -21,12 +22,12 @@ const ProjectResults: FC<ProjectResultsProps> = ({ query }) => {
       setLoading(true);
       // Pass the query and the flattened filters array to searchProjects
       const result = await searchProjects(query, filters);
-      setProjects(result);
+      setProjects(result ?? []);
       setLoading(false);
     };
 
     fetchProjects();
-  }, [query]);
+  }, [query, searchParams]);
 
   if (loading) return <div>Loading...</div>;
   return (
