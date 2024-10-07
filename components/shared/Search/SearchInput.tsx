@@ -32,7 +32,7 @@ const Search: FC<SearchBarProps> = () => {
       } else if (query) {
         const newUrl = removeKeysFromQuery({
           params: searchParams.toString(),
-          keysToRemove: ["q", "type"],
+          keysToRemove: ["q"],
         });
         router.push(newUrl, { scroll: false });
       }
