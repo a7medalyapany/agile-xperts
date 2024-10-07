@@ -694,48 +694,140 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION search_projects(query TEXT, tech_filter TEXT[])
+CREATE OR REPLACE FUNCTION search_projects(
+  query text DEFAULT NULL, 
+  tech_filter text[] DEFAULT NULL
+)
 RETURNS TABLE (
-  project_id BIGINT,
-  project_title TEXT,
-  project_created_at TIMESTAMP,
-  project_img_url TEXT,
-  request_count BIGINT,
-  technologies JSONB
-) AS $$
+  project_id bigint,
+  image_url text,
+  title text,
+  tech_stack jsonb,
+  knock_count bigint,
+  created_at timestamp with time zone
+) 
+LANGUAGE plpgsql
+SECURITY DEFINER  -- Add this clause to set the security context
+AS $$
 BEGIN
-  RETURN QUERY
-  SELECT
-    p.id AS project_id,
-    p.title::TEXT AS project_title,
-    p.created_at::TIMESTAMP AS project_created_at,
-    p.img_url AS project_img_url,
-    COALESCE(r.request_count, 0::bigint) AS request_count,
-    JSONB_AGG(
-      JSONB_BUILD_OBJECT(
-        'id', t.id,
-        'name', t.name,
-        'designation', t.designation
-      )
-    ) AS technologies
-  FROM
-    project p
-    JOIN stack s ON p.id = s.project_id
-    JOIN technology t ON s.tech_id = t.id
-    LEFT JOIN (
+  -- Scenario 1: If tech_filter is provided and query is NULL
+  IF query IS NULL AND tech_filter IS NOT NULL THEN
+    RETURN QUERY 
       SELECT
-        team.project_id,
-        COUNT(*) AS request_count
-      FROM
-        request req
+        p.id as project_id,
+        p.img_url::text as image_url,  -- Cast to text
+        p.title::text as title,        -- Cast to text
+        (
+          SELECT jsonb_agg(jsonb_build_object('id', t.id, 'name', t.name, 'designation', t.designation))
+          FROM stack s
+          JOIN technology t ON s.tech_id = t.id
+          WHERE s.project_id = p.id
+        ) AS tech_stack,
+        COALESCE(r.request_count, 0) AS knock_count,  -- Use aggregated request count
+        p.created_at
+      FROM project p
+      LEFT JOIN (
+        SELECT
+          team.project_id,
+          COUNT(*) AS request_count
+        FROM request req
         JOIN team team ON req.team_id = team.id
-      GROUP BY
-        team.project_id
-    ) r ON p.id = r.project_id
-  WHERE
-    p.title ILIKE '%' || query || '%'
-    AND (tech_filter IS NULL OR t.name = ANY(tech_filter))
-  GROUP BY
-    p.id, p.title, p.created_at, p.img_url, r.request_count;
+        GROUP BY team.project_id
+      ) r ON p.id = r.project_id
+      WHERE p.id IN (
+        SELECT s.project_id
+        FROM stack s
+        JOIN technology t ON s.tech_id = t.id
+        WHERE t.name = ANY(tech_filter)
+      )
+      ORDER BY p.created_at DESC
+      LIMIT 5;
+
+  -- Scenario 2: If query is provided, first try searching by project name, then by technology
+  ELSIF query IS NOT NULL THEN
+    -- First, try searching for projects by name
+    RETURN QUERY 
+      SELECT
+        p.id as project_id,
+        p.img_url::text as image_url,  -- Cast to text
+        p.title::text as title,        -- Cast to text
+        (
+          SELECT jsonb_agg(jsonb_build_object('id', t.id, 'name', t.name, 'designation', t.designation))
+          FROM stack s
+          JOIN technology t ON s.tech_id = t.id
+          WHERE s.project_id = p.id
+        ) AS tech_stack,
+        COALESCE(r.request_count, 0) AS knock_count,  -- Use aggregated request count
+        p.created_at
+      FROM project p
+      LEFT JOIN (
+        SELECT
+          team.project_id,
+          COUNT(*) AS request_count
+        FROM request req
+        JOIN team team ON req.team_id = team.id
+        GROUP BY team.project_id
+      ) r ON p.id = r.project_id
+      WHERE p.title ILIKE '%' || query || '%'
+      ORDER BY p.created_at DESC;
+
+    -- If no projects by name, search by technology name
+    RETURN QUERY 
+      SELECT
+        p.id as project_id,
+        p.img_url::text as image_url,  -- Cast to text
+        p.title::text as title,        -- Cast to text
+        (
+          SELECT jsonb_agg(jsonb_build_object('id', t.id, 'name', t.name, 'designation', t.designation))
+          FROM stack s
+          JOIN technology t ON s.tech_id = t.id
+          WHERE s.project_id = p.id
+        ) AS tech_stack,
+        COALESCE(r.request_count, 0) AS knock_count,  -- Use aggregated request count
+        p.created_at
+      FROM project p
+      LEFT JOIN (
+        SELECT
+          team.project_id,
+          COUNT(*) AS request_count
+        FROM request req
+        JOIN team team ON req.team_id = team.id
+        GROUP BY team.project_id
+      ) r ON p.id = r.project_id
+      WHERE p.id IN (
+        SELECT s.project_id
+        FROM stack s
+        JOIN technology t ON s.tech_id = t.id
+        WHERE t.name ILIKE '%' || query || '%'
+      )
+      ORDER BY p.created_at DESC;
+
+  -- Scenario 3: If no query or tech_filter, return latest projects ordered by knock_count
+  ELSE
+    RETURN QUERY 
+      SELECT
+        p.id as project_id,
+        p.img_url::text as image_url,  -- Cast to text
+        p.title::text as title,        -- Cast to text
+        (
+          SELECT jsonb_agg(jsonb_build_object('id', t.id, 'name', t.name, 'designation', t.designation))
+          FROM stack s
+          JOIN technology t ON s.tech_id = t.id
+          WHERE s.project_id = p.id
+        ) AS tech_stack,
+        COALESCE(r.request_count, 0) AS knock_count,  -- Use aggregated request count
+        p.created_at
+      FROM project p
+      LEFT JOIN (
+        SELECT
+          team.project_id,
+          COUNT(*) AS request_count
+        FROM request req
+        JOIN team team ON req.team_id = team.id
+        GROUP BY team.project_id
+      ) r ON p.id = r.project_id
+      ORDER BY knock_count DESC, p.created_at DESC
+      LIMIT 5;
+  END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
