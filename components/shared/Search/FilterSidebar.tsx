@@ -1,6 +1,6 @@
 "use client";
-import React, { FC, useState, useEffect } from "react";
-import { cn, formUrlQuery, removeKeysFromQuery } from "@/lib/utils";
+import React, { FC, useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   Accordion,
   AccordionContent,
@@ -8,89 +8,67 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { categories } from "@/constants";
-
-const projectFilters = [
-  "usecase",
-  "framework",
-  "language",
-  "database",
-  "css",
-  "authentication",
-];
 
 interface FilterSidebarProps extends React.HTMLAttributes<HTMLElement> {}
 
 const SearchFilter: FC<FilterSidebarProps> = ({ className, ...props }) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const currentType = searchParams.get("type") || "project";
+  const pathname = usePathname();
 
-  const [selectedFilters, setSelectedFilters] = useState<
-    Record<string, string[]>
-  >({});
-  const [searchType, setSearchType] = useState(currentType);
-
-  useEffect(() => {
-    if (searchType === "project") {
-      const updates = {
-        type: searchType,
-        ...Object.keys(selectedFilters).reduce(
-          (acc, category) => {
-            if (selectedFilters[category]?.length) {
-              acc[category] = selectedFilters[category].join("-");
-            }
-            return acc;
-          },
-          {} as Record<string, string>
-        ),
-      };
-      const newUrl = formUrlQuery({ params: searchParams.toString(), updates });
-      router.push(newUrl, { scroll: false });
-    } else {
-      const newUrl = removeKeysFromQuery({
-        params: searchParams.toString(),
-        keysToRemove: [...projectFilters, "type"], // Remove project filters + change the type
-      });
-
-      const updatedUrl = formUrlQuery({
-        params: newUrl,
-        updates: { type: searchType }, // Add the new search type to the URL
-      });
-
-      router.push(updatedUrl, { scroll: false });
-    }
-  }, [selectedFilters, searchType]);
-
-  const handleFilterChange = (category: string, item: string) => {
-    setSelectedFilters((prev) => {
-      const updatedFilters = { ...prev };
-      const isAlreadySelected = updatedFilters[category]?.includes(item);
-
-      if (isAlreadySelected) {
-        updatedFilters[category] = updatedFilters[category].filter(
-          (i) => i !== item
-        );
-      } else {
-        updatedFilters[category] = [...(updatedFilters[category] || []), item];
-      }
-
-      if (updatedFilters[category]?.length === 0) {
-        delete updatedFilters[category];
-      }
-
-      return updatedFilters;
-    });
-  };
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedFilters, setSelectedFilters] = useState<{
+    [key: string]: string[];
+  }>({});
 
   const handleTypeChange = (type: string) => {
-    setSearchType(type);
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if (selectedType === type) {
+      setSelectedType(null);
+      searchParams.delete("type");
+    } else {
+      setSelectedType(type);
+      searchParams.set("type", type);
+    }
+
+    router.push(`${pathname}?${searchParams.toString()}`);
+  };
+
+  const handleFilterChange = (category: string, filter: string) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const updatedFilters = { ...selectedFilters };
+
+    // Toggle the filter selection for the specific category
+    if (!updatedFilters[category]) {
+      updatedFilters[category] = [];
+    }
+
+    if (updatedFilters[category].includes(filter)) {
+      updatedFilters[category] = updatedFilters[category].filter(
+        (f) => f !== filter
+      ); // Remove the filter
+    } else {
+      updatedFilters[category].push(filter); // Add the filter
+    }
+
+    // Update the category query parameter (e.g., framework=next,react)
+    if (updatedFilters[category].length > 0) {
+      searchParams.set(category, updatedFilters[category].join("-"));
+    } else {
+      searchParams.delete(category); // If no filters, remove the category
+    }
+
+    setSelectedFilters(updatedFilters);
+    router.push(`${pathname}?${searchParams.toString()}`);
   };
 
   const getSelectedCount = (category: string) => {
     return selectedFilters[category]?.length || 0;
   };
+
+  const isDefaultOrEmpty = selectedType === null; // Show constants if no type is selected
 
   return (
     <aside
@@ -106,30 +84,20 @@ const SearchFilter: FC<FilterSidebarProps> = ({ className, ...props }) => {
           <AccordionContent className="space-y-2">
             <div className="flex items-center gap-3">
               <input
-                type="radio"
-                name="type"
-                value="project"
-                checked={searchType === "project"}
-                onChange={() => handleTypeChange("project")}
-              />
-              Project
-            </div>
-            <div className="flex items-center gap-3">
-              <input
-                type="radio"
+                type="checkbox"
                 name="type"
                 value="user"
-                checked={searchType === "user"}
+                checked={selectedType === "user"}
                 onChange={() => handleTypeChange("user")}
               />
               User
             </div>
             <div className="flex items-center gap-3">
               <input
-                type="radio"
+                type="checkbox"
                 name="type"
                 value="post"
-                checked={searchType === "post"}
+                checked={selectedType === "post"}
                 onChange={() => handleTypeChange("post")}
               />
               Post
@@ -137,7 +105,7 @@ const SearchFilter: FC<FilterSidebarProps> = ({ className, ...props }) => {
           </AccordionContent>
         </AccordionItem>
 
-        {searchType === "project" &&
+        {isDefaultOrEmpty &&
           Object.entries(categories).map(([category, items]) => (
             <AccordionItem key={category} value={category}>
               <AccordionTrigger className="flex flex-row-reverse items-center justify-end gap-4">
