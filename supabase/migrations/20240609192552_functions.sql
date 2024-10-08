@@ -831,3 +831,136 @@ BEGIN
   END IF;
 END;
 $$;
+
+
+
+-- Algorithm for point system
+CREATE OR REPLACE FUNCTION calculate_user_points(input_user_id UUID) RETURNS VOID AS $$
+DECLARE
+    total_user_points BIGINT := 0; 
+    received_likes_count BIGINT; 
+    current_user_level SMALLINT; 
+    pro_level_threshold SMALLINT := 5; 
+BEGIN
+    -- Get the number of likes received by the user's posts (over the last 30 days)
+    SELECT COUNT(*) INTO received_likes_count
+    FROM public.likes l
+    JOIN public.post p ON l.post_id = p.id
+    WHERE p.user_id = input_user_id AND l.created_at >= NOW() - INTERVAL '30 days';
+
+    -- Points from likes received (1 point for every 10 likes received)
+    total_user_points := received_likes_count / 10;
+
+    -- Add points based on user activity (e.g., posts created in the last 30 days)
+    total_user_points := total_user_points + (SELECT COUNT(*) 
+                                                FROM public.user_activity ua 
+                                                WHERE ua.user_id = input_user_id AND ua.created_at >= NOW() - INTERVAL '30 days');
+
+    -- Get the current user level
+    SELECT level INTO current_user_level 
+    FROM public.user_level 
+    WHERE user_id = input_user_id;
+
+    -- Scale points based on user level
+    CASE current_user_level
+        WHEN 1 THEN total_user_points := total_user_points * 1.0;
+        WHEN 2 THEN total_user_points := total_user_points * 0.9;
+        WHEN 3 THEN total_user_points := total_user_points * 0.8;
+        WHEN 4 THEN total_user_points := total_user_points * 0.7;
+        WHEN 5 THEN total_user_points := total_user_points * 0.6;
+        ELSE total_user_points := total_user_points * 0.5; -- Levels beyond 5
+    END CASE;
+
+    -- Update user's total points in the profile table
+    UPDATE public.profile
+    SET streak_points = streak_points + total_user_points
+    WHERE id = input_user_id;
+
+    -- Check if user qualifies for level up
+    IF (SELECT streak_points FROM public.profile WHERE id = input_user_id) >= 100 * current_user_level THEN
+        -- Increment level
+        UPDATE public.user_level
+        SET level = level + 1
+        WHERE user_id = input_user_id;
+
+        -- Reset points for the new level
+        UPDATE public.profile
+        SET streak_points = 0
+        WHERE id = input_user_id;
+    END IF;
+
+    -- Check if user qualifies for Pro status
+    IF NOT EXISTS (SELECT 1 FROM public.user_role ur WHERE ur.user_id = input_user_id AND ur.role = 'pro') THEN
+        IF current_user_level >= pro_level_threshold THEN
+            -- Call the function to promote the user to Pro status
+            PERFORM promote_to_pro(input_user_id);
+            -- Log the promotion
+            -- INSERT INTO public.notification (user_id, message, created_at)
+            -- VALUES (input_user_id, 'Congratulations! You’ve been promoted to Pro.', NOW());
+        END IF;
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Error in calculate_user_points: %', SQLERRM; 
+        RAISE; 
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+
+CREATE OR REPLACE FUNCTION promote_to_pro(input_user_id UUID) RETURNS VOID AS $$
+BEGIN
+    -- Update the user's role to 'pro' in the user_role table
+    UPDATE public.user_role
+    SET role = 'pro', assigned_at = NOW()
+    WHERE user_id = input_user_id;
+
+
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Raise any other exceptions for troubleshooting
+        RAISE NOTICE 'Error in promote_to_pro: %', SQLERRM;
+        RAISE;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Trigger function to log user activities
+CREATE OR REPLACE FUNCTION track_user_activity()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Log activity
+    INSERT INTO public.user_activity (user_id, activity_type)
+    VALUES (NEW.user_id, TG_TABLE_NAME);
+
+    -- Calculate user points after logging activity
+    PERFORM calculate_user_points(NEW.user_id);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger for when a like is inserted
+CREATE TRIGGER after_like_insert
+AFTER INSERT ON public.likes
+FOR EACH ROW
+EXECUTE FUNCTION track_user_activity();
+
+-- Trigger for when a post is created
+CREATE TRIGGER after_post_insert
+AFTER INSERT ON public.post
+FOR EACH ROW
+EXECUTE FUNCTION track_user_activity();
+
+
+CREATE TRIGGER after_user_repost
+AFTER INSERT ON public.repost
+FOR EACH ROW
+EXECUTE FUNCTION track_user_activity();
+
+
+CREATE TRIGGER after_user_reply
+AFTER INSERT ON public.reply
+FOR EACH ROW
+EXECUTE FUNCTION track_user_activity();
