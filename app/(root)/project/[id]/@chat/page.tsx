@@ -26,8 +26,6 @@ const Page: FC<PageProps> = async ({ params }) => {
   }
   const data = await getTeamMessages(parseInt(params.id));
 
-  console.log(data);
-
   return (
     <div className="flex h-full min-h-[75vh] flex-col overflow-y-auto rounded-xl bg-muted/50 p-4 drop-shadow-md md:min-h-[84vh] lg:col-span-2">
       <Card className="flex grow flex-col">

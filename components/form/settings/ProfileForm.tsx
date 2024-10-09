@@ -63,7 +63,6 @@ export function ProfileForm() {
     let publicUrl = null;
     try {
       setIsUpdating(true);
-      console.log(data);
 
       const file = data.photo;
 
@@ -75,7 +74,6 @@ export function ProfileForm() {
 
         const fileExt = file.name.split(".").pop();
         const filePath = `${userId}-${Math.random()}.${fileExt}`;
-        console.log(filePath);
 
         const { data, error } = await supabase.storage
           .from("avatars")
@@ -91,7 +89,6 @@ export function ProfileForm() {
           } = supabase.storage.from("avatars").getPublicUrl(data.path);
 
           publicUrl = url;
-          console.log(publicUrl);
         }
       }
       console.log(publicUrl);

@@ -36,7 +36,6 @@ const SecurityForm: FC<SecurityFormProps> = () => {
 
   async function onSubmit(data: SecurityFormValues) {
     try {
-      console.log(data);
       await changeEmailPassword(data);
     } catch (error) {
       console.error(error);
