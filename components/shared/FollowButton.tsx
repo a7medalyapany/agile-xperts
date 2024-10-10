@@ -1,68 +1,112 @@
 "use client";
+
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { FC, useState } from "react";
+import {
+  FC,
+  useOptimistic,
+  useTransition,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { usePathname } from "next/navigation";
 import { FollowUserParams } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { followUser, unfollowUser } from "@/lib/actions/follow.action";
+import {
+  followUser,
+  unfollowUser,
+  checkIsFollowing,
+} from "@/lib/actions/follow.action";
 
 interface FollowButtonProps extends FollowUserParams {
-  Following: boolean;
   className?: string;
 }
 
 const FollowButton: FC<FollowButtonProps> = ({
-  userId,
   targetUserId,
-  Following,
+  userId,
   className,
 }) => {
   const pathname = usePathname();
-  const [isFollowing, setIsFollowing] = useState<boolean>(Following);
+  const [isPending, startTransition] = useTransition();
+  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
 
-  const handleFollowToggle = async () => {
-    try {
-      if (!userId || !targetUserId) {
-        return toast("You need to be logged in", {
-          description: "Please login to follow this user",
-        });
-      }
+  const [optimisticFollowing, optimisticToggleFollow] = useOptimistic(
+    isFollowing,
+    (state: boolean | null, newState: boolean) => newState
+  );
 
-      if (isFollowing) {
-        await unfollowUser({
-          userId,
-          targetUserId,
-          path: pathname,
-        });
-        setIsFollowing(false);
-      } else {
-        await followUser({
-          userId,
-          targetUserId,
-          path: pathname,
-        });
-        setIsFollowing(true);
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (targetUserId && userId) {
+        try {
+          const followStatus = await checkIsFollowing({ targetUserId, userId });
+          setIsFollowing(followStatus);
+        } catch (error) {
+          console.error("Error checking follow status:", error);
+          toast.error("Failed to check follow status");
+        }
       }
-    } catch (error) {
-      console.error("Error toggling follow:", error);
+    };
+
+    checkFollowStatus();
+  }, [targetUserId, userId]);
+
+  const handleFollowToggle = useCallback(() => {
+    if (!targetUserId || !userId) {
+      toast.error("User information is missing");
+      return;
     }
-  };
+
+    const newFollowingState = !optimisticFollowing;
+    optimisticToggleFollow(newFollowingState);
+
+    startTransition(async () => {
+      try {
+        if (newFollowingState) {
+          await followUser({ targetUserId, userId, path: pathname });
+        } else {
+          await unfollowUser({ targetUserId, userId, path: pathname });
+        }
+        setIsFollowing(newFollowingState);
+      } catch (error) {
+        // Revert optimistic update on error
+        optimisticToggleFollow(!newFollowingState);
+        setIsFollowing(!newFollowingState);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred";
+        toast.error(errorMessage);
+      }
+    });
+  }, [
+    optimisticFollowing,
+    targetUserId,
+    userId,
+    pathname,
+    optimisticToggleFollow,
+  ]);
+
+  // Don't render the button for self-follow or if the target user ID is invalid
+  if (targetUserId === userId || !targetUserId || isFollowing === null) {
+    return null;
+  }
 
   return (
     <Button
-      variant={isFollowing ? "outline" : "default"}
+      variant={optimisticFollowing ? "outline" : "default"}
       className={cn(
-        `paragraph-medium hover:bg-foreground hover:text-background min-w-[120px] rounded-lg px-4 py-3 ${
-          Following
-            ? "bg-muted hover:bg-muted text-foreground hover:text-foreground border hover:border-red-500"
-            : ""
-        }`,
+        `paragraph-medium hover:bg-foreground hover:text-background min-w-[120px] rounded-lg px-4 py-3`,
+        optimisticFollowing &&
+          "bg-muted hover:bg-muted text-foreground hover:text-foreground border hover:border-red-500",
         className
       )}
       onClick={handleFollowToggle}
+      disabled={isPending}
     >
-      {isFollowing ? "Unfollow" : "Follow"}
+      {optimisticFollowing ? "Unfollow" : "Follow"}
     </Button>
   );
 };
