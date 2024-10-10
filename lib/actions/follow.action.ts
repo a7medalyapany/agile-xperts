@@ -7,7 +7,6 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function followUser(params: FollowUserParams) {
 	const supabase = createClient<Database>();
-
     try {
         const { userId, targetUserId, path } = params;
 
@@ -68,9 +67,15 @@ export async function unfollowUser(params: FollowUserParams) {
 
 export async function checkIsFollowing(params: FollowUserParams) {
 	const supabase = createClient<Database>();
+    const { data: { user }} = await supabase.auth.getUser();
+    
+    if (!user) {
+        return false;
+    }
+    const userId = user?.id;
 
     try {
-        const { userId, targetUserId } = params;
+        const { targetUserId } = params;
 
         const { data: existingFollow } = await supabase
             .from('follows')

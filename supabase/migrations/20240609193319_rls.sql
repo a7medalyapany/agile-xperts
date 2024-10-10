@@ -221,3 +221,9 @@ select
   using (
     auth.uid () = followe_id
   );
+
+create policy "Enable read access for all users" on "public"."follows" to public using ( true );
+
+
+-- User Activity
+create policy "Enable insert for authenticated users only" on "public"."user_activity" to authenticated with check ( true );

@@ -9,9 +9,11 @@ import UserResults from "./Results/UserResults";
 import PostResults from "./Results/PostResults";
 import ProjectResults from "./Results/ProjectResults";
 
-interface SearchBarProps {}
+interface SearchBarProps {
+  userId: string | null;
+}
 
-const Search: FC<SearchBarProps> = () => {
+const Search: FC<SearchBarProps> = ({ userId }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -44,7 +46,7 @@ const Search: FC<SearchBarProps> = () => {
   const renderResults = () => {
     switch (type) {
       case "user":
-        return <UserResults query={query} />;
+        return <UserResults query={query} userId={userId} />;
       case "post":
         return <PostResults query={query} />;
       case "project":

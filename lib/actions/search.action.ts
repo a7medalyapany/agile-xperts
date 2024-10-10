@@ -7,7 +7,8 @@ export async function searchUsers(query: string) {
     const { data: users, error } = await supabase
       .from("public_profile_view")
       .select('*')
-      .textSearch('name, username, email', query, { config: 'english', type: 'websearch' });
+      .or(`name.ilike.%${query}%,username.ilike.%${query}%,email.ilike.%${query}%`);
+      // .textSearch('name, username, email', query, { config: 'english', type: 'websearch' });
 
     if (error) throw new Error(error.message);
     return users || [];

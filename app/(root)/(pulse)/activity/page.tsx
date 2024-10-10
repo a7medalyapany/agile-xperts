@@ -7,7 +7,6 @@ interface pageProps {}
 
 const Page: FC<pageProps> = async () => {
   const data = await getUserNotifications();
-  console.log(data);
 
   return (
     <div className="size-full overflow-auto sm:rounded-lg sm:border">
