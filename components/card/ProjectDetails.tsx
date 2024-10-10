@@ -160,17 +160,21 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           </div>
         </CardHeader>
         <CardContent className="p-6 text-sm">
-          <div className="grid gap-3">
-            <div className="font-semibold">Description</div>
-            <ul className="grid gap-3">
-              <ReadMore
-                maxLength={200}
-                className="text-muted-foreground"
-                text={description}
-              />
-            </ul>
-          </div>
-          <Separator className="my-4" />
+          {description !== "" && (
+            <>
+              <div className="grid gap-3">
+                <div className="font-semibold">Description</div>
+                <ul className="grid gap-3">
+                  <ReadMore
+                    maxLength={200}
+                    className="text-muted-foreground"
+                    text={description}
+                  />
+                </ul>
+              </div>
+              <Separator className="my-4" />
+            </>
+          )}
           <div className="grid gap-3">
             <div className="font-semibold">Members</div>
             <ul className="grid gap-1">
