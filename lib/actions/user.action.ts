@@ -182,7 +182,8 @@ export const getUserNotifications = async () => {
       .from("user_notifications_view")
       .select("*")
       .eq("related_user_id", userId)
-      .neq("user_id", userId);
+      .neq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     if (error) {
       throw new Error("Error retrieving notifications: " + error);
@@ -255,8 +256,6 @@ export async function getUsersInSameTeam() {
       throw new Error("Error executing RPC: " + rpcError.message);
     }
 
-    console.log("Users in the same team:", data);
-
     const numberOfRows = data?.length ?? 0;
 
     if (numberOfRows < 10) {
@@ -267,8 +266,6 @@ export async function getUsersInSameTeam() {
         const combinedUsers = _combinedUsers.filter(
           (user) => user.user_id !== userId
         );
-
-        console.log("Combined unique users:", combinedUsers);
         return combinedUsers;
       }
     }
