@@ -1,4 +1,5 @@
 "use client";
+
 import { FC, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,41 +29,56 @@ const Pulse: FC<PulseProps> = ({
   repostCount: initialRepostCount,
   isEchoBack,
   echoBack,
-  hasLiked,
-  hasReposted,
-  hasBookmarked,
+  hasLiked: initialHasLiked,
+  hasReposted: initialHasReposted,
+  hasBookmarked: initialHasBookmarked,
 }) => {
-  const [isBookmarked, setIsBookmarked] = useState(hasBookmarked);
+  const [isBookmarked, setIsBookmarked] = useState(initialHasBookmarked);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [repostCount, setRepostCount] = useState(initialRepostCount);
+  const [hasLiked, setHasLiked] = useState(initialHasLiked);
+  const [hasReposted, setHasReposted] = useState(initialHasReposted);
 
   const handleLikeClick = async () => {
-    const optimisticLikeCount = initialLikeCount + (hasLiked ? -1 : 1);
-    setLikeCount(optimisticLikeCount);
+    const newHasLiked = !hasLiked;
+    const newLikeCount = likeCount + (newHasLiked ? 1 : -1);
+
+    setHasLiked(newHasLiked);
+    setLikeCount(newLikeCount);
 
     try {
       const result = await handlePulseLike({ postId: id });
-      setLikeCount(result?.likeCount!);
+      if (result?.likeCount !== newLikeCount) {
+        setLikeCount(result?.likeCount!);
+        setHasLiked(!newHasLiked);
+      }
     } catch (error) {
       console.error(error);
-      setLikeCount(initialLikeCount);
+      setHasLiked(!newHasLiked);
+      setLikeCount(likeCount);
     }
   };
 
   const handleRepostClick = () => {
-    const optimisticRepostCount = initialRepostCount + (hasReposted ? -1 : 1);
-    setRepostCount(optimisticRepostCount);
+    const newHasReposted = !hasReposted;
+    const newRepostCount = repostCount + (newHasReposted ? 1 : -1);
+
+    setHasReposted(newHasReposted);
+    setRepostCount(newRepostCount);
 
     // Simulate a server request here for repost action
     // Perform async action and update state if necessary
   };
 
   const handleBookmarkClick = async () => {
-    setIsBookmarked(!isBookmarked);
+    const newIsBookmarked = !isBookmarked;
+    setIsBookmarked(newIsBookmarked);
+
     try {
       await handlePulseBookMark({ postId: id });
     } catch (error) {
       console.error(error);
+      setIsBookmarked(!newIsBookmarked);
     }
   };
 
@@ -75,7 +91,10 @@ const Pulse: FC<PulseProps> = ({
           <div className="flex flex-col items-center">
             <Link href={`/profile/${authorId}`} className="relative size-11">
               <Avatar>
-                <AvatarImage src={authorAvatar} alt="@userPhoto" />
+                <AvatarImage
+                  src={authorAvatar}
+                  alt={`${authorName}'s avatar`}
+                />
                 <AvatarFallback>{authorName.charAt(0)}</AvatarFallback>
               </Avatar>
             </Link>
@@ -95,7 +114,7 @@ const Pulse: FC<PulseProps> = ({
               {photo && (
                 <Image
                   src={photo}
-                  alt="pulse-photo"
+                  alt="Pulse content"
                   width={1200}
                   height={400}
                   className="xs:h-[400px] h-64 w-full rounded-lg object-cover lg:h-[450px]"
@@ -109,53 +128,41 @@ const Pulse: FC<PulseProps> = ({
                 className={`${isEchoBack ? "hidden" : "flex w-full items-center justify-between"}`}
               >
                 <Metric
-                  imgUrl={
-                    hasLiked
-                      ? "/assets/icons/echo-filled.svg"
-                      : "/assets/icons/echo.svg"
-                  }
+                  icon="echo"
                   alt="Echo"
                   value={likeCount}
                   title="Echoes"
                   textStyle="small-medium text-muted-foreground"
                   onClick={handleLikeClick}
+                  isFilled={hasLiked}
+                  color={hasLiked ? "#ff6b6b" : undefined}
                 />
                 <Metric
-                  imgUrl={
-                    hasReposted
-                      ? "/assets/icons/echoOut-filled.svg"
-                      : "/assets/icons/echoOut.svg"
-                  }
+                  icon="echoOut"
                   alt="Echo Out"
                   value={repostCount}
                   title="Echo Outs"
                   textStyle="small-medium text-muted-foreground"
                   onClick={handleRepostClick}
+                  isFilled={hasReposted}
+                  color={hasReposted ? "#51cf66" : undefined}
                 />
                 <Metric
-                  imgUrl="/assets/icons/echoBack.svg"
+                  href={`/dev-pulse/${id}`}
+                  icon="echoBack"
                   alt="Echo Backs"
                   value={replyCount}
                   title="Replies"
                   textStyle="small-medium text-muted-foreground"
                 />
-                {/* <Metric
-                  imgUrl="/assets/icons/analytics.svg"
-                  alt="Views"
-                  value={228}
-                  title="Views"
-                  textStyle="small-medium text-muted-foreground"
-                /> */}
                 <Metric
-                  imgUrl={
-                    isBookmarked
-                      ? "/assets/icons/bookmarks-fill.svg"
-                      : "/assets/icons/bookmarks.svg"
-                  }
+                  icon="bookmark"
                   alt="Bookmarks"
                   title="Bookmarks"
                   textStyle="small-medium text-muted-foreground"
                   onClick={handleBookmarkClick}
+                  isFilled={isBookmarked}
+                  color={isBookmarked ? "#acacac" : undefined}
                 />
               </div>
               {isEchoBack && echoBack.length > 0 && (
@@ -176,7 +183,7 @@ const Pulse: FC<PulseProps> = ({
             <Image
               key={index}
               src={echoBack}
-              alt={`author_${index}`}
+              alt={`Author ${index + 1}`}
               width={24}
               height={24}
               className={`${index !== 0 && "-ml-5"} rounded-full object-cover`}
