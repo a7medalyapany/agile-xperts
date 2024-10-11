@@ -36,7 +36,6 @@ const TopSection = () => {
             width={24}
             height={24}
             className="dark:invert"
-            // className={`invert-colors`}
           />
           <p
             className={`${isActive(item.route) ? "base-bold" : "base-medium"} max-lg:hidden`}

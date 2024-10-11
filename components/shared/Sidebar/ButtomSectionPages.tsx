@@ -35,6 +35,7 @@ const ButtomSectionPagesLinks = () => {
             alt={item.label}
             width={24}
             height={24}
+            className="dark:invert"
           />
           <p
             className={`${isActive(item.route) ? "base-bold" : "base-medium"} max-lg:hidden`}
