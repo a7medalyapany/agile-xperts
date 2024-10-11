@@ -29,10 +29,6 @@ const Bottombar: FC<BottombarProps> = () => {
     }
   };
 
-  // const filteredLinks = pageLinks.filter(
-  //   (link) => link.label !== "Bookmarks" && link.label !== "Activity"
-  // );
-
   return (
     <section className="xs:px-5 fixed inset-x-2 bottom-0 rounded-lg bg-gradient-to-b from-neutral-300 p-1 backdrop-blur-lg dark:from-neutral-900 sm:hidden">
       <div className="xs:gap-5 flex items-center justify-between gap-1">
@@ -53,7 +49,7 @@ const Bottombar: FC<BottombarProps> = () => {
                 alt={link.label}
                 width={24}
                 height={24}
-                // className="invert"
+                className="dark:invert"
               />
             </Link>
           );
