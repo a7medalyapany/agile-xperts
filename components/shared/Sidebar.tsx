@@ -27,14 +27,7 @@ const Sidebar = async () => {
               alt="Agile Xpert Logo"
               width={24}
               height={24}
-              className="hidden size-6"
-            />
-            <Image
-              src="/light-logo.svg"
-              alt="Agile Xpert Logo"
-              width={24}
-              height={24}
-              className="size-6 dark:block"
+              className="size-6 dark:invert"
             />
             <span className="sr-only">Agile Xperts logo</span>
           </Link>

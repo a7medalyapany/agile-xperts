@@ -35,6 +35,7 @@ const TopSection = () => {
             alt={item.label}
             width={24}
             height={24}
+            className="dark:invert"
             // className={`invert-colors`}
           />
           <p
