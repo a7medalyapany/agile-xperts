@@ -6,7 +6,8 @@ import { getPulseById } from "@/lib/actions/pulse.action";
 
 const page: FC<URLProps> = async ({ params }: URLProps) => {
   const { pulse, replies } = await getPulseById({ id: params.id });
-
+  // TODO: redirect to replies page (that will act as a post page as well but check the id if conflicts with a pulse id)
+  // e.g. /dev-pulse/1/replies != /dev-pulse/1
   return (
     <div className="size-full overflow-auto sm:rounded-lg sm:border">
       {pulse && (
@@ -40,7 +41,7 @@ const page: FC<URLProps> = async ({ params }: URLProps) => {
       {replies?.map((echoBack: IPulseReply) => (
         <Pulse
           key={echoBack.replyId!}
-          id={echoBack.replyId!}
+          id={parseInt(params.id)} // TODO: fix this
           content={echoBack.content}
           photo={echoBack.photo}
           createdAt={echoBack.createdAt!}
