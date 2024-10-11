@@ -1,5 +1,57 @@
-import React from "react";
-type IconProps = React.HTMLAttributes<SVGElement>;
+import React, { FC } from "react";
+
+interface IconProps extends React.HTMLAttributes<SVGElement> {
+  color?: string;
+  filled?: boolean;
+  className?: string;
+}
+
+const IconWrapper: FC<IconProps & { children: React.ReactNode }> = ({
+  filled = false,
+  className = "",
+  color,
+  children,
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill={filled ? color || "currentColor" : "none"}
+    stroke={color || "currentColor"}
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={`${className} ${filled ? (color ? "" : "dark:invert") : ""}`}
+  >
+    {children}
+  </svg>
+);
+
+export const Echo: FC<IconProps> = (props) => (
+  <IconWrapper {...props}>
+    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+  </IconWrapper>
+);
+
+export const EchoOut: FC<IconProps> = (props) => (
+  <IconWrapper {...props}>
+    <path d="m2 9 3-3 3 3" />
+    <path d="M13 18H7a2 2 0 0 1-2-2V6" />
+    <path d="m22 15-3 3-3-3" />
+    <path d="M11 6h6a2 2 0 0 1 2 2v10" />
+  </IconWrapper>
+);
+
+export const EchoBack: FC<IconProps> = (props) => (
+  <IconWrapper {...props}>
+    <path d="M21 11.5A8.38 8.38 0 0 0 18 5H6a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h1v3l3-3h5a8.38 8.38 0 0 0 6.31-2.62M8 9h8m-8 4h6" />
+  </IconWrapper>
+);
+
+export const Bookmark: FC<IconProps> = (props) => (
+  <IconWrapper {...props}>
+    <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+  </IconWrapper>
+);
 
 export const Icons = {
   twitter: (props: IconProps) => (

@@ -1,10 +1,15 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { formatNumber } from "@/lib/utils";
+import {
+  Echo,
+  EchoOut,
+  EchoBack,
+  Bookmark,
+} from "@/components/svg-icons/icons";
 
 interface MetricProps {
-  imgUrl: string;
+  icon: "echo" | "echoOut" | "echoBack" | "bookmark";
   alt: string;
   value?: number;
   href?: string;
@@ -12,53 +17,71 @@ interface MetricProps {
   textStyle?: string;
   isAuthor?: boolean;
   onClick?: () => void;
+  isFilled?: boolean;
+  color?: string;
 }
 
 const Metric: FC<MetricProps> = ({
-  imgUrl,
+  icon,
   alt,
   value,
   href,
+  title,
   textStyle,
   onClick,
+  isFilled = false,
+  color,
 }) => {
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
+      e.preventDefault();
       onClick();
     }
   };
 
+  const IconComponent = {
+    echo: Echo,
+    echoOut: EchoOut,
+    echoBack: EchoBack,
+    bookmark: Bookmark,
+  }[icon];
+
   const metricContent = (
-    <div
-      onClick={handleClick}
-      className="flex cursor-pointer gap-2 p-2 hover:rounded-full hover:bg-primary/30 hover:backdrop-blur-lg"
-    >
-      <Image
-        src={imgUrl}
-        alt={alt}
-        width={16}
-        height={16}
-        className={`object-contain invert ${href ? "size-[28px] rounded-full" : ""}`}
-      />
-      {value !== undefined && value > 0 && (
-        <p className={`${textStyle} flex items-center gap-1`}>
-          {formatNumber(value)}
-        </p>
-      )}
+    <div className="flex items-center gap-2">
+      <div className="rounded-full p-2 transition-colors hover:bg-primary/30 hover:backdrop-blur-lg">
+        <IconComponent
+          filled={isFilled}
+          className="size-4 shrink-0"
+          color={color}
+        />
+      </div>
+      <span className={`${textStyle} w-8 text-left`}>
+        {value !== undefined && value > 0 ? formatNumber(value) : ""}
+      </span>
     </div>
   );
 
   if (href) {
     return (
-      <Link href={href} className="flex items-center justify-center gap-1">
+      <Link
+        href={href}
+        onClick={handleClick}
+        className="flex items-center justify-center"
+        aria-label={`${title}: ${value || 0}`}
+      >
         {metricContent}
       </Link>
     );
   }
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-1">
+    <button
+      onClick={handleClick}
+      className="flex items-center justify-center"
+      aria-label={`${title}: ${value || 0}`}
+    >
       {metricContent}
-    </div>
+    </button>
   );
 };
 
