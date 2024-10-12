@@ -1,21 +1,34 @@
-import { Separator } from "@/components/ui/separator";
+import React from "react";
+import TrendingClient from "./TrendingClient";
 
-export function Trending() {
-  return (
-    <div className="rounded-lg border shadow-md">
-      <h2 className="border-b px-4 py-3 text-lg font-semibold">Most Viral</h2>
-      {[1, 2].map((value) => (
-        <div key={value}>
-          <div className="flex items-start justify-between gap-4 p-4 hover:bg-muted/50">
-            <strong className="text-base font-medium">Next.Js</strong>
-            <p className="text-sm text-gray-500">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Error,
-              unde.
-            </p>
-          </div>
-          {value < 2 && <Separator />}
-        </div>
-      ))}
-    </div>
-  );
+interface TrendingTopic {
+  title: string;
+  url: string;
+  hook: string;
+  engagementScore?: number;
 }
+
+async function getTrendingTopics(): Promise<TrendingTopic[]> {
+  const apiUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+  const fullUrl = `${apiUrl}/api/trendingTech`;
+  try {
+    const res = await fetch(fullUrl, { cache: "no-store" });
+    if (!res.ok) {
+      console.error("Response not OK:", res.status, res.statusText);
+      throw new Error(
+        `Failed to fetch trending topics: ${res.status} ${res.statusText}`
+      );
+    }
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching trending topics:", error);
+    throw error;
+  }
+}
+
+export async function Trending() {
+  const topics = await getTrendingTopics();
+  return <TrendingClient topics={topics} />;
+}
+
+export default Trending;
