@@ -155,6 +155,17 @@ export async function handlePulseLike(params: LikePulseParams) {
 			throw deleteError
 		  }
 	
+		  // Remove the notification for the unliked post
+		  const { error: deleteNotificationError } = await supabase.rpc('delete_user_notification', {
+			p_notification_type: 'liked',
+			p_related_post_id: postId,
+			p_user_id: userId
+		  })
+
+		  if (deleteNotificationError) {
+			throw deleteNotificationError
+		  }
+	
 		  const { count: updatedLikeCount, error: countError } = await supabase.from('likes').select('id', { count: 'exact' }).eq('post_id', postId)
 	
 		  if (countError) {
