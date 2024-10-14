@@ -1,8 +1,18 @@
 "use server";
 
+import { z } from 'zod';
 import unionBy from 'lodash.unionby';
 import { joinRequestParams } from "../types";
+import { profileFormSchema } from '../validation';
 import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from 'next/cache';
+
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
+type UpdateData = Partial<Omit<ProfileFormValues, 'country'>> & {
+  avatar_url?: string;
+  location?: number;
+  country?: { id: number };
+};
 
 export const checkUserIdentity = async () => {
   const supabase = createClient();
@@ -274,5 +284,80 @@ export async function getUsersInSameTeam() {
   } catch (error) {
     console.error("Error in getUsersInSameTeam:", error);
     return null;
+  }
+}
+
+export async function getProfileFormData() {
+  const supabase = createClient<Database>();
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      throw new Error("Error fetching user: " + error);
+    }
+    const userId = user?.id;
+
+    if (!userId) {
+      throw new Error("User not found");
+    }
+
+    const { data, error: profileError } = await supabase
+      .from('profile')
+      .select(`
+        name, 
+        username, 
+        avatar_url, 
+        bio, 
+        countries(id, name)
+      `)
+      .eq('id', userId)
+      .single();
+
+    if (profileError) {
+      throw new Error("Error fetching user profile: " + profileError.message);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error in getUsersInSameTeam:", error);
+    return null;
+  }
+}
+
+
+export async function updateProfile(updates: Partial<UpdateData>) {
+  const supabase = createClient<Database>();
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    throw new Error('User not found: ' + (userError?.message || 'Unknown error'))
+  }
+
+  const userUpdates: Partial<UpdateData> = {}
+
+  if (updates.name !== undefined) userUpdates.name = updates.name
+  if (updates.username !== undefined) userUpdates.username = updates.username
+  if (updates.bio !== undefined) userUpdates.bio = updates.bio
+  if (updates.avatar_url !== undefined) userUpdates.avatar_url = updates.avatar_url
+  if (updates.country?.id !== undefined) userUpdates.location = updates.country.id
+
+
+  // Only proceed with the update if there are changes
+  if (Object.keys(userUpdates).length > 0) {
+    const { error: profileError } = await supabase
+      .from('profile')
+      .update(userUpdates)
+      .eq('id', user.id)
+
+    if (profileError) {
+      throw new Error('Error updating profile table: ' + profileError.message)
+    }
+
+    revalidatePath('/settings/profile')
+    return { success: true, userUpdates }
+  } else {
+    return { success: false, message: 'No changes to update' }
   }
 }
