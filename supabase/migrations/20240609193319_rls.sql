@@ -80,6 +80,7 @@ create policy "Enable read access for all users" on "public"."user_role" as PERM
 
 -- Profile 
 create policy "Enable read access for users to read own data" on "public"."profile" as PERMISSIVE for SELECT to public using (  auth.uid() = id );
+CREATE policy "Allow users to update their own profile" on public.profile for update using (auth.uid() = id);
 
 
 -- Stack
@@ -199,10 +200,12 @@ USING (auth.uid() = user_id);
 alter policy "Enable read access for all users" on "public"."technologies" to public using ( true );
 
 
--- Select
-CREATE POLICY "Allow sleetc for owner of notifications" ON notification
+-- Notification
+CREATE POLICY "Allow select for owner of notifications" ON notification
 FOR SELECT
 USING (auth.uid() = related_user_id);
+
+create policy "Enable delete for users based on user_id" on "public"."notification" to public using ( (( SELECT auth.uid() AS uid) = user_id) );
 
 
 
@@ -227,3 +230,7 @@ create policy "Enable read access for all users" on "public"."follows" to public
 
 -- User Activity
 create policy "Enable insert for authenticated users only" on "public"."user_activity" to authenticated with check ( true );
+
+
+-- Countries
+create policy "Enable read access for all users" on "public"."countries" as PERMISSIVE for SELECT to public using ( true );

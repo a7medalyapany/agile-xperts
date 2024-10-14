@@ -584,6 +584,37 @@ $$;
 
 
 
+
+CREATE
+OR REPLACE FUNCTION delete_user_notification (
+  p_notification_type TEXT,
+  p_related_post_id BIGINT,
+  p_user_id uuid
+) RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+    -- Check if the notification exists for the user
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM notification 
+        WHERE notification_type = p_notification_type
+          AND related_post_id = p_related_post_id
+          AND user_id = p_user_id
+    ) THEN
+        RAISE EXCEPTION 'Notification not found or you do not have permission to delete it.';
+    END IF;
+
+    -- Perform the delete operation
+    DELETE FROM notification
+    WHERE notification_type = p_notification_type
+      AND related_post_id = p_related_post_id
+      AND user_id = p_user_id;
+
+    RAISE NOTICE 'Notification deleted successfully.';
+END;
+$$;
+
+
+
 CREATE OR REPLACE FUNCTION notify_on_like()
 RETURNS TRIGGER
 SECURITY DEFINER

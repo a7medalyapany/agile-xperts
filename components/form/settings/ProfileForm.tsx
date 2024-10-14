@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { CameraIcon, CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+import { useState, useEffect } from "react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { profileFormSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { CameraIcon, CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+
 import {
   Form,
   FormControl,
@@ -34,79 +35,98 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
 import { countries } from "@/constants";
 import { cn, getImageData } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-
+import { profileFormSchema } from "@/lib/validation";
+import { updateProfile } from "@/lib/actions/user.action";
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-const defaultValues: Partial<ProfileFormValues> = {
-  photo: undefined,
-  name: "",
-  username: "",
-  bio: "I own a computer.",
-  country: undefined,
-};
+interface ProfileFormProps {
+  User: {
+    name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+    bio: string | null;
+    countries: { id: number; name: string | null } | null;
+  };
+}
 
-export function ProfileForm() {
+export default function ProfileForm({ User }: ProfileFormProps) {
   const supabase = createClient();
-  const [preview, setPreview] = useState("");
+  const [preview, setPreview] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
+    defaultValues: {
+      photo: undefined,
+      name: User.name ?? undefined,
+      username: User.username ?? undefined,
+      bio: User.bio ?? undefined,
+      country: User.countries
+        ? { name: User.countries.name || undefined, id: User.countries.id }
+        : undefined,
+    },
   });
 
+  useEffect(() => {
+    if (User.avatar_url) {
+      setPreview(User.avatar_url);
+    }
+  }, [User.avatar_url]);
+
   async function onSubmit(data: ProfileFormValues) {
-    let publicUrl = null;
+    setIsUpdating(true);
     try {
-      setIsUpdating(true);
+      const changedData: Partial<ProfileFormValues> = {};
 
-      const file = data.photo;
+      // Check each field for changes
+      if (data.name !== User.name) changedData.name = data.name;
+      if (data.username !== User.username) changedData.username = data.username;
+      if (data.bio !== User.bio) changedData.bio = data.bio;
+      if (data.country?.id !== User.countries?.id)
+        changedData.country = data.country;
 
-      if (file) {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        const userId = user?.id;
-
-        const fileExt = file.name.split(".").pop();
-        const filePath = `${userId}-${Math.random()}.${fileExt}`;
-
-        const { data, error } = await supabase.storage
+      // Handle photo separately
+      let newAvatarUrl: string | undefined;
+      if (data.photo instanceof File) {
+        const { data: uploadData, error: uploadError } = await supabase.storage
           .from("avatars")
-          .upload(filePath, file);
+          .upload(`${User.username}-${Date.now()}`, data.photo);
 
-        if (error) {
-          throw new Error("Error uploading avatar: " + error.message);
-        }
+        if (uploadError)
+          throw new Error("Error uploading avatar: " + uploadError.message);
 
-        if (data) {
+        if (uploadData) {
           const {
-            data: { publicUrl: url },
-          } = supabase.storage.from("avatars").getPublicUrl(data.path);
-
-          publicUrl = url;
+            data: { publicUrl },
+          } = supabase.storage.from("avatars").getPublicUrl(uploadData.path);
+          newAvatarUrl = publicUrl;
         }
       }
-      console.log(publicUrl);
 
-      // await updateProfile(data.name, data.username, data.bio, data.country, publicUrl);
+      // Only update if there are changes
+      if (Object.keys(changedData).length > 0 || newAvatarUrl) {
+        const result = await updateProfile({
+          ...changedData,
+          avatar_url: newAvatarUrl,
+        });
+        if (result.success) {
+          console.log("here");
+          toast.success("Profile updated successfully");
+        }
+      } else {
+        console.log("here");
+        toast.warning("No changes to update");
+      }
     } catch (error) {
-      console.error(error);
+      console.log("here");
+      toast.error("Error updating profile");
     } finally {
+      console.log("here");
       setIsUpdating(false);
     }
-    // toast({
-    //   title: "You submitted the following values:",
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    // })
   }
 
   return (
@@ -129,7 +149,7 @@ export function ProfileForm() {
                         <CameraIcon className="size-8 text-primary drop-shadow-lg" />
                       </div>
                     </label>
-                    <AvatarImage src={preview} alt="profile photo" />
+                    <AvatarImage src={preview || ""} alt="profile photo" />
                   </Avatar>
                   <Input
                     id="fileInput"
@@ -168,6 +188,7 @@ export function ProfileForm() {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="username"
@@ -187,6 +208,7 @@ export function ProfileForm() {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="bio"
@@ -210,7 +232,7 @@ export function ProfileForm() {
 
         <FormField
           control={form.control}
-          name={"country"}
+          name="country"
           render={({ field }) => (
             <FormItem className="flex w-full flex-col text-start">
               <FormLabel>Country</FormLabel>
@@ -231,7 +253,7 @@ export function ProfileForm() {
                 <PopoverContent className="w-[200px] p-0">
                   <Command>
                     <CommandInput placeholder="Search country..." />
-                    <CommandEmpty>No Tech found.</CommandEmpty>
+                    <CommandEmpty>No country found.</CommandEmpty>
                     <CommandList>
                       <CommandGroup>
                         {countries.map((country) => (
