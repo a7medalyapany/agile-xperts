@@ -3,10 +3,12 @@
 import { z } from 'zod';
 import unionBy from 'lodash.unionby';
 import { joinRequestParams } from "../types";
-import { profileFormSchema } from '../validation';
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from 'next/cache';
+import { accountFormSchema, profileFormSchema } from '../validation';
 
+import { revalidatePath } from 'next/cache';
+import { createClient } from "@/lib/supabase/server";
+
+type AccountFormValues = z.infer<typeof accountFormSchema>
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 type UpdateData = Partial<Omit<ProfileFormValues, 'country'>> & {
   avatar_url?: string;
@@ -361,3 +363,87 @@ export async function updateProfile(updates: Partial<UpdateData>) {
     return { success: false, message: 'No changes to update' }
   }
 }
+
+export async function getAccountFormData() {
+  const supabase = createClient<Database>();
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      throw new Error("Error fetching user: " + error);
+    }
+    const userId = user?.id;
+
+    if (!userId) {
+      throw new Error("User not found");
+    }
+
+    const { data, error: profileError } = await supabase
+      .from('profile')
+      .select(`
+        id,
+        about_me, 
+        skills
+      `)
+      .eq('id', userId)
+      .single();
+
+    if (profileError) {
+      throw new Error("Error fetching user profile: " + profileError.message);
+    }
+
+    const { data: socialAccounts, error: socialError } = await supabase
+    .from('social_media')
+    .select('id, platform, account_link')
+    .eq('user_id', userId);
+
+    if (socialError) {
+      throw new Error("Error fetching user social media accounts: " + socialError.message);
+    }
+
+    return { profile: data, socialAccounts };
+  } catch (error) {
+    console.error("Error in getUsersInSameTeam:", error);
+    return null;
+  }
+}
+
+export async function updateAccountForm(formData: AccountFormValues) {
+  const supabase = createClient<Database>();
+
+  try {
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error('User not found: ' + (userError?.message || 'Unknown error'));
+    }
+
+
+    // Start a transaction to update the profile and social media
+    const { data, error } = await supabase.rpc('update_profile_and_social_media', {
+      p_user_id: user.id,
+      p_about_me: formData.aboutMe ?? '',
+      p_skills: formData.skills ?? [],
+      p_social_media: (formData.urls ?? []).map(url => ({
+        platform: url.platform,
+        account_link: url.value,
+      })),
+    });
+
+    if (error) {
+      throw new Error('Error updating profile: ' + error.message);
+    }
+
+    // Return success response
+    return { success: true, data };
+  } catch (err) {
+    console.error('An error occurred while updating the account:', err);
+
+    // Return an error response with the message
+    return { success: false, error: err instanceof Error ? err.message : 'An unknown error occurred' };
+  }
+}
+
