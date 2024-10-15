@@ -23,7 +23,11 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/svg-icons/icons";
 import { SubmitButton } from "./SubmitButton";
-import { signInWithGithub, signUp } from "@/lib/actions/auth.action";
+import {
+  checkUsernameUnique,
+  signInWithGithub,
+  signUp,
+} from "@/lib/actions/auth.action";
 
 interface SignUpFormProps {
   error: string;
@@ -31,6 +35,7 @@ interface SignUpFormProps {
 
 const SignUpForm: FC<SignUpFormProps> = ({ error }) => {
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof SignUpValidation>>({
     resolver: zodResolver(SignUpValidation),
@@ -43,7 +48,16 @@ const SignUpForm: FC<SignUpFormProps> = ({ error }) => {
 
   async function onSubmit(values: z.infer<typeof SignUpValidation>) {
     setIsCreatingUser(true);
+    setUsernameError(null);
+
     try {
+      const isUnique = await checkUsernameUnique(values.username);
+      if (!isUnique) {
+        setUsernameError("Username is already taken");
+        setIsCreatingUser(false);
+        return;
+      }
+
       await signUp(values);
     } catch (error) {
       console.error(error);
@@ -113,6 +127,9 @@ const SignUpForm: FC<SignUpFormProps> = ({ error }) => {
                   />
                 </FormControl>
                 <FormMessage />
+                {usernameError && (
+                  <p className="text-sm text-destructive">{usernameError}</p>
+                )}
               </FormItem>
             )}
           />

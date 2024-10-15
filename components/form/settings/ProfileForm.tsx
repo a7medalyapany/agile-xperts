@@ -40,6 +40,8 @@ import { cn, getImageData } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { profileFormSchema } from "@/lib/validation";
 import { updateProfile } from "@/lib/actions/user.action";
+import { checkUsernameUnique } from "@/lib/actions/auth.action";
+
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 interface ProfileFormProps {
@@ -56,6 +58,7 @@ export default function ProfileForm({ User }: ProfileFormProps) {
   const supabase = createClient();
   const [preview, setPreview] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -78,12 +81,22 @@ export default function ProfileForm({ User }: ProfileFormProps) {
 
   async function onSubmit(data: ProfileFormValues) {
     setIsUpdating(true);
+    setUsernameError(null);
     try {
       const changedData: Partial<ProfileFormValues> = {};
 
       // Check each field for changes
       if (data.name !== User.name) changedData.name = data.name;
-      if (data.username !== User.username) changedData.username = data.username;
+      if (data.username !== User.username) {
+        // Check if the new username is unique
+        const isUnique = await checkUsernameUnique(data.username);
+        if (!isUnique) {
+          setUsernameError("This username is already taken");
+          setIsUpdating(false);
+          return;
+        }
+        changedData.username = data.username;
+      }
       if (data.bio !== User.bio) changedData.bio = data.bio;
       if (data.country?.id !== User.countries?.id)
         changedData.country = data.country;
@@ -113,18 +126,14 @@ export default function ProfileForm({ User }: ProfileFormProps) {
           avatar_url: newAvatarUrl,
         });
         if (result.success) {
-          console.log("here");
           toast.success("Profile updated successfully");
         }
       } else {
-        console.log("here");
         toast.warning("No changes to update");
       }
     } catch (error) {
-      console.log("here");
       toast.error("Error updating profile");
     } finally {
-      console.log("here");
       setIsUpdating(false);
     }
   }
@@ -205,6 +214,9 @@ export default function ProfileForm({ User }: ProfileFormProps) {
                 Your username will be shown to others.
               </FormDescription>
               <FormMessage />
+              {usernameError && (
+                <p className="text-sm text-destructive">{usernameError}</p>
+              )}
             </FormItem>
           )}
         />
