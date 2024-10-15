@@ -37,7 +37,12 @@ export const GitHubForm: FC<GitHubFormProps> = ({ githubUsername }) => {
       <form className="space-y-6">
         <div className="space-y-1">
           <Label>Token</Label>
-          <Input name="token" />
+          <Input
+            name="token"
+            readOnly
+            disabled={true}
+            value={"This feature is not implemented yet."}
+          />
           <p className={"text-sm text-muted-foreground"}>
             You can genrate custom token with scope
             <span className="mx-1 whitespace-nowrap rounded-xl bg-destructive/40 px-2 font-bold">
