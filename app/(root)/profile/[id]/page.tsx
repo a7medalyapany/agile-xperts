@@ -44,7 +44,7 @@ const Page: FC<pageProps> = async (data) => {
       </div>
 
       {aboutMe && <AboutMe aboutMe={aboutMe!} />}
-      {skills && <Skills skills={skills!} />}
+      {skills && skills.length > 0 && <Skills skills={skills!} />}
 
       <UserProjects userId={userId} />
     </main>

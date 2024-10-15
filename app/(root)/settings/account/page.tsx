@@ -1,7 +1,9 @@
 import { Separator } from "@/components/ui/separator";
-import { AccountForm } from "@/components/form/settings/AccountForm";
+import AccountForm from "@/components/form/settings/AccountForm";
+import { getAccountFormData } from "@/lib/actions/user.action";
 
-export default function SettingsAccountPage() {
+export default async function SettingsAccountPage() {
+  const data = await getAccountFormData();
   return (
     <div className="space-y-6">
       <div>
@@ -11,7 +13,7 @@ export default function SettingsAccountPage() {
         </p>
       </div>
       <Separator />
-      <AccountForm />
+      {data && <AccountForm userData={data} />}
     </div>
   );
 }

@@ -14,6 +14,7 @@ ALTER TABLE public.countries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_role ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_level ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.technology ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.social_media ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notification ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.technologies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_activity ENABLE ROW LEVEL SECURITY;
@@ -76,15 +77,15 @@ CREATE POLICY "sender can delete" ON public.request FOR DELETE USING( auth.uid()
 
 
 -- User Role 
-create policy "Enable read access for all users" on "public"."user_role" as PERMISSIVE for SELECT to public using ( true );
+create policy "Enable read access for all users" on public.user_role as PERMISSIVE for SELECT to public using ( true );
 
 -- Profile 
-create policy "Enable read access for users to read own data" on "public"."profile" as PERMISSIVE for SELECT to public using (  auth.uid() = id );
+create policy "Enable read access for users to read own data" on public.profile as PERMISSIVE for SELECT to public using (  auth.uid() = id );
 CREATE policy "Allow users to update their own profile" on public.profile for update using (auth.uid() = id);
 
 
 -- Stack
-alter policy "Enable read access for all users" on "public"."stack" for SELECT to public using ( true );
+alter policy "Enable read access for all users" on public.stack for SELECT to public using ( true );
 
 -- Member
 
@@ -197,7 +198,7 @@ USING (auth.uid() = user_id);
 
 
 -- Select all technologies
-alter policy "Enable read access for all users" on "public"."technologies" to public using ( true );
+alter policy "Enable read access for all users" on public.technologies to public using ( true );
 
 
 -- Notification
@@ -205,7 +206,7 @@ CREATE POLICY "Allow select for owner of notifications" ON notification
 FOR SELECT
 USING (auth.uid() = related_user_id);
 
-create policy "Enable delete for users based on user_id" on "public"."notification" to public using ( (( SELECT auth.uid() AS uid) = user_id) );
+create policy "Enable delete for users based on user_id" on public.notification to public using ( (( SELECT auth.uid() AS uid) = user_id) );
 
 
 
@@ -225,12 +226,23 @@ select
     auth.uid () = followe_id
   );
 
-create policy "Enable read access for all users" on "public"."follows" to public using ( true );
+create policy "Enable read access for all users" on public.follows to public using ( true );
 
 
 -- User Activity
-create policy "Enable insert for authenticated users only" on "public"."user_activity" to authenticated with check ( true );
+create policy "Enable insert for authenticated users only" on public.user_activity to authenticated with check ( true );
 
 
 -- Countries
-create policy "Enable read access for all users" on "public"."countries" as PERMISSIVE for SELECT to public using ( true );
+create policy "Enable read access for all users" on public.countries as PERMISSIVE for SELECT to public using ( true );
+
+
+
+-- Social Media
+create policy "Enable delete for users based on user_id" on public.social_media to public using ( (( SELECT auth.uid() AS uid) = user_id) );
+
+create policy "Enable insert for authenticated users only" on public.social_media to authenticated with check ( true );
+
+create policy "Enable read access for all users" on public.social_media as PERMISSIVE for SELECT to public using ( true );
+
+create policy "user update their own rows" on public.social_media to public using ( (user_id = auth.uid()) );

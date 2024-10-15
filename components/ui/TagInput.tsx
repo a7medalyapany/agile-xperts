@@ -83,7 +83,7 @@ const TagInput: React.FC<KeywordsInputProps> = ({
           <Button
             key={index}
             onClick={() => removeKeyword(index)}
-            className="m-1 flex items-center border-2 bg-background px-2 py-1 text-xs text-foreground hover:border-destructive hover:bg-card"
+            className="m-1 flex items-center rounded-lg border-2 bg-background px-2 py-1 text-xs text-foreground hover:border-destructive hover:bg-card"
           >
             {keyword}
             <X size={14} className="ml-2 cursor-pointer" />

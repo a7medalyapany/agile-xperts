@@ -11,7 +11,7 @@ interface SocialAccountsProps {
   socialMedia: socialMediaAccounts[];
 }
 
-const platformIcons: { [key: string]: JSX.Element } = {
+export const platformIcons: { [key: string]: JSX.Element } = {
   Google: <Icons.google className="size-4" />,
   LinkedIn: <Icons.linkedIn className="size-3" />,
   X: <Icons.twitter className="size-4 dark:invert" />,

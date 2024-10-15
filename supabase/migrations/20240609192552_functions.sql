@@ -995,3 +995,40 @@ CREATE TRIGGER after_user_reply
 AFTER INSERT ON public.reply
 FOR EACH ROW
 EXECUTE FUNCTION track_user_activity();
+
+
+
+CREATE OR REPLACE FUNCTION update_profile_and_social_media(
+  p_user_id UUID,
+  p_about_me TEXT,
+  p_skills VARCHAR[],
+  p_social_media JSON  -- Changed from JSON[]
+) RETURNS VOID AS $$
+DECLARE
+  social_media_item JSON;
+BEGIN
+  -- Update profile
+  UPDATE public.profile
+  SET 
+    about_me = COALESCE(p_about_me, about_me),
+    skills = COALESCE(p_skills, skills),
+    updated_at = NOW()
+  WHERE id = p_user_id;
+
+  -- Delete existing social media entries only if new entries are provided
+  IF p_social_media IS NOT NULL THEN
+    DELETE FROM public.social_media WHERE user_id = p_user_id;
+  END IF;
+
+  -- Insert new social media entries
+  FOR social_media_item IN SELECT * FROM json_array_elements(p_social_media)
+  LOOP
+    INSERT INTO public.social_media (user_id, platform, account_link)
+    VALUES (
+      p_user_id,
+      (social_media_item->>'platform')::public.social_media_platform,
+      social_media_item->>'account_link'
+    );
+  END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
