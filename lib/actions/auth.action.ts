@@ -216,3 +216,21 @@ export const changeEmailPassword = async (params: PasswordChangeParams) => {
     return redirect("/");
   }
 };
+
+
+export async function checkUsernameUnique(username: string): Promise<boolean> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('public_profile_view')
+    .select('username')
+    .eq('username', username)
+    .maybeSingle()
+  
+
+  if (error) {
+    console.error('Error checking username:', error)
+    return false
+  }
+
+  return data === null
+}
