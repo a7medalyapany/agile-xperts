@@ -1,7 +1,6 @@
 "use server";
 
 import { z } from 'zod';
-import unionBy from 'lodash.unionby';
 import { joinRequestParams } from "../types";
 import { accountFormSchema, profileFormSchema } from '../validation';
 
@@ -244,10 +243,7 @@ export async function fetchRecentUsers(numUsers: number) {
 export async function getUsersInSameTeam() {
   const supabase = createClient<Database>();
   try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
+    const { data: { user }, error } = await supabase.auth.getUser();
     if (error) {
       throw new Error("Error fetching user: " + error);
     }
@@ -257,12 +253,9 @@ export async function getUsersInSameTeam() {
       throw new Error("User not found");
     }
 
-    const { data, error: rpcError } = await supabase.rpc(
-      "get_users_in_same_team",
-      {
-        p_user_id: userId,
-      }
-    );
+    const { data, error: rpcError } = await supabase.rpc("get_users_in_same_team", {
+      p_user_id: userId,
+    });
 
     if (rpcError) {
       throw new Error("Error executing RPC: " + rpcError.message);
@@ -274,10 +267,15 @@ export async function getUsersInSameTeam() {
       const restOfUsers = await fetchRecentUsers(10 - numberOfRows);
 
       if (restOfUsers) {
-        const _combinedUsers = unionBy(data, restOfUsers, "user_id");
-        const combinedUsers = _combinedUsers.filter(
-          (user) => user.user_id !== userId
-        );
+        const map = new Map();
+        // Add users from the first array
+        data.forEach(user => map.set(user.user_id, user));
+        // Add users from the second array (restOfUsers) and skip duplicates
+        restOfUsers.forEach(user => map.set(user.user_id, user));
+        
+        // Convert the Map back to an array and filter out the current user
+        const combinedUsers = Array.from(map.values()).filter(user => user.user_id !== userId);
+
         return combinedUsers;
       }
     }
@@ -288,6 +286,7 @@ export async function getUsersInSameTeam() {
     return null;
   }
 }
+
 
 export async function getProfileFormData() {
   const supabase = createClient<Database>();
