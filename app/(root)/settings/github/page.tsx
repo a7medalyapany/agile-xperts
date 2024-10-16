@@ -12,7 +12,7 @@ interface pageProps extends URLProps {}
 const Page: FC<pageProps> = async ({ searchParams }) => {
   const { identitiesNumber, hasGitHubIdentity, githubUsername } =
     await checkUserIdentity();
-  const errorMessages = searchParams.message;
+  const errorMessages = searchParams?.message;
   return (
     <div className="space-y-4">
       <div>
