@@ -7,20 +7,22 @@ interface ProfileStatusProps {
   githubUsername?: string;
   strakPoints: number;
   level: number;
+  userRole: string;
 }
 
 const ProfileStatus: FC<ProfileStatusProps> = ({
   level,
   strakPoints,
   githubUsername,
+  userRole = "normal",
 }) => {
+  const role = userRole!.charAt(0).toUpperCase() + userRole.slice(1);
   const stats = `https://github-readme-stats.vercel.app/api?username=${githubUsername}&hide_title=true&hide_border=true&theme=transparent&show=reviews,discussions_started,prs_merged,prs_merged_percentage&hide=issues,discussions_started&show_icons=true`;
-
   return (
     <Card className="grow drop-shadow-md">
       <CardHeader className="py-3 pl-4">
         <div className="w-fit rounded-lg bg-primary px-4">
-          <p className="text-sm font-bold text-primary-foreground">Pro</p>
+          <p className="text-sm font-bold text-primary-foreground">{role}</p>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col items-start gap-2 pb-2 pl-4">

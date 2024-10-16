@@ -6,7 +6,11 @@ import ProfileStatus from "@/components/card/ProfileStatus";
 import SocialAccounts from "@/components/card/SocialAccounts";
 import MostUsedLanguage from "@/components/card/MostUsedLanguage";
 
-import { getUserById, getUserSocialMedia } from "@/lib/actions/user.action";
+import {
+  getUserById,
+  getUserRoleById,
+  getUserSocialMedia,
+} from "@/lib/actions/user.action";
 import { getGitHubUsername } from "@/lib/utils";
 
 interface pageProps {
@@ -19,6 +23,7 @@ const Page: FC<pageProps> = async (data) => {
   const userId = data.params.id;
   const socialMedia = await getUserSocialMedia(userId);
   const githubUsername = getGitHubUsername(socialMedia);
+  const userRole = await getUserRoleById(userId);
 
   const {
     streak_points: strakPoints,
@@ -40,6 +45,7 @@ const Page: FC<pageProps> = async (data) => {
           githubUsername={githubUsername!}
           strakPoints={strakPoints!}
           level={level!}
+          userRole={userRole.role}
         />
       </div>
 
