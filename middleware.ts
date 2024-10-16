@@ -84,7 +84,8 @@ export const config = {
   matcher: [
     '/profile',
     '/bookmarks',
-    '/settings', // make sure to add the settings pages *
+    '/activity',
+    '/settings/:path*',
     '/create-project',
     '/settings/security',
     '/settings/security/github',
