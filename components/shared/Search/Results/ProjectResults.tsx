@@ -27,6 +27,7 @@ const ProjectResults: FC<ProjectResultsProps> = ({ query }) => {
     };
 
     fetchProjects();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, searchParams]);
 
   if (loading) return <div>Loading...</div>;

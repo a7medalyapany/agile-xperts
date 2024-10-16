@@ -18,6 +18,7 @@ export function DataTablePagination<TData>({
 }: DataTablePaginationProps<TData>) {
   useEffect(() => {
     table.setPageSize(5);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <div className="flex items-center justify-center px-2">
