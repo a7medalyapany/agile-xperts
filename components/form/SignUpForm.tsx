@@ -71,12 +71,12 @@ const SignUpForm: FC<SignUpFormProps> = ({ error }) => {
         href="/login"
         className={cn(
           buttonVariants({ variant: "ghost" }),
-          "absolute right-4 top-4 md:right-8 md:top-8"
+          "absolute text-foreground right-4 top-4 md:right-8 md:top-8"
         )}
       >
         Login
       </Link>
-      <h1 className="text-3xl font-bold">Create an account</h1>
+      <h1 className="text-3xl font-bold text-foreground">Create an account</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 ">
           <FormField
