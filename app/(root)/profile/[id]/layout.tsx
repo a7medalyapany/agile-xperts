@@ -1,13 +1,15 @@
 import React, { FC } from "react";
-import { URLProps } from "@/types";
 import Profile from "@/components/shared/profile/Profile";
 import ProfileTabs from "@/components/shared/profile/ProfileTabs";
 import { Separator } from "@/components/ui/separator";
 import { Trending } from "@/components/card/RecommendationSideBar/trending";
 import { UserYouMayKnow } from "@/components/card/RecommendationSideBar/UserYouMayKnow";
 
-interface layoutProps extends URLProps {
+interface layoutProps {
   children: React.ReactNode;
+  params: {
+    id: string;
+  };
 }
 
 const Layout: FC<layoutProps> = ({ children, params }) => {
