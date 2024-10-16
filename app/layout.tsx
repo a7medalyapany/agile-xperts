@@ -6,8 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({ subsets: ["latin"] });
-const urlString =
-  `https://${process.env.NEXT_PUBLIC_BASE_URL}` || "http://localhost:3000";
+const urlString = `${process.env.NEXT_PUBLIC_BASE_URL}`;
 const urlObject = new URL(urlString);
 
 export const metadata: Metadata = {

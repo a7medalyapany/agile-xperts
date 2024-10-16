@@ -10,7 +10,7 @@ interface TrendingTopic {
 
 async function getTrendingTopics(): Promise<TrendingTopic[]> {
   const apiUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
-  const fullUrl = `https://${apiUrl}/api/trendingTech`;
+  const fullUrl = `${apiUrl}/api/trendingTech`;
   try {
     const res = await fetch(fullUrl, { cache: "no-store" });
     if (!res.ok) {
