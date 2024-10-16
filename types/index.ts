@@ -81,7 +81,7 @@ export interface IPostPulse {
 
 export interface URLProps {
 	params: { id: string };
-	searchParams: { [key: string]: string | undefined };
+	searchParams?: { [key: string]: string | undefined };
 }
 
 export interface FormatDateTypes {
