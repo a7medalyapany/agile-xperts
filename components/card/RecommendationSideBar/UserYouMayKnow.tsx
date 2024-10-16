@@ -39,7 +39,6 @@ export async function UserYouMayKnow() {
             </div>
           </Link>
           <FollowButton
-            Following={false}
             userId={userId}
             targetUserId={user.user_id}
             className="h-fit min-w-[100px] rounded-full px-3 py-1.5 text-sm font-medium"
