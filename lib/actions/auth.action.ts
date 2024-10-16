@@ -128,11 +128,12 @@ export const UnLinkGitHub = async (path: string) => {
 
 export async function resetPassword() {
   const supabase = createClient();
+  const origin = process.env.NEXT_PUBLIC_BASE_URL;
   const { email } = await getCurrentUser();
   const { data, error } = await supabase.auth.resetPasswordForEmail(
     email ?? "",
     {
-      redirectTo: "http://localhost:3000/settings/security/github", // Update the redirect URL
+      redirectTo: `${origin}/settings/security/github`,
     }
   );
 
