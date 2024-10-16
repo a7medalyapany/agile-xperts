@@ -76,6 +76,7 @@ const Page: FC<pageProps> = async () => {
           members={members}
           stack={stack}
           owner={owner}
+          currentUserId={authUser.id}
         />
       )}
     </main>
