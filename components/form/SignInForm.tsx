@@ -73,7 +73,7 @@ const SignInForm: FC<SignInFormProps> = ({ error }) => {
                   <Input
                     type="email"
                     placeholder="Email"
-                    className="bg-transparent"
+                    className="bg-transparent text-foreground"
                     {...field}
                   />
                 </FormControl>
@@ -90,7 +90,7 @@ const SignInForm: FC<SignInFormProps> = ({ error }) => {
                   <Input
                     type="password"
                     placeholder="Password"
-                    className="bg-transparent"
+                    className="bg-transparent text-foreground"
                     {...field}
                   />
                 </FormControl>
