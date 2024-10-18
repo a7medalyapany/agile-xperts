@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { searchUsers } from "@/lib/actions/search.action";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserResultsProps {
   userId: string | null;
@@ -23,7 +24,21 @@ const UserResults: FC<UserResultsProps> = ({ userId, query }) => {
     fetchUsers();
   }, [query]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        {[...Array(9)].map((_, index) => (
+          <div
+            key={index}
+            className="flex flex-col items-center gap-4 rounded border p-4 drop-shadow-lg"
+          >
+            <Skeleton className="size-28 rounded-full" />
+            <Skeleton className="h-7 w-36 rounded-lg" />
+            <Skeleton className="h-5 w-20 rounded-lg" />
+          </div>
+        ))}
+      </div>
+    );
   return (
     <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
       {users?.map((user, index) => (

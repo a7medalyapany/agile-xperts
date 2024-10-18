@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import LobbyProject from "@/components/card/LobbyProject";
 import { searchProjects } from "@/lib/actions/search.action";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProjectResultsProps {
   query: string;
@@ -30,7 +31,25 @@ const ProjectResults: FC<ProjectResultsProps> = ({ query }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, searchParams]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="grid w-full flex-1 grid-cols-1 gap-6 md:grid-cols-2">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="space-y-4 rounded-lg border p-4">
+            <Skeleton className="h-40 w-full rounded-md" />
+            <Skeleton className="h-6 w-1/2" />
+            <div className="flex items-center justify-between">
+              <Skeleton className="size-8 rounded-full" />
+              <Skeleton className="h-8 w-20 rounded-md" />
+            </div>
+            <div className="flex items-center justify-between text-sm text-gray-400">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-20" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   return (
     <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
       {projects?.map((project: any) => (
