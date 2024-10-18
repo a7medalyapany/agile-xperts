@@ -263,8 +263,8 @@ export async function getUsersInSameTeam() {
 
     const numberOfRows = data?.length ?? 0;
 
-    if (numberOfRows < 10) {
-      const restOfUsers = await fetchRecentUsers(10 - numberOfRows);
+    if (numberOfRows < 3) {
+      const restOfUsers = await fetchRecentUsers(3 - numberOfRows);
 
       if (restOfUsers) {
         const map = new Map();
