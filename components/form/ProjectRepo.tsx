@@ -69,7 +69,7 @@ const ProjectRepo: FC<ProjectRepoProps> = ({ technologies }) => {
       teamName: "",
       description: "",
       private: false,
-      title: "Agile Xperts",
+      title: "",
       technologies: [
         {
           name: "",
