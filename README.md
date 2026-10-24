@@ -7,7 +7,7 @@
          width="25%">
 </picture>
 
-[Website](https://agilexperts.me) | [Why Agile Xperts](#features) | [Getting Started](#installation) | [Contributing](#contributing)
+[Website](https://www.agilexperts.tech/) | [Why Agile Xperts](#features) | [Getting Started](#installation) | [Contributing](#contributing)
 
 </div>
 
